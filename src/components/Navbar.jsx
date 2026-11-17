@@ -1,12 +1,13 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../images/logo.png";
 
 const Navbar = ({ activePage = "home", cartCount = 0 }) => {
   return (
     <nav className="navbar">
       {/* --- LOGO BRAND --- */}
-      <a
-        href="#home"
+      <Link
+        to="/home"
         style={{
           display: "flex",
           alignItems: "center",
@@ -55,59 +56,59 @@ const Navbar = ({ activePage = "home", cartCount = 0 }) => {
             FOOD & ACCESSORIES
           </span>
         </div>
-      </a>
+      </Link>
 
       {/* --- MENU PILL --- */}
       <div className="nav-menu-pill">
-        <a
-          href="#home"
+        <Link
+          to="/home"
           className={`nav-menu-link ${activePage === "home" ? "active" : ""}`}
         >
           Home
-        </a>
-        <a
-          href="#catalog"
+        </Link>
+        <Link
+          to="/catalog"
           className={`nav-menu-link ${activePage === "catalog" ? "active" : ""}`}
         >
           Catalog
-        </a>
-        <a
-          href="#services"
+        </Link>
+        <Link
+          to="/services"
           className={`nav-menu-link ${activePage === "services" ? "active" : ""}`}
         >
           Layanan
-        </a>
-        <a
-          href="#about"
+        </Link>
+        <Link
+          to="/about"
           className={`nav-menu-link ${activePage === "about" ? "active" : ""}`}
         >
           About
-        </a>
-        <a
-          href="#contact"
+        </Link>
+        <Link
+          to="/contact"
           className={`nav-menu-link ${activePage === "contact" ? "active" : ""}`}
         >
           Contact
-        </a>
+        </Link>
       </div>
 
       {/* --- ACTION BUTTONS --- */}
       <div className="nav-actions">
-        <a
-          href="#riwayat"
+        <Link
+          to="/riwayat"
           className={`nav-icon-circle ${activePage === "riwayat" ? "active" : ""}`}
           title="Riwayat & Review"
         >
           👤
-        </a>
-        <a
-          href="#cart"
+        </Link>
+        <Link
+          to="/cart"
           className={`nav-icon-circle ${activePage === "cart" ? "active" : ""}`}
           title="Keranjang Belanja"
         >
           🛒
           {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-        </a>
+        </Link>
       </div>
     </nav>
   );

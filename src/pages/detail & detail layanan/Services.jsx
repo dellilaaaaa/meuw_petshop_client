@@ -1,13 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const servicesStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (BERKELANJUTAN DR HOME & CATALOG)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -27,32 +24,16 @@ const servicesStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes modalPop {
-    from {
-      opacity: 0;
-      transform: scale(0.85) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.85) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -76,7 +57,6 @@ const servicesStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -92,7 +72,6 @@ const servicesStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -111,9 +90,7 @@ const servicesStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -153,11 +130,7 @@ const servicesStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -201,11 +174,7 @@ const servicesStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO TITLE --- */
-  .hero-section {
-    text-align: center;
-    margin-bottom: 2.2rem;
-  }
+  .hero-section { text-align: center; margin-bottom: 2.2rem; }
 
   .hero-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -227,7 +196,6 @@ const servicesStyles = `
     font-weight: 600;
   }
 
-  /* --- BENEFIT PILL BAR --- */
   .benefit-pill-bar {
     display: flex;
     justify-content: center;
@@ -256,7 +224,6 @@ const servicesStyles = `
     border-color: #F7ADAD;
   }
 
-  /* --- INFO & SCHEDULE BOXES --- */
   .info-boxes-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -273,10 +240,7 @@ const servicesStyles = `
     transition: all 0.35s ease;
   }
 
-  .info-card-rayo:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 14px 32px rgba(247, 173, 173, 0.22);
-  }
+  .info-card-rayo:hover { transform: translateY(-5px); box-shadow: 0 14px 32px rgba(247, 173, 173, 0.22); }
 
   .info-card-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -302,10 +266,7 @@ const servicesStyles = `
     padding: 8px 0;
   }
 
-  .schedule-list strong {
-    color: #4A3E3E;
-    font-weight: 800;
-  }
+  .schedule-list strong { color: #4A3E3E; font-weight: 800; }
 
   .terms-list {
     font-size: 0.88rem;
@@ -316,11 +277,8 @@ const servicesStyles = `
     font-weight: 600;
   }
 
-  .terms-list li {
-    margin-bottom: 0.6rem;
-  }
+  .terms-list li { margin-bottom: 0.6rem; }
 
-  /* --- FILTER CHIPS --- */
   .filter-sort-bar {
     display: flex;
     justify-content: space-between;
@@ -330,11 +288,7 @@ const servicesStyles = `
     gap: 1rem;
   }
 
-  .categories-chips {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
+  .categories-chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
   .chip-btn {
     background-color: #FFF;
@@ -357,7 +311,6 @@ const servicesStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.3);
   }
 
-  /* --- SERVICE GRID --- */
   .services-grid-rayo {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -365,10 +318,7 @@ const servicesStyles = `
     margin-bottom: 5rem;
   }
 
-  .card-rayo {
-    display: flex;
-    flex-direction: column;
-  }
+  .card-rayo { display: flex; flex-direction: column; }
 
   .card-image-box {
     position: relative;
@@ -415,20 +365,9 @@ const servicesStyles = `
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .card-rayo:hover .service-icon-display {
-    transform: scale(1.12) rotate(-5deg);
-  }
-
-  .card-details {
-    padding: 0 0.3rem;
-  }
-
-  .card-title-block {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 0.4rem;
-  }
+  .card-rayo:hover .service-icon-display { transform: scale(1.12) rotate(-5deg); }
+  .card-details { padding: 0 0.3rem; }
+  .card-title-block { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 0.4rem; }
 
   .card-service-name {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -439,19 +378,9 @@ const servicesStyles = `
     margin-bottom: 0.25rem;
   }
 
-  .card-service-price {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #F7ADAD;
-  }
+  .card-service-price { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.3rem; font-weight: 800; color: #F7ADAD; }
 
-  .card-bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.4rem;
-  }
+  .card-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
 
   .card-service-desc {
     font-size: 0.82rem;
@@ -484,7 +413,6 @@ const servicesStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.4);
   }
 
-  /* --- MODAL BOOKING --- */
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -530,24 +458,9 @@ const servicesStyles = `
     transition: all 0.25s ease;
   }
 
-  .modal-close:hover {
-    transform: rotate(90deg) scale(1.1);
-    background-color: #F7ADAD;
-    color: #FFF;
-  }
-
-  .modal-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.6rem;
-    color: #4A3E3E;
-    font-weight: 800;
-    margin-bottom: 0.3rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.1rem;
-    text-align: left;
-  }
+  .modal-close:hover { transform: rotate(90deg) scale(1.1); background-color: #F7ADAD; color: #FFF; }
+  .modal-title { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.6rem; color: #4A3E3E; font-weight: 800; margin-bottom: 0.3rem; }
+  .form-group { margin-bottom: 1.1rem; text-align: left; }
 
   .form-group label {
     display: block;
@@ -572,14 +485,8 @@ const servicesStyles = `
     transition: all 0.3s ease;
   }
 
-  .form-input:focus {
-    box-shadow: 0 4px 14px rgba(247, 173, 173, 0.25);
-  }
-
-  .form-row {
-    display: flex;
-    gap: 0.9rem;
-  }
+  .form-input:focus { box-shadow: 0 4px 14px rgba(247, 173, 173, 0.25); }
+  .form-row { display: flex; gap: 0.9rem; }
 
   .btn-submit {
     width: 100%;
@@ -604,7 +511,6 @@ const servicesStyles = `
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.5);
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -613,12 +519,7 @@ const servicesStyles = `
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
   }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -631,24 +532,9 @@ const servicesStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
-
-  .footer-col-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
-    color: #FFFDF6;
-  }
-
-  .footer-col-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
 
   .footer-col-list a {
     text-decoration: none;
@@ -661,19 +547,8 @@ const servicesStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
-
-  .newsletter-desc {
-    font-size: 0.88rem;
-    opacity: 0.92;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
   .newsletter-input {
     width: 100%;
@@ -689,13 +564,8 @@ const servicesStyles = `
     transition: border-color 0.3s ease;
   }
 
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.3);
@@ -819,7 +689,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
   const handleSubmitBooking = (e) => {
     e.preventDefault();
 
-    // Mengirimkan data booking ke state global di App.jsx jika ada
     if (onAddBooking && selectedLayanan) {
       onAddBooking({
         nama_layanan: selectedLayanan.nama_layanan,
@@ -835,7 +704,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
       `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil diajukan!\n\n` +
         `📅 Tanggal Mulai: ${bookingForm.tanggal_mulai} (${bookingForm.jam_mulai})\n` +
         `🏁 Tanggal Selesai: ${bookingForm.tanggal_selesai}\n` +
-        `📌 Status: MENUNGGU KONFIRMASI`,
+        `📌 Status: MENUNGGU KONFIRMASI`
     );
 
     setModalOpen(false);
@@ -851,26 +720,13 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     <>
       <style>{servicesStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
-        {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -894,78 +750,47 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
-              Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
-              Catalog
-            </a>
-            <a href="#services" className="nav-menu-link active">
-              Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
-              About
-            </a>
-            <a href="#contact" className="nav-menu-link">
-              Contact
-            </a>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link active">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
               👤
-            </a>
-            <a
-              href="#cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            </Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
-        {/* --- HERO TITLE --- */}
         <section className="hero-section">
           <h1 className="hero-title">LAYANAN & GROOMING ✂️</h1>
           <p className="hero-subtitle">
-            Manjakan anabul kesayanganmu dengan perawatan profesional, steril,
-            dan penuh kasih sayang!
+            Manjakan anabul kesayanganmu dengan perawatan profesional, steril, dan penuh kasih sayang!
           </p>
         </section>
 
-        {/* --- BENEFIT PILL BAR --- */}
         <div className="benefit-pill-bar">
           <div className="benefit-pill-item">🧼 Alat & Kandang Steril</div>
           <div className="benefit-pill-item">👨‍⚕️ Groomer Berpengalaman</div>
           <div className="benefit-pill-item">🌸 Shampoo Hypoallergenic</div>
         </div>
 
-        {/* --- INFO & SCHEDULE BOXES --- */}
         <section className="info-boxes-grid">
           <div className="info-card-rayo">
             <h3 className="info-card-title">Jadwal Operasional ⏰</h3>
             <ul className="schedule-list">
-              <li>
-                <span>Senin - Jumat</span>
-                <strong>09:00 - 19:00 WIB</strong>
-              </li>
-              <li>
-                <span>Sabtu - Minggu</span>
-                <strong>08:00 - 20:00 WIB</strong>
-              </li>
-              <li>
-                <span>Terakhir Grooming</span>
-                <strong>17:00 WIB</strong>
-              </li>
+              <li><span>Senin - Jumat</span><strong>09:00 - 19:00 WIB</strong></li>
+              <li><span>Sabtu - Minggu</span><strong>08:00 - 20:00 WIB</strong></li>
+              <li><span>Terakhir Grooming</span><strong>17:00 WIB</strong></li>
             </ul>
           </div>
 
@@ -979,7 +804,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           </div>
         </section>
 
-        {/* --- FILTER CHIPS --- */}
         <section className="filter-sort-bar">
           <div className="categories-chips">
             {categories.map((cat) => (
@@ -994,14 +818,10 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           </div>
         </section>
 
-        {/* --- SERVICE GRID --- */}
         <section className="services-grid-rayo">
           {filteredServices.map((item) => (
             <div key={item.id_layanan} className="card-rayo">
-              <div
-                className="card-image-box"
-                style={{ backgroundColor: item.bgColor }}
-              >
+              <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
                 <span className="card-tag-pill">{item.tag}</span>
                 <div className="service-icon-display">{item.icon}</div>
               </div>
@@ -1018,10 +838,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                   <p className="card-service-desc">
                     {item.deskripsi} ({item.estimasi})
                   </p>
-                  <button
-                    className="card-book-btn"
-                    onClick={() => handleOpenModal(item)}
-                  >
+                  <button className="card-book-btn" onClick={() => handleOpenModal(item)}>
                     BOOKING 📅
                   </button>
                 </div>
@@ -1030,16 +847,10 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           ))}
         </section>
 
-        {/* --- MODAL BOOKING --- */}
         {modalOpen && selectedLayanan && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <button
-                className="modal-close"
-                onClick={() => setModalOpen(false)}
-              >
-                ✕
-              </button>
+              <button className="modal-close" onClick={() => setModalOpen(false)}>✕</button>
               <h3 className="modal-title">Form Booking Layanan 🐾</h3>
               <p
                 style={{
@@ -1064,10 +875,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                       className="form-input"
                       value={bookingForm.tanggal_mulai}
                       onChange={(e) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          tanggal_mulai: e.target.value,
-                        })
+                        setBookingForm({ ...bookingForm, tanggal_mulai: e.target.value })
                       }
                     />
                   </div>
@@ -1080,10 +888,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                       className="form-input"
                       value={bookingForm.jam_mulai}
                       onChange={(e) =>
-                        setBookingForm({
-                          ...bookingForm,
-                          jam_mulai: e.target.value,
-                        })
+                        setBookingForm({ ...bookingForm, jam_mulai: e.target.value })
                       }
                     />
                   </div>
@@ -1097,10 +902,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                     className="form-input"
                     value={bookingForm.tanggal_selesai}
                     onChange={(e) =>
-                      setBookingForm({
-                        ...bookingForm,
-                        tanggal_selesai: e.target.value,
-                      })
+                      setBookingForm({ ...bookingForm, tanggal_selesai: e.target.value })
                     }
                   />
                 </div>
@@ -1113,7 +915,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           </div>
         )}
 
-        {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
           <div className="footer-grid">
             <div className="footer-brand">MEUW</div>
@@ -1121,48 +922,28 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#catalog">Catalog</a>
-                </li>
-                <li>
-                  <a href="#services">Layanan</a>
-                </li>
-                <li>
-                  <a href="#about">About</a>
-                </li>
-                <li>
-                  <a href="#contact">Contact</a>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
 

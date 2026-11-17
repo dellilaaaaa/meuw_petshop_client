@@ -57,22 +57,25 @@ export default function Register() {
 
       alert('Akun berhasil dibuat! Silakan Log In.');
       navigate('/login');
-    } catch (err) {
-        let message = err.message;
+    } catch (err) { //[cite: 2]
+        let message = err.message; //[cite: 2]
         
-        // Deteksi jika error disebabkan oleh Duplicate Key MongoDB
-        if (message.includes('E11000') || message.includes('duplicate key')) {
-          if (message.includes('no_telp')) {
-            message = 'Nomor telepon sudah terdaftar! Gunakan nomor telepon lain.';
-          } else if (message.includes('email')) {
-            message = 'Email sudah terdaftar! Gunakan email lain.';
-          } else {
-            message = 'Data sudah terdaftar dalam sistem.';
-          }
-        }
-        setErrorMsg(message);
-      }
+        // Deteksi jika error disebabkan oleh Duplicate Key MongoDB[cite: 2]
+        if (message.includes('E11000') || message.includes('duplicate key')) { //[cite: 2]
+          if (message.includes('no_telp')) { //[cite: 2]
+            message = 'Nomor telepon sudah terdaftar! Gunakan nomor telepon lain.'; //[cite: 2]
+          } else if (message.includes('email')) { //[cite: 2]
+            message = 'Email sudah terdaftar! Gunakan email lain.'; //[cite: 2]
+          } else { //[cite: 2]
+            message = 'Data sudah terdaftar dalam sistem.'; //[cite: 2]
+          } //[cite: 2]
+        } //[cite: 2]
+        setErrorMsg(message); //[cite: 2]
+    } finally {
+        setLoading(false); // Tambahkan ini agar tombol bisa diklik lagi jika error
+  }
   };
+  
 
   return (
     <div style={styles.body}>

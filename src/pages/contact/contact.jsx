@@ -1,13 +1,10 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const contactStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (KONSISTEN DI SEMUA HALAMAN)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -27,21 +24,11 @@ const contactStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -65,7 +52,6 @@ const contactStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -81,7 +67,6 @@ const contactStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -100,9 +85,7 @@ const contactStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -142,11 +125,7 @@ const contactStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -190,11 +169,7 @@ const contactStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO TITLE & BADGE --- */
-  .hero-section {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
+  .hero-section { text-align: center; margin-bottom: 3rem; }
 
   .badge-pill-center {
     display: inline-flex;
@@ -233,13 +208,7 @@ const contactStyles = `
     font-weight: 600;
   }
 
-  /* --- 4 CONTACT INFO CARDS GRID --- */
-  .contact-info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.8rem;
-    margin-bottom: 4rem;
-  }
+  .contact-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.8rem; margin-bottom: 4rem; }
 
   .info-card-item {
     background-color: #FFF;
@@ -254,10 +223,7 @@ const contactStyles = `
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .info-card-item:hover {
-    transform: translateY(-6px) rotate(1deg);
-    box-shadow: 0 16px 34px rgba(247, 173, 173, 0.22);
-  }
+  .info-card-item:hover { transform: translateY(-6px) rotate(1deg); box-shadow: 0 16px 34px rgba(247, 173, 173, 0.22); }
 
   .info-icon-box {
     width: 60px;
@@ -274,29 +240,10 @@ const contactStyles = `
     animation: floatCute 3.5s infinite ease-in-out;
   }
 
-  .info-card-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #4A3E3E;
-    margin-bottom: 0.4rem;
-  }
+  .info-card-title { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.4rem; font-weight: 800; color: #4A3E3E; margin-bottom: 0.4rem; }
+  .info-card-text { font-size: 0.92rem; color: #665959; line-height: 1.55; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
-  .info-card-text {
-    font-size: 0.92rem;
-    color: #665959;
-    line-height: 1.55;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
-  /* --- SECTION PESAN & PETA --- */
-  .interactive-contact-section {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 2.2rem;
-    margin-bottom: 5rem;
-  }
+  .interactive-contact-section { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.2rem; margin-bottom: 5rem; }
 
   .message-form-card {
     background-color: #FFF;
@@ -316,9 +263,7 @@ const contactStyles = `
     padding-bottom: 0.6rem;
   }
 
-  .form-group {
-    margin-bottom: 1.1rem;
-  }
+  .form-group { margin-bottom: 1.1rem; }
 
   .form-group label {
     display: block;
@@ -343,15 +288,8 @@ const contactStyles = `
     transition: all 0.3s ease;
   }
 
-  .form-textarea {
-    resize: none;
-    height: 110px;
-  }
-
-  .form-input:focus, .form-textarea:focus {
-    box-shadow: 0 4px 14px rgba(247, 173, 173, 0.25);
-    background-color: #FFF;
-  }
+  .form-textarea { resize: none; height: 110px; }
+  .form-input:focus, .form-textarea:focus { box-shadow: 0 4px 14px rgba(247, 173, 173, 0.25); background-color: #FFF; }
 
   .btn-submit-contact {
     width: 100%;
@@ -375,7 +313,6 @@ const contactStyles = `
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.4);
   }
 
-  /* --- MAP PREVIEW BOX --- */
   .map-box-container {
     background-color: #FFF;
     border: 2px solid #F7ADAD;
@@ -422,12 +359,8 @@ const contactStyles = `
     margin-top: 1rem;
   }
 
-  .wa-quick-btn:hover {
-    transform: translateY(-3px) scale(1.03);
-    box-shadow: 0 10px 24px rgba(37, 211, 102, 0.5);
-  }
+  .wa-quick-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 10px 24px rgba(37, 211, 102, 0.5); }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -436,12 +369,7 @@ const contactStyles = `
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
   }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -454,24 +382,9 @@ const contactStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
-
-  .footer-col-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
-    color: #FFFDF6;
-  }
-
-  .footer-col-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
 
   .footer-col-list a {
     text-decoration: none;
@@ -484,19 +397,8 @@ const contactStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
-
-  .newsletter-desc {
-    font-size: 0.88rem;
-    opacity: 0.92;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
   .newsletter-input {
     width: 100%;
@@ -512,13 +414,8 @@ const contactStyles = `
     transition: border-color 0.3s ease;
   }
 
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.3);
@@ -533,8 +430,7 @@ const contactStyles = `
   }
 
   @media (max-width: 850px) {
-    .contact-info-grid { grid-template-columns: 1fr; }
-    .interactive-contact-section { grid-template-columns: 1fr; }
+    .contact-info-grid, .interactive-contact-section { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
@@ -556,7 +452,7 @@ const Contact = ({ cartCount = 0 }) => {
   const handleSubmitPesan = (e) => {
     e.preventDefault();
     alert(
-      `💖 Terima kasih ${formData.nama}!\n\nPesan kamu telah terkirim. Tim MEUW Petshop akan membalas ke email (${formData.email}) sesegera mungkin! 🐾`,
+      `💖 Terima kasih ${formData.nama}!\n\nPesan kamu telah terkirim. Tim MEUW Petshop akan membalas ke email (${formData.email}) sesegera mungkin! 🐾`
     );
     setFormData({ nama: "", email: "", pesan: "" });
   };
@@ -565,26 +461,13 @@ const Contact = ({ cartCount = 0 }) => {
     <>
       <style>{contactStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
-        {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -608,46 +491,27 @@ const Contact = ({ cartCount = 0 }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
-              Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
-              Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
-              Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
-              About
-            </a>
-            <a href="#contact" className="nav-menu-link active">
-              Contact
-            </a>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link active">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
               👤
-            </a>
-            <a
-              href="#cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            </Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
-        {/* --- HERO TITLE --- */}
         <section className="hero-section">
           <div className="badge-pill-center">
             <span>KONTAK</span>
@@ -655,24 +519,19 @@ const Contact = ({ cartCount = 0 }) => {
           </div>
           <h1 className="hero-title">HUBUNGI KAMI 📞</h1>
           <p className="hero-subtitle">
-            Untuk informasi lebih lanjut, bantuan produk, atau booking layanan
-            grooming, hubungi kami:
+            Untuk informasi lebih lanjut, bantuan produk, atau booking layanan grooming, hubungi kami:
           </p>
         </section>
 
-        {/* --- 4 CONTACT INFO CARDS GRID --- */}
         <section className="contact-info-grid">
-          {/* CARD 1: ALAMAT */}
           <div className="info-card-item">
             <div className="info-icon-box">📍</div>
             <h3 className="info-card-title">Alamat</h3>
             <p className="info-card-text">
-              Jl. Anabul Ceria No. 88, RT.001/RW.003, Karet Kuningan, Kec.
-              Setiabudi, Jakarta Selatan, DKI Jakarta 12940
+              Jl. Anabul Ceria No. 88, RT.001/RW.003, Karet Kuningan, Kec. Setiabudi, Jakarta Selatan, DKI Jakarta 12940
             </p>
           </div>
 
-          {/* CARD 2: TELEPON */}
           <div className="info-card-item">
             <div className="info-icon-box">📞</div>
             <h3 className="info-card-title">Telepon</h3>
@@ -683,7 +542,6 @@ const Contact = ({ cartCount = 0 }) => {
             </p>
           </div>
 
-          {/* CARD 3: EMAIL */}
           <div className="info-card-item">
             <div className="info-icon-box">✉️</div>
             <h3 className="info-card-title">Email</h3>
@@ -694,7 +552,6 @@ const Contact = ({ cartCount = 0 }) => {
             </p>
           </div>
 
-          {/* CARD 4: JAM KERJA */}
           <div className="info-card-item">
             <div className="info-icon-box">⏰</div>
             <h3 className="info-card-title">Jam Kerja</h3>
@@ -706,9 +563,7 @@ const Contact = ({ cartCount = 0 }) => {
           </div>
         </section>
 
-        {/* --- SECTION FORM PESAN & PREVIEW LOKASI --- */}
         <section className="interactive-contact-section">
-          {/* FORM PESAN */}
           <div className="message-form-card">
             <h3 className="form-title">Kirim Pesan Cepat 💌</h3>
             <form onSubmit={handleSubmitPesan}>
@@ -720,9 +575,7 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="Masukkan nama kamu..."
                   className="form-input"
                   value={formData.nama}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nama: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                 />
               </div>
 
@@ -734,9 +587,7 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="nama@email.com"
                   className="form-input"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
 
@@ -747,9 +598,7 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="Tuliskan pertanyaan seputar produk atau grooming..."
                   className="form-textarea"
                   value={formData.pesan}
-                  onChange={(e) =>
-                    setFormData({ ...formData, pesan: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, pesan: e.target.value })}
                 ></textarea>
               </div>
 
@@ -759,7 +608,6 @@ const Contact = ({ cartCount = 0 }) => {
             </form>
           </div>
 
-          {/* PREVIEW MAPS & WA QUICK CHAT */}
           <div className="map-box-container">
             <div>
               <h3 className="form-title">Lokasi Toko MEUW 🗺️</h3>
@@ -783,7 +631,6 @@ const Contact = ({ cartCount = 0 }) => {
           </div>
         </section>
 
-        {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
           <div className="footer-grid">
             <div className="footer-brand">MEUW</div>
@@ -791,56 +638,35 @@ const Contact = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#catalog">Catalog</a>
-                </li>
-                <li>
-                  <a href="#services">Layanan</a>
-                </li>
-                <li>
-                  <a href="#about">About</a>
-                </li>
-                <li>
-                  <a href="#contact">Contact</a>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Hubungi kami kapan saja untuk kebutuhan nutrisi & perawatan
-                terbaik anabulmu.
+                Hubungi kami kapan saja untuk kebutuhan nutrisi & perawatan terbaik anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

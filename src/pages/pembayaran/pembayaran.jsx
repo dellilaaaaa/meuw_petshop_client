@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const paymentStyles = `
@@ -469,6 +470,7 @@ const paymentStyles = `
 `;
 
 const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
+  const navigate = useNavigate();
   const [method, setMethod] = useState("qris");
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.harga * item.jumlah,
@@ -479,7 +481,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
     alert(
       `🎉 Pembayaran sebesar Rp ${subtotal.toLocaleString("id-ID")} berhasil diproses!\n\nTerima kasih telah berbelanja di MEUW Petshop! 🐾`,
     );
-    window.location.hash = "#catalog";
+    navigate("/catalog");
   };
 
   return (
@@ -493,7 +495,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
         {/* --- NAVBAR --- */}
         <nav className="navbar">
           {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
             <img
               src={logoImg}
               alt="MEUW Petshop Logo"
@@ -529,42 +531,42 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
+            <Link to="/home" className="nav-menu-link">
               Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
               Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
+            </Link>
+            <Link to="/services" className="nav-menu-link">
               Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
+            </Link>
+            <Link to="/about" className="nav-menu-link">
               About
-            </a>
-            <a href="#contact" className="nav-menu-link">
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
               Contact
-            </a>
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
+            <Link
+              to="/riwayat"
               className="nav-icon-circle"
               title="Riwayat & Review"
             >
               👤
-            </a>
-            <a
-              href="#cart"
+            </Link>
+            <Link
+              to="/cart"
               className="nav-icon-circle"
               title="Keranjang Belanja"
             >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
@@ -679,16 +681,16 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
                 <li>
-                  <a href="#catalog">Catalog</a>
+                  <Link to="/catalog">Catalog</Link>
                 </li>
                 <li>
-                  <a href="#services">Layanan</a>
+                  <Link to="/services">Layanan</Link>
                 </li>
                 <li>
-                  <a href="#about">About</a>
+                  <Link to="/about">About</Link>
                 </li>
                 <li>
-                  <a href="#contact">Contact</a>
+                  <Link to="/contact">Contact</Link>
                 </li>
               </ul>
             </div>

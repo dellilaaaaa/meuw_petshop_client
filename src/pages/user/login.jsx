@@ -43,7 +43,7 @@ export default function Login() {
       }
 
       alert(`Selamat Datang, ${foundUser.nama}!`);
-      navigate('/'); // Arahkan ke halaman utama/dashboard
+      navigate('/home'); // Arahkan ke halaman utama/dashboard
     } catch (err) {
       setErrorMsg(err.message);
     } finally {

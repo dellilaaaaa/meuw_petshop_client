@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/home/home";
 import Catalog from "./pages/catalog/catalog";
 import Services from "./pages/detail & detail layanan/Services";
 import ShoppingCart from "./pages/shopping cart/shoppingcart";
 import Pembayaran from "./pages/pembayaran/pembayaran";
 import About from "./pages/about/about";
-import Contact from "./pages/contact/contact"; // 👈 Import fail Contact
+import Contact from "./pages/contact/contact";
 import RiwayatPesanan from "./pages/riwayat pesanan/riwayatpesanan";
+import Login from "./pages/user/login";
+import Register from "./pages/user/register";
 
 function App() {
-  const [page, setPage] = useState("home");
-
   // STATE KERANJANG GLOBAL
   const [cartItems, setCartItems] = useState([
     {
@@ -66,7 +67,7 @@ function App() {
       const existing = prevItems.find((i) => i.id_barang === barang.id_barang);
       if (existing) {
         return prevItems.map((i) =>
-          i.id_barang === barang.id_barang ? { ...i, jumlah: i.jumlah + 1 } : i,
+          i.id_barang === barang.id_barang ? { ...i, jumlah: i.jumlah + 1 } : i
         );
       }
       return [
@@ -94,60 +95,51 @@ function App() {
     setBookingList((prev) => [newEntry, ...prev]);
   };
 
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#", "").toLowerCase();
-      if (hash === "catalog" || hash === "store") {
-        setPage("catalog");
-      } else if (hash === "services" || hash === "layanan") {
-        setPage("services");
-      } else if (hash === "cart" || hash === "shopping-cart") {
-        setPage("cart");
-      } else if (hash === "pembayaran" || hash === "checkout") {
-        setPage("pembayaran");
-      } else if (hash === "about") {
-        setPage("about");
-      } else if (hash === "contact" || hash === "kontak") {
-        setPage("contact"); // 👈 Tambah pautan ke halaman contact
-      } else if (hash === "riwayat" || hash === "review") {
-        setPage("riwayat");
-      } else {
-        setPage("home");
-      }
-    };
-
-    window.addEventListener("hashchange", handleHashChange);
-    handleHashChange();
-
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
-
   return (
-    <div>
-      {page === "home" && <Home cartCount={cartCount} />}
-      {page === "catalog" && (
-        <Catalog cartCount={cartCount} onAddToCart={handleAddToCart} />
-      )}
-      {page === "services" && (
-        <Services cartCount={cartCount} onAddBooking={handleAddBooking} />
-      )}
-      {page === "cart" && (
-        <ShoppingCart
-          cartItems={cartItems}
-          setCartItems={setCartItems}
-          cartCount={cartCount}
+    <Router>
+      <Routes>
+        {/* Tampilan awal langsung ke halaman Home */}
+        <Route path="/" element={<Home cartCount={cartCount} />} />
+
+        {/* Halaman Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Halaman Utama Aplikasi */}
+        <Route path="/home" element={<Home cartCount={cartCount} />} />
+        <Route
+          path="/catalog"
+          element={<Catalog cartCount={cartCount} onAddToCart={handleAddToCart} />}
         />
-      )}
-      {page === "pembayaran" && (
-        <Pembayaran cartItems={cartItems} cartCount={cartCount} />
-      )}
-      {page === "about" && <About cartCount={cartCount} />}
-      {page === "contact" && <Contact cartCount={cartCount} />}{" "}
-      {/* 👈 Paparkan Halaman Contact */}
-      {page === "riwayat" && (
-        <RiwayatPesanan cartCount={cartCount} bookingList={bookingList} />
-      )}
-    </div>
+        <Route
+          path="/services"
+          element={<Services cartCount={cartCount} onAddBooking={handleAddBooking} />}
+        />
+        <Route
+          path="/cart"
+          element={
+            <ShoppingCart
+              cartItems={cartItems}
+              setCartItems={setCartItems}
+              cartCount={cartCount}
+            />
+          }
+        />
+        <Route
+          path="/pembayaran"
+          element={<Pembayaran cartItems={cartItems} cartCount={cartCount} />}
+        />
+        <Route path="/about" element={<About cartCount={cartCount} />} />
+        <Route path="/contact" element={<Contact cartCount={cartCount} />} />
+        <Route
+          path="/riwayat"
+          element={<RiwayatPesanan cartCount={cartCount} bookingList={bookingList} />}
+        />
+
+        {/* Fallback jika URL tidak ditemukan */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

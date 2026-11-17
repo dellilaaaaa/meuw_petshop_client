@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const riwayatStyles = `
@@ -236,6 +237,170 @@ const riwayatStyles = `
     box-shadow: 0 8px 20px rgba(247, 173, 173, 0.35);
   }
 
+  /* --- PROFILE CARD --- */
+  .profile-card-rayo {
+    background-color: #FFF;
+    border: 2px solid #F7ADAD;
+    border-radius: 36px 24px 36px 24px;
+    padding: 2.5rem;
+    max-width: 720px;
+    margin: 0 auto 2rem auto;
+    box-shadow: 0 10px 28px rgba(247, 173, 173, 0.14);
+  }
+
+  .profile-header-box {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1.8rem;
+    border-bottom: 2px dashed #FFEBEB;
+    margin-bottom: 1.8rem;
+  }
+
+  .profile-avatar-circle {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FDEAE8 0%, #F7ADAD 100%);
+    border: 3px solid #F7ADAD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(247, 173, 173, 0.3);
+  }
+
+  .profile-name {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #4A3E3E;
+    line-height: 1.2;
+  }
+
+  .profile-badge-member {
+    display: inline-block;
+    margin-top: 4px;
+    background-color: #E3F6F6;
+    color: #225B5C;
+    border: 1.5px solid #91DCDE;
+    font-size: 0.78rem;
+    font-weight: 800;
+    padding: 3px 12px;
+    border-radius: 15px;
+  }
+
+  .profile-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .profile-info-item {
+    background-color: #FFFDF6;
+    border: 1.5px solid #F7ADAD;
+    border-radius: 20px;
+    padding: 1rem 1.2rem;
+  }
+
+  .profile-info-item.full-width {
+    grid-column: span 2;
+  }
+
+  .profile-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #998888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .profile-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #4A3E3E;
+  }
+
+  .logout-btn {
+    width: 100%;
+    background-color: #FFF;
+    color: #D9534F;
+    border: 2px solid #F7ADAD;
+    padding: 13px;
+    border-radius: 25px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .logout-btn:hover {
+    background-color: #D9534F;
+    border-color: #D9534F;
+    color: #FFF;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(217, 83, 79, 0.3);
+  }
+
+  /* --- NOT LOGGED IN BOX --- */
+  .guest-box {
+    background-color: #FFF;
+    border: 2px dashed #F7ADAD;
+    border-radius: 36px;
+    padding: 4rem 2rem;
+    max-width: 600px;
+    margin: 0 auto 3rem auto;
+    text-align: center;
+    box-shadow: 0 10px 28px rgba(247, 173, 173, 0.14);
+  }
+
+  .guest-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.8rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary-cute {
+    background-color: #4A3E3E;
+    color: #FFFDF6;
+    border: 2px solid #F7ADAD;
+    padding: 12px 28px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.92rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary-cute:hover {
+    background-color: #F7ADAD;
+    color: #FFF;
+    transform: translateY(-3px);
+  }
+
+  .btn-secondary-cute {
+    background-color: #B1E5E6;
+    color: #225B5C;
+    border: 2px solid #91DCDE;
+    padding: 12px 28px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.92rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary-cute:hover {
+    background-color: #CCFBFA;
+    transform: translateY(-3px);
+  }
+
   /* --- ORDER CARD RAYO --- */
   .order-card-rayo {
     background-color: #FFF;
@@ -329,7 +494,7 @@ const riwayatStyles = `
     margin-bottom: 0.4rem;
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK (5 KOLOM PRESISI) --- */
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -444,11 +609,37 @@ const riwayatStyles = `
     .footer-grid { grid-template-columns: 1fr; }
     .page-title { font-size: 2.2rem; }
     .footer-rayo-box { padding: 2.5rem 1.8rem; }
+    .profile-header-box { flex-direction: column; text-align: center; }
+    .profile-info-grid { grid-template-columns: 1fr; }
+    .profile-info-item.full-width { grid-column: span 1; }
   }
 `;
 
 const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
-  const [activeTab, setActiveTab] = useState("produk");
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("profil");
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Ambil data user yang sedang login dari localStorage atau sessionStorage
+  useEffect(() => {
+    const storedUser =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setCurrentUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Gagal membaca data user:", e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
+    setCurrentUser(null);
+    alert("Kamu berhasil keluar dari akun. Sampai jumpa lagi! 🐾");
+    navigate("/login");
+  };
 
   const riwayatProduk = [
     {
@@ -464,14 +655,12 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     <>
       <style>{riwayatStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
         {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
             <img
               src={logoImg}
               alt="MEUW Petshop Logo"
@@ -507,125 +696,215 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
+            <Link to="/home" className="nav-menu-link">
               Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
               Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
+            </Link>
+            <Link to="/services" className="nav-menu-link">
               Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
+            </Link>
+            <Link to="/about" className="nav-menu-link">
               About
-            </a>
-            <a href="#contact" className="nav-menu-link">
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
               Contact
-            </a>
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
+            <Link
+              to="/riwayat"
               className="nav-icon-circle active"
-              title="Riwayat & Review"
+              title="Akun & Riwayat"
             >
               👤
-            </a>
-            <a
-              href="#cart"
+            </Link>
+            <Link
+              to="/cart"
               className="nav-icon-circle"
               title="Keranjang Belanja"
             >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
         {/* --- HERO TITLE --- */}
-        <h1 className="page-title">RIWAYAT & BOOKING 📜</h1>
+        <h1 className="page-title">AKUN SAYA 🐾</h1>
 
-        {/* --- TAB BUTTONS --- */}
-        <div className="tab-pill-container">
-          <button
-            className={`tab-btn ${activeTab === "produk" ? "active" : ""}`}
-            onClick={() => setActiveTab("produk")}
-          >
-            📦 Belanja Produk ({riwayatProduk.length})
-          </button>
-          <button
-            className={`tab-btn ${activeTab === "layanan" ? "active" : ""}`}
-            onClick={() => setActiveTab("layanan")}
-          >
-            📅 Booking Layanan ({bookingList.length})
-          </button>
-        </div>
-
-        {/* --- TAB CONTENT: PRODUK --- */}
-        {activeTab === "produk" &&
-          (riwayatProduk.length > 0 ? (
-            riwayatProduk.map((order) => (
-              <div key={order.id_transaksi} className="order-card-rayo">
-                <div className="order-card-header">
-                  <span className="order-id">{order.id_transaksi}</span>
-                  <span className="status-badge">{order.status}</span>
-                </div>
-                <div className="order-details-text">{order.items}</div>
-                <div className="order-price-tag">
-                  Rp {order.total.toLocaleString("id-ID")}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="empty-history-box">
-              <span className="empty-history-icon">📦</span>
-              <h3 className="empty-history-title">
-                Belum ada riwayat belanja produk
-              </h3>
-              <p
-                style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}
-              >
-                Yuk jelajahi katalog makanan dan mainan anabul!
-              </p>
+        {/* --- CEK STATUS LOGIN USER --- */}
+        {!currentUser ? (
+          /* TAMPILAN JIKA USER BELUM LOGIN */
+          <div className="guest-box">
+            <span className="empty-history-icon">🐱</span>
+            <h2 className="empty-history-title">
+              Kamu belum masuk ke akun MEUW
+            </h2>
+            <p
+              style={{
+                fontFamily: "Quicksand, sans-serif",
+                fontWeight: 600,
+                marginTop: "0.5rem",
+              }}
+            >
+              Silakan Log In terlebih dahulu untuk melihat profil lengkap,
+              riwayat belanja, dan jadwal booking anabulmu!
+            </p>
+            <div className="guest-btn-group">
+              <Link to="/login" className="btn-primary-cute">
+                Log In Sekarang
+              </Link>
+              <Link to="/register" className="btn-secondary-cute">
+                Daftar Akun Baru
+              </Link>
             </div>
-          ))}
-
-        {/* --- TAB CONTENT: LAYANAN --- */}
-        {activeTab === "layanan" &&
-          (bookingList.length > 0 ? (
-            bookingList.map((bk) => (
-              <div key={bk.id_booking} className="order-card-rayo">
-                <div className="order-card-header">
-                  <span className="order-id">{bk.id_booking}</span>
-                  <span className="status-badge pending">
-                    {bk.status_booking.toUpperCase()}
-                  </span>
-                </div>
-                <div className="order-details-text">
-                  {bk.icon} <strong>{bk.nama_layanan}</strong> (Tgl:{" "}
-                  {bk.tanggal_mulai} s/d {bk.tanggal_selesai})
-                </div>
-                <div className="order-price-tag">
-                  Rp {bk.harga.toLocaleString("id-ID")}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="empty-history-box">
-              <span className="empty-history-icon">📅</span>
-              <h3 className="empty-history-title">Belum ada booking layanan</h3>
-              <p
-                style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}
+          </div>
+        ) : (
+          /* TAMPILAN JIKA USER SUDAH LOGIN */
+          <>
+            {/* --- TAB BUTTONS --- */}
+            <div className="tab-pill-container">
+              <button
+                className={`tab-btn ${activeTab === "profil" ? "active" : ""}`}
+                onClick={() => setActiveTab("profil")}
               >
-                Manjakan anabulmu dengan booking grooming atau pet hotel
-                sekarang!
-              </p>
+                👤 Profil Saya
+              </button>
+              <button
+                className={`tab-btn ${activeTab === "produk" ? "active" : ""}`}
+                onClick={() => setActiveTab("produk")}
+              >
+                📦 Belanja Produk ({riwayatProduk.length})
+              </button>
+              <button
+                className={`tab-btn ${activeTab === "layanan" ? "active" : ""}`}
+                onClick={() => setActiveTab("layanan")}
+              >
+                📅 Booking Layanan ({bookingList.length})
+              </button>
             </div>
-          ))}
+
+            {/* --- TAB 1: PROFIL SAYA --- */}
+            {activeTab === "profil" && (
+              <div className="profile-card-rayo">
+                <div className="profile-header-box">
+                  <div className="profile-avatar-circle">🐾</div>
+                  <div>
+                    <div className="profile-name">
+                      {currentUser.nama || "Pet Lovers"}
+                    </div>
+                    <span className="profile-badge-member">
+                      Member MEUW Petshop 💖
+                    </span>
+                  </div>
+                </div>
+
+                <div className="profile-info-grid">
+                  <div className="profile-info-item">
+                    <div className="profile-label">Email</div>
+                    <div className="profile-value">
+                      {currentUser.email || "-"}
+                    </div>
+                  </div>
+
+                  <div className="profile-info-item">
+                    <div className="profile-label">No. Telepon</div>
+                    <div className="profile-value">
+                      {currentUser.no_telp || "-"}
+                    </div>
+                  </div>
+
+                  <div className="profile-info-item full-width">
+                    <div className="profile-label">Alamat Pengiriman</div>
+                    <div className="profile-value">
+                      {currentUser.alamat || "Alamat belum diisi"}
+                    </div>
+                  </div>
+                </div>
+
+                <button className="logout-btn" onClick={handleLogout}>
+                  Keluar dari Akun (Log Out) 🚪
+                </button>
+              </div>
+            )}
+
+            {/* --- TAB 2: BELANJA PRODUK --- */}
+            {activeTab === "produk" &&
+              (riwayatProduk.length > 0 ? (
+                riwayatProduk.map((order) => (
+                  <div key={order.id_transaksi} className="order-card-rayo">
+                    <div className="order-card-header">
+                      <span className="order-id">{order.id_transaksi}</span>
+                      <span className="status-badge">{order.status}</span>
+                    </div>
+                    <div className="order-details-text">{order.items}</div>
+                    <div className="order-price-tag">
+                      Rp {order.total.toLocaleString("id-ID")}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-history-box">
+                  <span className="empty-history-icon">📦</span>
+                  <h3 className="empty-history-title">
+                    Belum ada riwayat belanja produk
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "Quicksand, sans-serif",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Yuk jelajahi katalog makanan dan mainan anabul!
+                  </p>
+                </div>
+              ))}
+
+            {/* --- TAB 3: BOOKING LAYANAN --- */}
+            {activeTab === "layanan" &&
+              (bookingList.length > 0 ? (
+                bookingList.map((bk) => (
+                  <div key={bk.id_booking} className="order-card-rayo">
+                    <div className="order-card-header">
+                      <span className="order-id">{bk.id_booking}</span>
+                      <span className="status-badge pending">
+                        {bk.status_booking.toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="order-details-text">
+                      {bk.icon} <strong>{bk.nama_layanan}</strong> (Tgl:{" "}
+                      {bk.tanggal_mulai} s/d {bk.tanggal_selesai})
+                    </div>
+                    <div className="order-price-tag">
+                      Rp {bk.harga.toLocaleString("id-ID")}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-history-box">
+                  <span className="empty-history-icon">📅</span>
+                  <h3 className="empty-history-title">
+                    Belum ada booking layanan
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "Quicksand, sans-serif",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Manjakan anabulmu dengan booking grooming atau pet hotel
+                    sekarang!
+                  </p>
+                </div>
+              ))}
+          </>
+        )}
 
         {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
@@ -636,16 +915,16 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
                 <li>
-                  <a href="#catalog">Catalog</a>
+                  <Link to="/catalog">Catalog</Link>
                 </li>
                 <li>
-                  <a href="#services">Layanan</a>
+                  <Link to="/services">Layanan</Link>
                 </li>
                 <li>
-                  <a href="#about">About</a>
+                  <Link to="/about">About</Link>
                 </li>
                 <li>
-                  <a href="#contact">Contact</a>
+                  <Link to="/contact">Contact</Link>
                 </li>
               </ul>
             </div>
