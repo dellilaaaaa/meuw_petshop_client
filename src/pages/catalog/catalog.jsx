@@ -321,38 +321,55 @@ const catalogStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.3);
   }
 
-  /* --- PRODUCT GRID --- */
+  /* --- PRODUCT GRID (DIKUNCI AGAR SAMA RATA DI SEMUA KATEGORI) --- */
   .product-grid-rayo {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 2.2rem 1.8rem;
     margin-bottom: 3.5rem;
+    width: 100%;
   }
 
   .card-rayo {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+    padding: 0.7rem;
+    border-radius: 40px 26px 36px 28px;
+    background-color: transparent;
+    border: 2px solid transparent;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+
+  /* EFEK MENGAMBANG MENYATU SAAT HOVER */
+  .card-rayo:hover {
+    transform: translateY(-10px) scale(1.02);
+    background-color: #FFFFFF;
+    border-color: #F7ADAD;
+    box-shadow: 0 20px 42px rgba(247, 173, 173, 0.32);
   }
 
   .card-image-box {
     position: relative;
     width: 100%;
     height: 290px;
-    border-radius: 36px 22px 32px 24px;
+    border-radius: 32px 20px 28px 22px;
     border: 2px solid #F7ADAD;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
     overflow: hidden;
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
     box-shadow: 0 8px 24px rgba(247, 173, 173, 0.14);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .card-rayo:hover .card-image-box {
-    transform: translateY(-8px) rotate(1.5deg);
-    box-shadow: 0 16px 34px rgba(247, 173, 173, 0.25);
+    box-shadow: 0 10px 24px rgba(247, 173, 173, 0.2);
   }
 
   .card-tag-pill {
@@ -367,7 +384,7 @@ const catalogStyles = `
     border-radius: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    z-index: 2;
+    z-index: 4;
     font-family: 'Quicksand', sans-serif;
     box-shadow: 0 3px 8px rgba(247, 173, 173, 0.2);
     animation: floatCute 3.5s infinite ease-in-out;
@@ -387,7 +404,7 @@ const catalogStyles = `
     justify-content: center;
     font-size: 0.95rem;
     cursor: pointer;
-    z-index: 2;
+    z-index: 4;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 10px rgba(247, 173, 173, 0.15);
   }
@@ -402,73 +419,129 @@ const catalogStyles = `
     max-height: 85%;
     object-fit: contain;
     border-radius: 16px;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
   }
 
   .card-rayo:hover .card-img-content {
-    transform: scale(1.08) rotate(-3deg);
+    transform: scale(1.06);
+    filter: blur(2px) brightness(0.85);
   }
 
-  .card-details {
-    padding: 0 0.3rem;
+  /* --- HOVER OVERLAY (MENAMPILKAN GAMBAR, NAMA, HARGA & DESKRIPSI MENYATU) --- */
+  .card-desc-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(74, 62, 62, 0.95) 0%,
+      rgba(74, 62, 62, 0.85) 68%,
+      rgba(74, 62, 62, 0.35) 100%
+    );
+    color: #FFFDF6;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 3.4rem 1.3rem 1.2rem 1.3rem;
+    opacity: 0;
+    transform: translateY(18px);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 3;
   }
 
-  .card-category-label {
-    display: inline-block;
-    background-color: #B1E5E6;
-    color: #4A3E3E;
-    font-size: 0.72rem;
+  .card-rayo:hover .card-desc-overlay {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .card-overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px dashed rgba(247, 173, 173, 0.55);
+    padding-bottom: 0.35rem;
+  }
+
+  .card-overlay-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #FFFDF6;
+    line-height: 1.2;
+  }
+
+  .card-overlay-price {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1rem;
     font-weight: 800;
-    padding: 3px 10px;
-    border-radius: 12px;
-    margin-bottom: 0.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+    color: #F7ADAD;
+    white-space: nowrap;
   }
 
-  .card-title-block {
+  .card-desc-overlay-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    font-weight: 600;
+    color: #FFFDF6;
+    font-family: 'Quicksand', sans-serif;
+    max-height: 95px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .card-desc-overlay-text::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .card-desc-overlay-text::-webkit-scrollbar-thumb {
+    background-color: #F7ADAD;
+    border-radius: 4px;
+  }
+
+  /* --- CARD DETAILS (BERSIH: NAMA, HARGA, & CART) --- */
+  .card-details {
+    padding: 0 0.4rem 0.3rem 0.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .card-info-left {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 0.4rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .card-product-name {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.25rem;
+    font-size: 1.22rem;
     font-weight: 700;
     color: #333;
     line-height: 1.25;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .card-product-price {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.28rem;
     font-weight: 800;
     color: #F7ADAD;
   }
 
-  .card-bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.8rem;
-    margin-top: 0.4rem;
-  }
-
-  .card-product-desc {
-    font-size: 0.82rem;
-    color: #665959;
-    line-height: 1.45;
-    flex: 1;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
   .card-add-cart-btn {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     border-radius: 50%;
     background-color: #4A3E3E;
@@ -477,7 +550,7 @@ const catalogStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.05rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 12px rgba(74, 62, 62, 0.2);
@@ -742,12 +815,12 @@ const catalogStyles = `
   }
 
   @media (max-width: 950px) {
-    .product-grid-rayo { grid-template-columns: repeat(2, 1fr); }
+    .product-grid-rayo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
   @media (max-width: 600px) {
-    .product-grid-rayo { grid-template-columns: 1fr; }
+    .product-grid-rayo { grid-template-columns: minmax(0, 1fr); }
     .navbar { flex-direction: column; gap: 1rem; }
     .footer-grid { grid-template-columns: 1fr; }
     .hero-title { font-size: 2.2rem; }
@@ -836,7 +909,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
         const rawProducts = Array.isArray(result.data) ? result.data : [];
 
         const formattedProducts = rawProducts.map((item, index) => {
-          // Ambil nama kategori dari nested object id_kategori.nama_kategori
           const kategoriNama =
             typeof item.id_kategori === "object" && item.id_kategori !== null
               ? item.id_kategori.nama_kategori
@@ -849,7 +921,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
           const productId = item._id || item.id_barang || index + 1;
 
-          // Buat gambar placeholder cantik berdasarkan kategori jika foto hanya berupa metadata contentType
           const encodedLabel = encodeURIComponent(kategoriNama);
           const fallbackImg = `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`;
 
@@ -860,9 +931,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
             nama_barang: item.nama_barang || "Produk Tanpa Nama",
             harga: Number(item.harga || 0),
             deskripsi: item.deskripsi || "Produk berkualitas untuk anabul.",
-            tag: kategoriNama.toUpperCase(),
             bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
-            // Jika server menyediakan endpoint foto per id, gunakan; jika gagal otomatis fallback ke onError
             gambar:
               typeof item.foto === "string"
                 ? item.foto
@@ -911,7 +980,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     return () => clearInterval(timer);
   }, [latestReviews.length]);
 
-  // Filter berdasarkan kategori yang dipilih & kata kunci pencarian
   const filteredProducts = products.filter((item) => {
     const query = searchTerm.trim().toLowerCase();
     const matchesSearch =
@@ -926,7 +994,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     return matchesCategory && matchesSearch;
   });
 
-  // Pagination dinamis (6 produk per halaman)
   const totalPages = Math.max(
     1,
     Math.ceil(filteredProducts.length / itemsPerPage),
@@ -954,14 +1021,12 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     <>
       <style>{catalogStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       {showToast && <div className="toast-notification">{toastMsg}</div>}
 
       <div className="wrapper">
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
           <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
             <img
               src={logoImg}
@@ -1100,30 +1165,39 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                       e.target.src = item.fallbackGambar;
                     }}
                   />
+
+                  {/* HOVER OVERLAY: GAMBAR + NAMA + HARGA + DESKRIPSI MENYATU */}
+                  <div className="card-desc-overlay">
+                    <div className="card-overlay-header">
+                      <span className="card-overlay-title">
+                        {item.nama_barang}
+                      </span>
+                      <span className="card-overlay-price">
+                        Rp {item.harga.toLocaleString("id-ID")}
+                      </span>
+                    </div>
+                    <p className="card-desc-overlay-text">{item.deskripsi}</p>
+                  </div>
                 </div>
 
+                {/* BAGIAN DEPAN: NAMA PRODUK, HARGA, & TOMBOL KERANJANG */}
                 <div className="card-details">
-                  <span className="card-category-label">
-                    {item.nama_kategori}
-                  </span>
-
-                  <div className="card-title-block">
-                    <div className="card-product-name">{item.nama_barang}</div>
+                  <div className="card-info-left">
+                    <div className="card-product-name" title={item.nama_barang}>
+                      {item.nama_barang}
+                    </div>
                     <div className="card-product-price">
                       Rp {item.harga.toLocaleString("id-ID")}
                     </div>
                   </div>
 
-                  <div className="card-bottom-row">
-                    <p className="card-product-desc">{item.deskripsi}</p>
-                    <button
-                      className="card-add-cart-btn"
-                      title="Tambah ke Keranjang"
-                      onClick={() => handleAddToCart(item)}
-                    >
-                      🛒
-                    </button>
-                  </div>
+                  <button
+                    className="card-add-cart-btn"
+                    title="Tambah ke Keranjang"
+                    onClick={() => handleAddToCart(item)}
+                  >
+                    🛒
+                  </button>
                 </div>
               </div>
             ))

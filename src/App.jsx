@@ -108,7 +108,7 @@ function App() {
       } else if (hash === "about") {
         setPage("about");
       } else if (hash === "contact" || hash === "kontak") {
-        setPage("contact"); // 👈 Tambah pautan ke halaman contact
+        setPage("contact");
       } else if (hash === "riwayat" || hash === "review") {
         setPage("riwayat");
       } else {
