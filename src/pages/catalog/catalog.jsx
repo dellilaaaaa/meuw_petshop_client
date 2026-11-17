@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import logoImg from "../../images/logo.png";
 
+const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
+const API_CATALOG_URL = `${API_BASE_URL}/api/catalog`;
+
+// Warna pastel otomatis untuk card produk dari API
+const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1", "#FEF7DF", "#E8F4FE"];
+
 const catalogStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
@@ -315,41 +321,6 @@ const catalogStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.3);
   }
 
-  .filter-actions {
-    display: flex;
-    gap: 0.8rem;
-  }
-
-  .action-btn-pill {
-    background-color: #4A3E3E;
-    color: #FFFDF6;
-    border: 2px solid #4A3E3E;
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    font-weight: 800;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'Quicksand', sans-serif;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 14px rgba(74, 62, 62, 0.15);
-  }
-
-  .action-btn-pill.outline {
-    background-color: #FFF;
-    color: #F7ADAD;
-    border: 2px solid #F7ADAD;
-  }
-
-  .action-btn-pill:hover {
-    background-color: #F7ADAD;
-    border-color: #F7ADAD;
-    color: #FFFDF6;
-    transform: translateY(-3px);
-  }
-
   /* --- PRODUCT GRID --- */
   .product-grid-rayo {
     display: grid;
@@ -430,6 +401,7 @@ const catalogStyles = `
     max-width: 85%;
     max-height: 85%;
     object-fit: contain;
+    border-radius: 16px;
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
@@ -439,6 +411,19 @@ const catalogStyles = `
 
   .card-details {
     padding: 0 0.3rem;
+  }
+
+  .card-category-label {
+    display: inline-block;
+    background-color: #B1E5E6;
+    color: #4A3E3E;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
 
   .card-title-block {
@@ -467,15 +452,16 @@ const catalogStyles = `
   .card-bottom-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 0.8rem;
     margin-top: 0.4rem;
   }
 
   .card-product-desc {
     font-size: 0.82rem;
     color: #665959;
-    line-height: 1.4;
-    max-width: 80%;
+    line-height: 1.45;
+    flex: 1;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
   }
@@ -483,6 +469,7 @@ const catalogStyles = `
   .card-add-cart-btn {
     width: 42px;
     height: 42px;
+    flex-shrink: 0;
     border-radius: 50%;
     background-color: #4A3E3E;
     color: #FFFDF6;
@@ -769,6 +756,13 @@ const catalogStyles = `
 `;
 
 const Catalog = ({ cartCount = 0, onAddToCart }) => {
+  const [products, setProducts] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([
+    { id_kategori: 0, nama_kategori: "Semua" },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [searchTerm, setSearchTerm] = useState("");
   const [activePage, setActivePage] = useState(1);
@@ -777,90 +771,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
 
-  const categoriesList = [
-    { id_kategori: 0, nama_kategori: "Semua" },
-    { id_kategori: 1, nama_kategori: "Makanan" },
-    { id_kategori: 2, nama_kategori: "Kebersihan" },
-    { id_kategori: 3, nama_kategori: "Grooming" },
-    { id_kategori: 4, nama_kategori: "Kesehatan" },
-    { id_kategori: 5, nama_kategori: "Snack" },
-    { id_kategori: 6, nama_kategori: "Aksesoris" },
-  ];
-
-  const products = [
-    {
-      id_barang: 1,
-      id_kategori: 1,
-      nama_kategori: "Makanan",
-      nama_barang: "Royal Canin Mother & Baby 2kg",
-      harga: 285000,
-      satuan: "pcs",
-      deskripsi: "Nutrisi lengkap untuk induk dan anak kucing.",
-      tag: "BEST SELLER",
-      bgColor: "#FDEAE8",
-      gambar: "https://via.placeholder.com/200/F7ADAD/FFFDF6?text=Dry+Food",
-    },
-    {
-      id_barang: 2,
-      id_kategori: 2,
-      nama_kategori: "Kebersihan",
-      nama_barang: "Pasir Bentonite Wangi 10L",
-      harga: 65000,
-      satuan: "bag",
-      deskripsi: "Pasir gumpal wangi menyerap bau maksimal.",
-      tag: "PROMO",
-      bgColor: "#E3F6F6",
-      gambar: "https://via.placeholder.com/200/B1E5E6/4A3E3E?text=Pasir+Kucing",
-    },
-    {
-      id_barang: 3,
-      id_kategori: 3,
-      nama_kategori: "Grooming",
-      nama_barang: "Shampoo Anti Kutu 250ml",
-      harga: 45000,
-      satuan: "botol",
-      deskripsi: "Formula khusus membasmi kutu & jamur.",
-      tag: "MUST HAVE",
-      bgColor: "#FEEAE1",
-      gambar: "https://via.placeholder.com/200/F7ADAD/FFFDF6?text=Shampoo",
-    },
-    {
-      id_barang: 4,
-      id_kategori: 4,
-      nama_kategori: "Kesehatan",
-      nama_barang: "Vitamin Bulu & Gemuk Anabul",
-      harga: 55000,
-      satuan: "botol",
-      deskripsi: "Suplemen pendukung penambah nafsu makan.",
-      tag: "NEW",
-      bgColor: "#FEF7DF",
-      gambar: "https://via.placeholder.com/200/B1E5E6/4A3E3E?text=Vitamin",
-    },
-    {
-      id_barang: 5,
-      id_kategori: 5,
-      nama_kategori: "Snack",
-      nama_barang: "Creamy Treats Salmon (Isi 4)",
-      harga: 22000,
-      satuan: "pack",
-      deskripsi: "Snack lezat rasa ikan salmon favorit.",
-      tag: "SNACK",
-      bgColor: "#E8F4FE",
-      gambar: "https://via.placeholder.com/200/F7ADAD/FFFDF6?text=Treats",
-    },
-    {
-      id_barang: 6,
-      id_kategori: 6,
-      nama_kategori: "Aksesoris",
-      nama_barang: "Mangkok Makan Anti Semut",
-      harga: 35000,
-      satuan: "pcs",
-      deskripsi: "Wadah makan parit air pencegah semut.",
-      tag: "LARIS",
-      bgColor: "#FDEAE8",
-      gambar: "https://via.placeholder.com/200/B1E5E6/4A3E3E?text=Mangkok",
-    },
-  ];
+  const itemsPerPage = 6;
 
   const latestReviews = [
     {
@@ -905,7 +816,93 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     },
   ];
 
+  // ============================================================
+  // FETCH DATA DARI https://meuw-petshop-server.vercel.app/api/catalog
+  // ============================================================
   useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(API_CATALOG_URL);
+        if (!response.ok) {
+          throw new Error(
+            `Gagal memuat data dari server (HTTP ${response.status})`,
+          );
+        }
+
+        const result = await response.json();
+        const rawProducts = Array.isArray(result.data) ? result.data : [];
+
+        const formattedProducts = rawProducts.map((item, index) => {
+          // Ambil nama kategori dari nested object id_kategori.nama_kategori
+          const kategoriNama =
+            typeof item.id_kategori === "object" && item.id_kategori !== null
+              ? item.id_kategori.nama_kategori
+              : item.nama_kategori || "Lainnya";
+
+          const kategoriId =
+            typeof item.id_kategori === "object" && item.id_kategori !== null
+              ? item.id_kategori._id
+              : item.id_kategori || index;
+
+          const productId = item._id || item.id_barang || index + 1;
+
+          // Buat gambar placeholder cantik berdasarkan kategori jika foto hanya berupa metadata contentType
+          const encodedLabel = encodeURIComponent(kategoriNama);
+          const fallbackImg = `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`;
+
+          return {
+            id_barang: productId,
+            id_kategori: kategoriId,
+            nama_kategori: kategoriNama,
+            nama_barang: item.nama_barang || "Produk Tanpa Nama",
+            harga: Number(item.harga || 0),
+            deskripsi: item.deskripsi || "Produk berkualitas untuk anabul.",
+            tag: kategoriNama.toUpperCase(),
+            bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
+            // Jika server menyediakan endpoint foto per id, gunakan; jika gagal otomatis fallback ke onError
+            gambar:
+              typeof item.foto === "string"
+                ? item.foto
+                : `${API_CATALOG_URL}/${productId}/foto`,
+            fallbackGambar: fallbackImg,
+          };
+        });
+
+        setProducts(formattedProducts);
+
+        // Susun daftar kategori unik dari data produk untuk tombol di sebelah "Semua"
+        const categoryMap = new Map();
+        formattedProducts.forEach((p) => {
+          if (p.nama_kategori && !categoryMap.has(p.nama_kategori)) {
+            categoryMap.set(p.nama_kategori, p.id_kategori);
+          }
+        });
+
+        const dynamicCategories = [
+          { id_kategori: "all", nama_kategori: "Semua" },
+          ...Array.from(categoryMap.entries()).map(([nama, id]) => ({
+            id_kategori: id,
+            nama_kategori: nama,
+          })),
+        ];
+
+        setCategoriesList(dynamicCategories);
+      } catch (err) {
+        console.error("Error fetch /api/catalog:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCatalog();
+  }, []);
+
+  useEffect(() => {
+    if (latestReviews.length <= 3) return;
     const timer = setInterval(() => {
       setCurrentReviewIndex((prev) =>
         prev >= latestReviews.length - 3 ? 0 : prev + 1,
@@ -914,21 +911,34 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     return () => clearInterval(timer);
   }, [latestReviews.length]);
 
+  // Filter berdasarkan kategori yang dipilih & kata kunci pencarian
   const filteredProducts = products.filter((item) => {
     const query = searchTerm.trim().toLowerCase();
     const matchesSearch =
       query === "" ||
       item.nama_barang.toLowerCase().includes(query) ||
       item.nama_kategori.toLowerCase().includes(query) ||
-      item.tag.toLowerCase().includes(query);
+      item.deskripsi.toLowerCase().includes(query);
 
     const matchesCategory =
-      query !== "" ||
-      selectedCategory === "Semua" ||
-      item.nama_kategori === selectedCategory;
+      selectedCategory === "Semua" || item.nama_kategori === selectedCategory;
 
     return matchesCategory && matchesSearch;
   });
+
+  // Pagination dinamis (6 produk per halaman)
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / itemsPerPage),
+  );
+  const paginatedProducts = filteredProducts.slice(
+    (activePage - 1) * itemsPerPage,
+    activePage * itemsPerPage,
+  );
+
+  useEffect(() => {
+    setActivePage(1);
+  }, [selectedCategory, searchTerm]);
 
   const handleAddToCart = (barang) => {
     if (onAddToCart) onAddToCart(barang);
@@ -1042,19 +1052,17 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           </div>
         </section>
 
+        {/* TOMBOL FILTER: "Semua" & KATEGORI DINAMIS DI SEBELAHNYA */}
         <section className="filter-sort-bar">
           <div className="categories-chips">
             {categoriesList.map((cat) => (
               <button
                 key={cat.id_kategori}
                 className={`chip-btn ${
-                  selectedCategory === cat.nama_kategori && searchTerm === ""
-                    ? "active"
-                    : ""
+                  selectedCategory === cat.nama_kategori ? "active" : ""
                 }`}
                 onClick={() => {
                   setSelectedCategory(cat.nama_kategori);
-                  setSearchTerm("");
                 }}
               >
                 {cat.nama_kategori}
@@ -1064,14 +1072,22 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
         </section>
 
         <section className="product-grid-rayo">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((item) => (
+          {loading ? (
+            <div className="no-products">
+              🐾 Sedang memuat produk dari katalog MEUW...
+            </div>
+          ) : error ? (
+            <div className="no-products" style={{ color: "#E53E3E" }}>
+              😿 Gagal mengambil data: {error}
+            </div>
+          ) : paginatedProducts.length > 0 ? (
+            paginatedProducts.map((item) => (
               <div key={item.id_barang} className="card-rayo">
                 <div
                   className="card-image-box"
                   style={{ backgroundColor: item.bgColor }}
                 >
-                  <span className="card-tag-pill">{item.tag}</span>
+                  <span className="card-tag-pill">{item.nama_kategori}</span>
                   <button className="card-wishlist-btn" title="Favorit">
                     💖
                   </button>
@@ -1079,10 +1095,18 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                     src={item.gambar}
                     alt={item.nama_barang}
                     className="card-img-content"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = item.fallbackGambar;
+                    }}
                   />
                 </div>
 
                 <div className="card-details">
+                  <span className="card-category-label">
+                    {item.nama_kategori}
+                  </span>
+
                   <div className="card-title-block">
                     <div className="card-product-name">{item.nama_barang}</div>
                     <div className="card-product-price">
@@ -1091,9 +1115,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                   </div>
 
                   <div className="card-bottom-row">
-                    <p className="card-product-desc">
-                      {item.deskripsi} ({item.satuan})
-                    </p>
+                    <p className="card-product-desc">{item.deskripsi}</p>
                     <button
                       className="card-add-cart-btn"
                       title="Tambah ke Keranjang"
@@ -1107,22 +1129,25 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
             ))
           ) : (
             <div className="no-products">
-              😿 Produk "{searchTerm}" tidak ditemukan.
+              😿 Produk "{searchTerm}" pada kategori "{selectedCategory}" tidak
+              ditemukan.
             </div>
           )}
         </section>
 
-        <div className="pagination-container">
-          {[1, 2, 3].map((num) => (
-            <div
-              key={num}
-              className={`page-num ${activePage === num ? "active" : ""}`}
-              onClick={() => setActivePage(num)}
-            >
-              {num}
-            </div>
-          ))}
-        </div>
+        {!loading && !error && totalPages > 1 && (
+          <div className="pagination-container">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <div
+                key={num}
+                className={`page-num ${activePage === num ? "active" : ""}`}
+                onClick={() => setActivePage(num)}
+              >
+                {num}
+              </div>
+            ))}
+          </div>
+        )}
 
         <section className="reviews-rayo-section">
           <h2 className="reviews-rayo-title">Latest Reviews 🌟</h2>
