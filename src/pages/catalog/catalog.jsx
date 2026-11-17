@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
 const API_CATALOG_URL = `${API_BASE_URL}/api/catalog`;
+const CACHE_KEY = "meuw_catalog_cache_v1";
 
-// Warna pastel otomatis untuk card produk dari API
 const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1", "#FEF7DF", "#E8F4FE"];
 
 const catalogStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (BERKELANJUTAN DR HOME)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -33,32 +30,16 @@ const catalogStyles = `
   }
 
   @keyframes slideIn {
-    from {
-      transform: translateY(-30px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -82,7 +63,6 @@ const catalogStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -98,7 +78,6 @@ const catalogStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- TOAST NOTIFICATION --- */
   .toast-notification {
     position: fixed;
     top: 24px;
@@ -119,7 +98,6 @@ const catalogStyles = `
     animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -138,9 +116,7 @@ const catalogStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -180,11 +156,7 @@ const catalogStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -228,11 +200,7 @@ const catalogStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO SECTION --- */
-  .hero-section {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
+  .hero-section { text-align: center; margin-bottom: 3rem; }
 
   .hero-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -244,11 +212,7 @@ const catalogStyles = `
     text-shadow: 0 3px 6px rgba(247, 173, 173, 0.15);
   }
 
-  .search-pill-wrapper {
-    max-width: 520px;
-    margin: 0 auto;
-    position: relative;
-  }
+  .search-pill-wrapper { max-width: 520px; margin: 0 auto; position: relative; }
 
   .search-pill-input {
     width: 100%;
@@ -271,9 +235,7 @@ const catalogStyles = `
     transform: translateY(-2px);
   }
 
-  .search-pill-input::placeholder {
-    color: #AAA;
-  }
+  .search-pill-input::placeholder { color: #AAA; }
 
   .search-icon-inside {
     position: absolute;
@@ -284,7 +246,6 @@ const catalogStyles = `
     font-size: 1.05rem;
   }
 
-  /* --- FILTER BAR --- */
   .filter-sort-bar {
     display: flex;
     justify-content: space-between;
@@ -294,11 +255,7 @@ const catalogStyles = `
     gap: 1.2rem;
   }
 
-  .categories-chips {
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
+  .categories-chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
   .chip-btn {
     background-color: #FFF;
@@ -321,55 +278,34 @@ const catalogStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.3);
   }
 
-  /* --- PRODUCT GRID (DIKUNCI AGAR SAMA RATA DI SEMUA KATEGORI) --- */
   .product-grid-rayo {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 2.2rem 1.8rem;
     margin-bottom: 3.5rem;
-    width: 100%;
   }
 
-  .card-rayo {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    width: 100%;
-    overflow: hidden;
-    padding: 0.7rem;
-    border-radius: 40px 26px 36px 28px;
-    background-color: transparent;
-    border: 2px solid transparent;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    cursor: pointer;
-  }
-
-  /* EFEK MENGAMBANG MENYATU SAAT HOVER */
-  .card-rayo:hover {
-    transform: translateY(-10px) scale(1.02);
-    background-color: #FFFFFF;
-    border-color: #F7ADAD;
-    box-shadow: 0 20px 42px rgba(247, 173, 173, 0.32);
-  }
+  .card-rayo { display: flex; flex-direction: column; }
 
   .card-image-box {
     position: relative;
     width: 100%;
     height: 290px;
-    border-radius: 32px 20px 28px 22px;
+    border-radius: 36px 22px 32px 24px;
     border: 2px solid #F7ADAD;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
     overflow: hidden;
-    margin-bottom: 0.9rem;
+    margin-bottom: 1rem;
     box-shadow: 0 8px 24px rgba(247, 173, 173, 0.14);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .card-rayo:hover .card-image-box {
-    box-shadow: 0 10px 24px rgba(247, 173, 173, 0.2);
+    transform: translateY(-8px) rotate(1.5deg);
+    box-shadow: 0 16px 34px rgba(247, 173, 173, 0.25);
   }
 
   .card-tag-pill {
@@ -384,7 +320,7 @@ const catalogStyles = `
     border-radius: 14px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    z-index: 4;
+    z-index: 2;
     font-family: 'Quicksand', sans-serif;
     box-shadow: 0 3px 8px rgba(247, 173, 173, 0.2);
     animation: floatCute 3.5s infinite ease-in-out;
@@ -404,144 +340,81 @@ const catalogStyles = `
     justify-content: center;
     font-size: 0.95rem;
     cursor: pointer;
-    z-index: 4;
+    z-index: 2;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 10px rgba(247, 173, 173, 0.15);
   }
 
-  .card-wishlist-btn:hover {
-    transform: scale(1.2) rotate(10deg);
-    background-color: #FDEAE8;
-  }
+  .card-wishlist-btn:hover { transform: scale(1.2) rotate(10deg); background-color: #FDEAE8; }
 
   .card-img-content {
     max-width: 85%;
     max-height: 85%;
     object-fit: contain;
     border-radius: 16px;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .card-rayo:hover .card-img-content {
-    transform: scale(1.06);
-    filter: blur(2px) brightness(0.85);
-  }
+  .card-rayo:hover .card-img-content { transform: scale(1.08) rotate(-3deg); }
 
-  /* --- HOVER OVERLAY (MENAMPILKAN GAMBAR, NAMA, HARGA & DESKRIPSI MENYATU) --- */
-  .card-desc-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to top,
-      rgba(74, 62, 62, 0.95) 0%,
-      rgba(74, 62, 62, 0.85) 68%,
-      rgba(74, 62, 62, 0.35) 100%
-    );
-    color: #FFFDF6;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 3.4rem 1.3rem 1.2rem 1.3rem;
-    opacity: 0;
-    transform: translateY(18px);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 3;
-  }
+  .card-details { padding: 0 0.3rem; }
 
-  .card-rayo:hover .card-desc-overlay {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .card-overlay-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.35rem;
-    border-bottom: 1px dashed rgba(247, 173, 173, 0.55);
-    padding-bottom: 0.35rem;
-  }
-
-  .card-overlay-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.02rem;
-    font-weight: 700;
-    color: #FFFDF6;
-    line-height: 1.2;
-  }
-
-  .card-overlay-price {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1rem;
+  .card-category-label {
+    display: inline-block;
+    background-color: #B1E5E6;
+    color: #4A3E3E;
+    font-size: 0.72rem;
     font-weight: 800;
-    color: #F7ADAD;
-    white-space: nowrap;
+    padding: 3px 10px;
+    border-radius: 12px;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
 
-  .card-desc-overlay-text {
-    font-size: 0.8rem;
-    line-height: 1.45;
-    font-weight: 600;
-    color: #FFFDF6;
-    font-family: 'Quicksand', sans-serif;
-    max-height: 95px;
-    overflow-y: auto;
-    padding-right: 4px;
-  }
-
-  .card-desc-overlay-text::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .card-desc-overlay-text::-webkit-scrollbar-thumb {
-    background-color: #F7ADAD;
-    border-radius: 4px;
-  }
-
-  /* --- CARD DETAILS (BERSIH: NAMA, HARGA, & CART) --- */
-  .card-details {
-    padding: 0 0.4rem 0.3rem 0.4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.8rem;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .card-info-left {
+  .card-title-block {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
+    margin-bottom: 0.4rem;
   }
 
   .card-product-name {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.22rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: #333;
     line-height: 1.25;
-    margin-bottom: 0.2rem;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin-bottom: 0.25rem;
   }
 
   .card-product-price {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.28rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: #F7ADAD;
   }
 
+  .card-bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .card-product-desc {
+    font-size: 0.82rem;
+    color: #665959;
+    line-height: 1.45;
+    flex: 1;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  }
+
   .card-add-cart-btn {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
     border-radius: 50%;
     background-color: #4A3E3E;
@@ -550,7 +423,7 @@ const catalogStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.05rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 12px rgba(74, 62, 62, 0.2);
@@ -562,7 +435,6 @@ const catalogStyles = `
     color: #FFF;
   }
 
-  /* --- PAGINATION --- */
   .pagination-container {
     display: flex;
     justify-content: center;
@@ -594,13 +466,8 @@ const catalogStyles = `
     box-shadow: 0 4px 12px rgba(247, 173, 173, 0.35);
   }
 
-  .page-num:hover:not(.active) {
-    background-color: #B1E5E6;
-    color: #333;
-    transform: scale(1.1);
-  }
+  .page-num:hover:not(.active) { background-color: #B1E5E6; color: #333; transform: scale(1.1); }
 
-  /* --- REVIEWS SLIDER --- */
   .reviews-rayo-section {
     border-top: 2px dashed #F7ADAD;
     padding-top: 3rem;
@@ -616,18 +483,8 @@ const catalogStyles = `
     margin-bottom: 2rem;
   }
 
-  .reviews-slider-wrapper {
-    max-width: 960px;
-    margin: 0 auto;
-    overflow: hidden;
-    padding: 10px 0;
-  }
-
-  .reviews-slider-track {
-    display: flex;
-    gap: 1.8rem;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+  .reviews-slider-wrapper { max-width: 960px; margin: 0 auto; overflow: hidden; padding: 10px 0; }
+  .reviews-slider-track { display: flex; gap: 1.8rem; transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 
   .review-rayo-card {
     background-color: #FFF;
@@ -645,16 +502,8 @@ const catalogStyles = `
     transition: transform 0.3s ease;
   }
 
-  .review-rayo-card:hover {
-    transform: translateY(-6px) rotate(-1deg);
-  }
-
-  .review-rayo-header {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    margin-bottom: 0.9rem;
-  }
+  .review-rayo-card:hover { transform: translateY(-6px) rotate(-1deg); }
+  .review-rayo-header { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.9rem; }
 
   .review-rayo-avatar {
     width: 44px;
@@ -669,17 +518,8 @@ const catalogStyles = `
     box-shadow: 0 4px 10px rgba(177, 229, 230, 0.4);
   }
 
-  .review-rayo-user {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #333;
-  }
-
-  .review-rayo-stars {
-    color: #FFB74D;
-    font-size: 0.85rem;
-  }
+  .review-rayo-user { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1rem; color: #333; }
+  .review-rayo-stars { color: #FFB74D; font-size: 0.85rem; }
 
   .review-rayo-comment {
     font-size: 0.88rem;
@@ -691,15 +531,8 @@ const catalogStyles = `
     font-weight: 600;
   }
 
-  .review-rayo-date {
-    font-size: 0.75rem;
-    color: #AAA;
-    text-align: right;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
+  .review-rayo-date { font-size: 0.75rem; color: #AAA; text-align: right; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -708,12 +541,7 @@ const catalogStyles = `
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
   }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -726,24 +554,9 @@ const catalogStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
-
-  .footer-col-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
-    color: #FFFDF6;
-  }
-
-  .footer-col-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
 
   .footer-col-list a {
     text-decoration: none;
@@ -756,19 +569,8 @@ const catalogStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
-
-  .newsletter-desc {
-    font-size: 0.88rem;
-    opacity: 0.92;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
   .newsletter-input {
     width: 100%;
@@ -784,13 +586,8 @@ const catalogStyles = `
     transition: border-color 0.3s ease;
   }
 
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.3);
@@ -804,29 +601,72 @@ const catalogStyles = `
     font-weight: 600;
   }
 
-  .no-products {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 4rem;
-    color: #888;
-    font-weight: 700;
-    font-size: 1rem;
-    font-family: 'Quicksand', sans-serif;
-  }
+  .no-products { grid-column: 1 / -1; text-align: center; padding: 4rem; color: #888; font-weight: 700; font-size: 1rem; font-family: 'Quicksand', sans-serif; }
 
   @media (max-width: 950px) {
-    .product-grid-rayo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .product-grid-rayo { grid-template-columns: repeat(2, 1fr); }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
   @media (max-width: 600px) {
-    .product-grid-rayo { grid-template-columns: minmax(0, 1fr); }
+    .product-grid-rayo { grid-template-columns: 1fr; }
     .navbar { flex-direction: column; gap: 1rem; }
     .footer-grid { grid-template-columns: 1fr; }
     .hero-title { font-size: 2.2rem; }
     .footer-rayo-box { padding: 2.5rem 1.8rem; }
   }
 `;
+
+const formatCatalogData = (rawProducts) => {
+  const formattedProducts = rawProducts.map((item, index) => {
+    const kategoriNama =
+      typeof item.id_kategori === "object" && item.id_kategori !== null
+        ? item.id_kategori.nama_kategori
+        : item.nama_kategori || "Lainnya";
+
+    const kategoriId =
+      typeof item.id_kategori === "object" && item.id_kategori !== null
+        ? item.id_kategori._id
+        : item.id_kategori || index;
+
+    const productId = item._id || item.id_barang || index + 1;
+    const encodedLabel = encodeURIComponent(kategoriNama);
+    const fallbackImg = `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`;
+
+    return {
+      id_barang: productId,
+      id_kategori: kategoriId,
+      nama_kategori: kategoriNama,
+      nama_barang: item.nama_barang || "Produk Tanpa Nama",
+      harga: Number(item.harga || 0),
+      deskripsi: item.deskripsi || "Produk berkualitas untuk anabul.",
+      tag: kategoriNama.toUpperCase(),
+      bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
+      gambar:
+        typeof item.foto === "string"
+          ? item.foto
+          : `${API_CATALOG_URL}/${productId}/foto`,
+      fallbackGambar: fallbackImg,
+    };
+  });
+
+  const categoryMap = new Map();
+  formattedProducts.forEach((p) => {
+    if (p.nama_kategori && !categoryMap.has(p.nama_kategori)) {
+      categoryMap.set(p.nama_kategori, p.id_kategori);
+    }
+  });
+
+  const dynamicCategories = [
+    { id_kategori: "all", nama_kategori: "Semua" },
+    ...Array.from(categoryMap.entries()).map(([nama, id]) => ({
+      id_kategori: id,
+      nama_kategori: nama,
+    })),
+  ];
+
+  return { formattedProducts, dynamicCategories };
+};
 
 const Catalog = ({ cartCount = 0, onAddToCart }) => {
   const [products, setProducts] = useState([]);
@@ -853,8 +693,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Saraswati Putri",
       avatar: "🐱",
       rating: 5,
-      komentar:
-        "Hasil grooming anabul rapi & wangi banget! Anabulku biasa rewel tapi di sini anteng.",
+      komentar: "Hasil grooming anabul rapi & wangi banget! Anabulku biasa rewel tapi di sini anteng.",
       tanggal_review: "2026-10-14 10:00:00",
     },
     {
@@ -863,8 +702,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Amelia Zahra",
       avatar: "🐶",
       rating: 5,
-      komentar:
-        "Dry food Royal Canin pengirimannya super cepat! Expired date masih lama & dapet bonus.",
+      komentar: "Dry food Royal Canin pengirimannya super cepat! Expired date masih lama & dapet bonus.",
       tanggal_review: "2026-10-11 15:30:00",
     },
     {
@@ -873,8 +711,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Tiara Andini",
       avatar: "🐰",
       rating: 5,
-      komentar:
-        "Tempatnya bersih banget, staff-nya ramah & penyayang binatang. Next mau balik lagi!",
+      komentar: "Tempatnya bersih banget, staff-nya ramah & penyayang binatang. Next mau balik lagi!",
       tanggal_review: "2026-10-09 09:15:00",
     },
     {
@@ -883,85 +720,51 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Nabila Kanza",
       avatar: "🐱",
       rating: 5,
-      komentar:
-        "Suka banget sama vitamin bulunya, baru seminggu pake bulu kucingku langsung lebat!",
+      komentar: "Suka banget sama vitamin bulunya, baru seminggu pake bulu kucingku langsung lebat!",
       tanggal_review: "2026-10-02 18:20:00",
     },
   ];
 
-  // ============================================================
-  // FETCH DATA DARI https://meuw-petshop-server.vercel.app/api/catalog
-  // ============================================================
   useEffect(() => {
+    // 1. Cek cache dulu agar langsung tampil instan tanpa menunggu loading
+    let hasCached = false;
+    const cachedData = sessionStorage.getItem(CACHE_KEY);
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const { formattedProducts, dynamicCategories } = formatCatalogData(parsed);
+          setProducts(formattedProducts);
+          setCategoriesList(dynamicCategories);
+          setLoading(false);
+          hasCached = true;
+        }
+      } catch (e) {
+        console.error("Cache parse error:", e);
+      }
+    }
+
+    // 2. Sinkronisasi data terbaru dari server
     const fetchCatalog = async () => {
       try {
-        setLoading(true);
+        if (!hasCached) setLoading(true);
         setError(null);
 
         const response = await fetch(API_CATALOG_URL);
         if (!response.ok) {
-          throw new Error(
-            `Gagal memuat data dari server (HTTP ${response.status})`,
-          );
+          throw new Error(`Gagal memuat data dari server (HTTP ${response.status})`);
         }
 
         const result = await response.json();
         const rawProducts = Array.isArray(result.data) ? result.data : [];
 
-        const formattedProducts = rawProducts.map((item, index) => {
-          const kategoriNama =
-            typeof item.id_kategori === "object" && item.id_kategori !== null
-              ? item.id_kategori.nama_kategori
-              : item.nama_kategori || "Lainnya";
-
-          const kategoriId =
-            typeof item.id_kategori === "object" && item.id_kategori !== null
-              ? item.id_kategori._id
-              : item.id_kategori || index;
-
-          const productId = item._id || item.id_barang || index + 1;
-
-          const encodedLabel = encodeURIComponent(kategoriNama);
-          const fallbackImg = `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`;
-
-          return {
-            id_barang: productId,
-            id_kategori: kategoriId,
-            nama_kategori: kategoriNama,
-            nama_barang: item.nama_barang || "Produk Tanpa Nama",
-            harga: Number(item.harga || 0),
-            deskripsi: item.deskripsi || "Produk berkualitas untuk anabul.",
-            bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
-            gambar:
-              typeof item.foto === "string"
-                ? item.foto
-                : `${API_CATALOG_URL}/${productId}/foto`,
-            fallbackGambar: fallbackImg,
-          };
-        });
-
+        sessionStorage.setItem(CACHE_KEY, JSON.stringify(rawProducts));
+        const { formattedProducts, dynamicCategories } = formatCatalogData(rawProducts);
         setProducts(formattedProducts);
-
-        // Susun daftar kategori unik dari data produk untuk tombol di sebelah "Semua"
-        const categoryMap = new Map();
-        formattedProducts.forEach((p) => {
-          if (p.nama_kategori && !categoryMap.has(p.nama_kategori)) {
-            categoryMap.set(p.nama_kategori, p.id_kategori);
-          }
-        });
-
-        const dynamicCategories = [
-          { id_kategori: "all", nama_kategori: "Semua" },
-          ...Array.from(categoryMap.entries()).map(([nama, id]) => ({
-            id_kategori: id,
-            nama_kategori: nama,
-          })),
-        ];
-
         setCategoriesList(dynamicCategories);
       } catch (err) {
         console.error("Error fetch /api/catalog:", err);
-        setError(err.message);
+        if (!hasCached) setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -974,7 +777,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     if (latestReviews.length <= 3) return;
     const timer = setInterval(() => {
       setCurrentReviewIndex((prev) =>
-        prev >= latestReviews.length - 3 ? 0 : prev + 1,
+        prev >= latestReviews.length - 3 ? 0 : prev + 1
       );
     }, 3000);
     return () => clearInterval(timer);
@@ -994,13 +797,10 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     return matchesCategory && matchesSearch;
   });
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredProducts.length / itemsPerPage),
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
   const paginatedProducts = filteredProducts.slice(
     (activePage - 1) * itemsPerPage,
-    activePage * itemsPerPage,
+    activePage * itemsPerPage
   );
 
   useEffect(() => {
@@ -1027,19 +827,9 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
       <div className="wrapper">
         <nav className="navbar">
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -1063,42 +853,24 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
-              Home
-            </a>
-            <a href="#catalog" className="nav-menu-link active">
-              Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
-              Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
-              About
-            </a>
-            <a href="#contact" className="nav-menu-link">
-              Contact
-            </a>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link active">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
               👤
-            </a>
-            <a
-              href="#cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            </Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
@@ -1117,7 +889,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           </div>
         </section>
 
-        {/* TOMBOL FILTER: "Semua" & KATEGORI DINAMIS DI SEBELAHNYA */}
         <section className="filter-sort-bar">
           <div className="categories-chips">
             {categoriesList.map((cat) => (
@@ -1126,9 +897,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                 className={`chip-btn ${
                   selectedCategory === cat.nama_kategori ? "active" : ""
                 }`}
-                onClick={() => {
-                  setSelectedCategory(cat.nama_kategori);
-                }}
+                onClick={() => setSelectedCategory(cat.nama_kategori)}
               >
                 {cat.nama_kategori}
               </button>
@@ -1138,9 +907,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
         <section className="product-grid-rayo">
           {loading ? (
-            <div className="no-products">
-              🐾 Sedang memuat produk dari katalog MEUW...
-            </div>
+            <div className="no-products">🐾 Sedang memuat produk dari katalog MEUW...</div>
           ) : error ? (
             <div className="no-products" style={{ color: "#E53E3E" }}>
               😿 Gagal mengambil data: {error}
@@ -1148,63 +915,47 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           ) : paginatedProducts.length > 0 ? (
             paginatedProducts.map((item) => (
               <div key={item.id_barang} className="card-rayo">
-                <div
-                  className="card-image-box"
-                  style={{ backgroundColor: item.bgColor }}
-                >
+                <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
                   <span className="card-tag-pill">{item.nama_kategori}</span>
-                  <button className="card-wishlist-btn" title="Favorit">
-                    💖
-                  </button>
+                  <button className="card-wishlist-btn" title="Favorit">💖</button>
                   <img
                     src={item.gambar}
                     alt={item.nama_barang}
                     className="card-img-content"
+                    loading="lazy"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = item.fallbackGambar;
                     }}
                   />
-
-                  {/* HOVER OVERLAY: GAMBAR + NAMA + HARGA + DESKRIPSI MENYATU */}
-                  <div className="card-desc-overlay">
-                    <div className="card-overlay-header">
-                      <span className="card-overlay-title">
-                        {item.nama_barang}
-                      </span>
-                      <span className="card-overlay-price">
-                        Rp {item.harga.toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                    <p className="card-desc-overlay-text">{item.deskripsi}</p>
-                  </div>
                 </div>
 
-                {/* BAGIAN DEPAN: NAMA PRODUK, HARGA, & TOMBOL KERANJANG */}
                 <div className="card-details">
-                  <div className="card-info-left">
-                    <div className="card-product-name" title={item.nama_barang}>
-                      {item.nama_barang}
-                    </div>
+                  <span className="card-category-label">{item.nama_kategori}</span>
+
+                  <div className="card-title-block">
+                    <div className="card-product-name">{item.nama_barang}</div>
                     <div className="card-product-price">
                       Rp {item.harga.toLocaleString("id-ID")}
                     </div>
                   </div>
 
-                  <button
-                    className="card-add-cart-btn"
-                    title="Tambah ke Keranjang"
-                    onClick={() => handleAddToCart(item)}
-                  >
-                    🛒
-                  </button>
+                  <div className="card-bottom-row">
+                    <p className="card-product-desc">{item.deskripsi}</p>
+                    <button
+                      className="card-add-cart-btn"
+                      title="Tambah ke Keranjang"
+                      onClick={() => handleAddToCart(item)}
+                    >
+                      🛒
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
           ) : (
             <div className="no-products">
-              😿 Produk "{searchTerm}" pada kategori "{selectedCategory}" tidak
-              ditemukan.
+              😿 Produk "{searchTerm}" pada kategori "{selectedCategory}" tidak ditemukan.
             </div>
           )}
         </section>
@@ -1229,9 +980,7 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           <div className="reviews-slider-wrapper">
             <div
               className="reviews-slider-track"
-              style={{
-                transform: `translateX(-${currentReviewIndex * 314}px)`,
-              }}
+              style={{ transform: `translateX(-${currentReviewIndex * 314}px)` }}
             >
               {latestReviews.map((rev) => (
                 <div key={rev.id_review} className="review-rayo-card">
@@ -1263,56 +1012,35 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#catalog">Catalog</a>
-                </li>
-                <li>
-                  <a href="#services">Layanan</a>
-                </li>
-                <li>
-                  <a href="#about">About</a>
-                </li>
-                <li>
-                  <a href="#contact">Contact</a>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info produk terbaru dan penawaran diskon khusus
-                anabulmu.
+                Dapatkan info produk terbaru dan penawaran diskon khusus anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

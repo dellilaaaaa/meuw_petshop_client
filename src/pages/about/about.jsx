@@ -1,13 +1,10 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const aboutStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (BERKELANJUTAN DR HOME, CATALOG, SERVICES)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -27,21 +24,11 @@ const aboutStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -65,7 +52,6 @@ const aboutStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -81,7 +67,6 @@ const aboutStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -100,9 +85,7 @@ const aboutStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -142,11 +125,7 @@ const aboutStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -190,11 +169,7 @@ const aboutStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO TITLE --- */
-  .hero-section {
-    text-align: center;
-    margin-bottom: 3.5rem;
-  }
+  .hero-section { text-align: center; margin-bottom: 3.5rem; }
 
   .hero-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -216,13 +191,7 @@ const aboutStyles = `
     font-weight: 600;
   }
 
-  /* --- STATS HIGHLIGHT BAR --- */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.8rem;
-    margin-bottom: 4rem;
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; margin-bottom: 4rem; }
 
   .stat-card-rayo {
     background-color: #FFFFFF;
@@ -234,34 +203,11 @@ const aboutStyles = `
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .stat-card-rayo:hover {
-    transform: translateY(-8px) rotate(1.5deg);
-    box-shadow: 0 16px 34px rgba(247, 173, 173, 0.25);
-  }
+  .stat-card-rayo:hover { transform: translateY(-8px) rotate(1.5deg); box-shadow: 0 16px 34px rgba(247, 173, 173, 0.25); }
+  .stat-number { font-family: 'Baloo 2', cursive, sans-serif; font-size: 2.8rem; font-weight: 800; color: #F7ADAD; margin-bottom: 0.2rem; line-height: 1.1; }
+  .stat-label { font-size: 0.92rem; font-weight: 800; color: #4A3E3E; font-family: 'Quicksand', sans-serif; }
 
-  .stat-number {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 2.8rem;
-    font-weight: 800;
-    color: #F7ADAD;
-    margin-bottom: 0.2rem;
-    line-height: 1.1;
-  }
-
-  .stat-label {
-    font-size: 0.92rem;
-    font-weight: 800;
-    color: #4A3E3E;
-    font-family: 'Quicksand', sans-serif;
-  }
-
-  /* --- STORY & VALUES SECTION --- */
-  .content-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.2rem;
-    margin-bottom: 4.5rem;
-  }
+  .content-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; margin-bottom: 4.5rem; }
 
   .card-about-rayo {
     background-color: #FFFFFF;
@@ -275,10 +221,7 @@ const aboutStyles = `
     transition: all 0.35s ease;
   }
 
-  .card-about-rayo:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 16px 36px rgba(247, 173, 173, 0.22);
-  }
+  .card-about-rayo:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(247, 173, 173, 0.22); }
 
   .card-about-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -299,12 +242,7 @@ const aboutStyles = `
     font-weight: 600;
   }
 
-  .value-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+  .value-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
 
   .value-item {
     display: flex;
@@ -317,9 +255,7 @@ const aboutStyles = `
     transition: transform 0.25s ease;
   }
 
-  .value-item:hover {
-    transform: translateX(6px);
-  }
+  .value-item:hover { transform: translateX(6px); }
 
   .value-icon {
     width: 42px;
@@ -336,7 +272,6 @@ const aboutStyles = `
     animation: floatCute 4s infinite ease-in-out;
   }
 
-  /* --- LOCATION & CONTACT CARD --- */
   .location-box-rayo {
     background-color: #FFF;
     border: 2px solid #F7ADAD;
@@ -351,38 +286,11 @@ const aboutStyles = `
     transition: all 0.35s ease;
   }
 
-  .location-box-rayo:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 16px 36px rgba(247, 173, 173, 0.24);
-  }
-
-  .location-info-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #4A3E3E;
-    margin-bottom: 1rem;
-  }
-
-  .location-detail {
-    font-size: 0.95rem;
-    color: #665959;
-    line-height: 1.65;
-    margin-bottom: 1.4rem;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
-  .location-detail strong {
-    color: #4A3E3E;
-    font-weight: 800;
-  }
-
-  .contact-pill-list {
-    display: flex;
-    gap: 0.9rem;
-    flex-wrap: wrap;
-  }
+  .location-box-rayo:hover { transform: translateY(-5px); box-shadow: 0 16px 36px rgba(247, 173, 173, 0.24); }
+  .location-info-title { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.8rem; font-weight: 800; color: #4A3E3E; margin-bottom: 1rem; }
+  .location-detail { font-size: 0.95rem; color: #665959; line-height: 1.65; margin-bottom: 1.4rem; font-family: 'Quicksand', sans-serif; font-weight: 600; }
+  .location-detail strong { color: #4A3E3E; font-weight: 800; }
+  .contact-pill-list { display: flex; gap: 0.9rem; flex-wrap: wrap; }
 
   .contact-pill {
     background-color: #FFFDF6;
@@ -400,11 +308,7 @@ const aboutStyles = `
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .contact-pill:hover {
-    transform: translateY(-3px) scale(1.05);
-    background-color: #F7ADAD;
-    color: #FFFDF6;
-  }
+  .contact-pill:hover { transform: translateY(-3px) scale(1.05); background-color: #F7ADAD; color: #FFFDF6; }
 
   .map-placeholder-box {
     width: 100%;
@@ -425,11 +329,8 @@ const aboutStyles = `
     transition: transform 0.35s ease;
   }
 
-  .map-placeholder-box:hover {
-    transform: scale(1.02);
-  }
+  .map-placeholder-box:hover { transform: scale(1.02); }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -438,12 +339,7 @@ const aboutStyles = `
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
   }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -456,24 +352,9 @@ const aboutStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
-
-  .footer-col-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
-    color: #FFFDF6;
-  }
-
-  .footer-col-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
 
   .footer-col-list a {
     text-decoration: none;
@@ -486,19 +367,8 @@ const aboutStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
-
-  .newsletter-desc {
-    font-size: 0.88rem;
-    opacity: 0.92;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
   .newsletter-input {
     width: 100%;
@@ -514,13 +384,8 @@ const aboutStyles = `
     transition: border-color 0.3s ease;
   }
 
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.3);
@@ -535,9 +400,7 @@ const aboutStyles = `
   }
 
   @media (max-width: 850px) {
-    .stats-grid { grid-template-columns: 1fr; }
-    .content-section { grid-template-columns: 1fr; }
-    .location-box-rayo { grid-template-columns: 1fr; }
+    .stats-grid, .content-section, .location-box-rayo { grid-template-columns: 1fr; }
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
@@ -554,26 +417,13 @@ const About = ({ cartCount = 0 }) => {
     <>
       <style>{aboutStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
-        {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -597,56 +447,34 @@ const About = ({ cartCount = 0 }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
-              Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
-              Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
-              Layanan
-            </a>
-            <a href="#about" className="nav-menu-link active">
-              About
-            </a>
-            <a href="#contact" className="nav-menu-link">
-              Contact
-            </a>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link active">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
               👤
-            </a>
-            <a
-              href="#cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            </Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
-        {/* --- HERO TITLE --- */}
         <section className="hero-section">
           <h1 className="hero-title">TENTANG MEUW PETSHOP 🐱✨</h1>
           <p className="hero-subtitle">
-            Rumah kedua bagi anabul kesayanganmu. Kami hadir dengan komitmen
-            memberikan perawatan terbaik, produk berkualitas tinggi, dan
-            kenyamanan sepenuh hati.
+            Rumah kedua bagi anabul kesayanganmu. Kami hadir dengan komitmen memberikan perawatan terbaik, produk berkualitas tinggi, dan kenyamanan sepenuh hati.
           </p>
         </section>
 
-        {/* --- STATS HIGHLIGHT BAR --- */}
         <section className="stats-grid">
           <div className="stat-card-rayo">
             <div className="stat-number">5.000+</div>
@@ -662,20 +490,15 @@ const About = ({ cartCount = 0 }) => {
           </div>
         </section>
 
-        {/* --- STORY & VALUES SECTION --- */}
         <section className="content-section">
           <div className="card-about-rayo">
             <h3 className="card-about-title">Cerita Kami 📖</h3>
             <p className="card-about-text">
               Didirikan dengan kecintaan mendalam terhadap hewan peliharaan,{" "}
-              <strong>MEUW PETSHOP</strong> tumbuh dari petshop lokal menjadi
-              pusat perawatan anabul terpercaya. Kami percaya bahwa setiap
-              kucing, anjing, dan anabul lainnya berhak mendapatkan perawatan
-              yang lembut, makanan bernutrisi, dan perlengkapan terbaik.
+              <strong>MEUW PETSHOP</strong> tumbuh dari petshop lokal menjadi pusat perawatan anabul terpercaya. Kami percaya bahwa setiap kucing, anjing, dan anabul lainnya berhak mendapatkan perawatan yang lembut, makanan bernutrisi, dan perlengkapan terbaik.
             </p>
             <p className="card-about-text">
-              Semua produk di katalog kami telah dikurasi secara ketat dan
-              layanan grooming dipandu oleh profesional yang bersertifikat.
+              Semua produk di katalog kami telah dikurasi secara ketat dan layanan grooming dipandu oleh profesional yang bersertifikat.
             </p>
           </div>
 
@@ -702,13 +525,11 @@ const About = ({ cartCount = 0 }) => {
           </div>
         </section>
 
-        {/* --- LOCATION & CONTACT CARD --- */}
         <section className="location-box-rayo">
           <div>
             <h3 className="location-info-title">Kunjungi Toko Kami 📍</h3>
             <p className="location-detail">
-              Jl. Anabul Ceria No. 88, Karet Kuningan, Setiabudi, Jakarta
-              Selatan.
+              Jl. Anabul Ceria No. 88, Karet Kuningan, Setiabudi, Jakarta Selatan.
               <br />
               <strong>Buka Setiap Hari:</strong> 08.00 - 20.00 WIB
             </p>
@@ -731,7 +552,6 @@ const About = ({ cartCount = 0 }) => {
           </div>
         </section>
 
-        {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
           <div className="footer-grid">
             <div className="footer-brand">MEUW</div>
@@ -739,56 +559,35 @@ const About = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#catalog">Catalog</a>
-                </li>
-                <li>
-                  <a href="#services">Layanan</a>
-                </li>
-                <li>
-                  <a href="#about">About</a>
-                </li>
-                <li>
-                  <a href="#contact">Contact</a>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info terbaru mengenai layanan & promo spesial untuk
-                anabulmu.
+                Dapatkan info terbaru mengenai layanan & promo spesial untuk anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

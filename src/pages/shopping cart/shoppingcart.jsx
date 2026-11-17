@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const cartStyles = `
@@ -650,6 +651,8 @@ const cartStyles = `
 `;
 
 const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
+  const navigate = useNavigate();
+
   // State untuk menyimpan ID item yang dicentang
   // Default: Dicentang SEMUA saat pertama kali buka
   const [selectedIds, setSelectedIds] = useState(
@@ -725,7 +728,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
   // Lanjut ke Pembayaran
   const handleProceedToPayment = () => {
     if (selectedItems.length === 0) return;
-    window.location.hash = "#pembayaran";
+    navigate("/pembayaran");
   };
 
   return (
@@ -739,7 +742,7 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
         {/* --- NAVBAR --- */}
         <nav className="navbar">
           {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
             <img
               src={logoImg}
               alt="MEUW Petshop Logo"
@@ -775,42 +778,42 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link">
+            <Link to="/home" className="nav-menu-link">
               Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
               Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
+            </Link>
+            <Link to="/services" className="nav-menu-link">
               Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
+            </Link>
+            <Link to="/about" className="nav-menu-link">
               About
-            </a>
-            <a href="#contact" className="nav-menu-link">
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
               Contact
-            </a>
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
+            <Link
+              to="/riwayat"
               className="nav-icon-circle"
               title="Riwayat & Review"
             >
               👤
-            </a>
-            <a
-              href="#cart"
+            </Link>
+            <Link
+              to="/cart"
               className="nav-icon-circle active"
               title="Keranjang Belanja"
             >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
@@ -974,9 +977,9 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
             >
               Yuk cari makanan & perlengkapan favorit anabulmu sekarang.
             </p>
-            <a href="#catalog" className="empty-cart-btn">
+            <Link to="/catalog" className="empty-cart-btn">
               Belanja Sekarang 🐾
-            </a>
+            </Link>
           </div>
         )}
 
@@ -989,16 +992,16 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
                 <li>
-                  <a href="#catalog">Catalog</a>
+                  <Link to="/catalog">Catalog</Link>
                 </li>
                 <li>
-                  <a href="#services">Layanan</a>
+                  <Link to="/services">Layanan</Link>
                 </li>
                 <li>
-                  <a href="#about">About</a>
+                  <Link to="/about">About</Link>
                 </li>
                 <li>
-                  <a href="#contact">Contact</a>
+                  <Link to="/contact">Contact</Link>
                 </li>
               </ul>
             </div>

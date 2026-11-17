@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+
+const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
+const API_CATALOG_URL = `${API_BASE_URL}/api/catalog`;
+const CACHE_KEY = "meuw_catalog_cache_v1";
+const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1"];
 
 const homeStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI & STYLES (NAVBAR ICON EMOJI RESTORED)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -27,21 +29,16 @@ const homeStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(25px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  @keyframes shimmerPulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
   }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -80,7 +77,6 @@ const homeStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -99,9 +95,7 @@ const homeStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -141,11 +135,7 @@ const homeStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -189,7 +179,6 @@ const homeStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO SPLIT LAYOUT --- */
   .hero-home-split {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -289,7 +278,6 @@ const homeStyles = `
     animation: floatCute 3.5s infinite ease-in-out;
   }
 
-  /* --- HIGHLIGHTS GRID --- */
   .highlights-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -346,7 +334,6 @@ const homeStyles = `
     font-weight: 600;
   }
 
-  /* --- SECTION HEADERS --- */
   .section-header {
     display: flex;
     justify-content: space-between;
@@ -381,7 +368,6 @@ const homeStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  /* --- FEATURED PRODUCTS GRID --- */
   .featured-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -406,10 +392,18 @@ const homeStyles = `
     box-shadow: 0 16px 36px rgba(247, 173, 173, 0.28);
   }
 
+  .skeleton-card {
+    animation: shimmerPulse 1.4s infinite ease-in-out;
+  }
+
+  .skeleton-box {
+    background-color: #FDEAE8;
+    border-radius: 16px;
+  }
+
   .preview-img-box {
     width: 100%;
     height: 195px;
-    background-color: #FDEAE8;
     border: 2px solid #F7ADAD;
     border-radius: 26px 18px 28px 20px;
     display: flex;
@@ -420,11 +414,7 @@ const homeStyles = `
     box-shadow: inset 0 2px 10px rgba(247, 173, 173, 0.15);
   }
 
-  .preview-img-box img {
-    max-width: 80%;
-    max-height: 80%;
-    object-fit: contain;
-  }
+  .preview-img-box img { max-width: 85%; max-height: 85%; object-fit: contain; border-radius: 14px; }
 
   .preview-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -465,7 +455,6 @@ const homeStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.5);
   }
 
-  /* --- LAYANAN UNGGULAN SECTION --- */
   .services-alternating-container {
     display: flex;
     flex-direction: column;
@@ -592,7 +581,6 @@ const homeStyles = `
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.5);
   }
 
-  /* --- FOOTER EXPLICIT --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -617,9 +605,7 @@ const homeStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
 
   .footer-col-title {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -647,10 +633,7 @@ const homeStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
 
   .newsletter-desc {
     font-size: 0.88rem;
@@ -675,13 +658,8 @@ const homeStyles = `
     transition: border-color 0.3s ease;
   }
 
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.3);
@@ -710,52 +688,83 @@ const homeStyles = `
   }
 `;
 
+const formatRawProducts = (rawProducts) =>
+  rawProducts.map((item, index) => {
+    const kategoriNama =
+      typeof item.id_kategori === "object" && item.id_kategori !== null
+        ? item.id_kategori.nama_kategori
+        : item.nama_kategori || "Produk MEUW";
+
+    const productId = item._id || item.id_barang || index + 1;
+    const encodedLabel = encodeURIComponent(kategoriNama);
+
+    return {
+      id_barang: productId,
+      nama_barang: item.nama_barang || "Produk Tanpa Nama",
+      harga: Number(item.harga || 0),
+      bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
+      gambar:
+        typeof item.foto === "string"
+          ? item.foto
+          : `${API_CATALOG_URL}/${productId}/foto`,
+      fallbackGambar: `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`,
+    };
+  });
+
 const Home = ({ cartCount = 0 }) => {
-  const featuredProducts = [
-    {
-      id: 1,
-      name: "Royal Canin Mother & Babycat 2kg",
-      price: "Rp 285.000",
-      image: logoImg,
-    },
-    {
-      id: 2,
-      name: "Shampoo Anti Kutu & Jamur 250ml",
-      price: "Rp 45.000",
-      image: logoImg,
-    },
-    {
-      id: 3,
-      name: "Creamy Treats Kucing (Isi 4)",
-      price: "Rp 22.000",
-      image: logoImg,
-    },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  useEffect(() => {
+    // 1. Cek cache dulu agar langsung tampil instan (0 detik)
+    const cachedData = sessionStorage.getItem(CACHE_KEY);
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setFeaturedProducts(formatRawProducts(parsed).slice(0, 3));
+          setLoadingProducts(false);
+        }
+      } catch (e) {
+        console.error("Cache parse error:", e);
+      }
+    }
+
+    // 2. Tetap ambil data terbaru dari server di background
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(API_CATALOG_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        const rawProducts = Array.isArray(result.data) ? result.data : [];
+
+        if (rawProducts.length > 0) {
+          sessionStorage.setItem(CACHE_KEY, JSON.stringify(rawProducts));
+          setFeaturedProducts(formatRawProducts(rawProducts).slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Gagal mengambil produk dari database:", error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <>
       <style>{homeStyles}</style>
 
-      {/* Lengkungan Pastel Pink di Atas Kanan */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
         {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
-          <a href="#home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -779,42 +788,24 @@ const Home = ({ cartCount = 0 }) => {
                 FOOD & ACCESSORIES
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="nav-menu-pill">
-            <a href="#home" className="nav-menu-link active">
-              Home
-            </a>
-            <a href="#catalog" className="nav-menu-link">
-              Catalog
-            </a>
-            <a href="#services" className="nav-menu-link">
-              Layanan
-            </a>
-            <a href="#about" className="nav-menu-link">
-              About
-            </a>
-            <a href="#contact" className="nav-menu-link">
-              Contact
-            </a>
+            <Link to="/home" className="nav-menu-link active">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <a
-              href="#riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
               👤
-            </a>
-            <a
-              href="#cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            </Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-            </a>
+            </Link>
           </div>
         </nav>
 
@@ -822,17 +813,13 @@ const Home = ({ cartCount = 0 }) => {
         <header className="hero-home-split">
           <div className="hero-content-left">
             <span className="hero-tag">MEUW PETSHOP JAKARTA</span>
-            <h1 className="hero-title">
-              Pusat perawatan & kebutuhan anabul impian.
-            </h1>
+            <h1 className="hero-title">Pusat perawatan & kebutuhan anabul impian.</h1>
             <p className="hero-subtitle">
-              Rumah kedua untuk anabul kesayanganmu. Dapatkan makanan
-              bernutrisi, aksesoris lucu, dan layanan grooming profesional
-              dengan standar terbaik.
+              Rumah kedua untuk anabul kesayanganmu. Dapatkan makanan bernutrisi, aksesoris lucu, dan layanan grooming profesional dengan standar terbaik.
             </p>
-            <a href="#catalog" className="hero-cta-btn">
+            <Link to="/catalog" className="hero-cta-btn">
               BELANJA SEKARANG
-            </a>
+            </Link>
           </div>
 
           <div className="hero-image-right">
@@ -857,9 +844,7 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">01</div>
             <div>
               <div className="highlight-title">Pengiriman Cepat</div>
-              <div className="highlight-desc">
-                Amanah & langsung sampai tujuan
-              </div>
+              <div className="highlight-desc">Amanah & langsung sampai tujuan</div>
             </div>
           </div>
 
@@ -867,9 +852,7 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">02</div>
             <div>
               <div className="highlight-title">100% Produk Original</div>
-              <div className="highlight-desc">
-                Terjamin fresh & kualitas terbaik
-              </div>
+              <div className="highlight-desc">Terjamin fresh & kualitas terbaik</div>
             </div>
           </div>
 
@@ -877,9 +860,7 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">03</div>
             <div>
               <div className="highlight-title">Groomer Sertifikasi</div>
-              <div className="highlight-desc">
-                Penyayang & lembut pada anabul
-              </div>
+              <div className="highlight-desc">Penyayang & lembut pada anabul</div>
             </div>
           </div>
         </section>
@@ -888,111 +869,111 @@ const Home = ({ cartCount = 0 }) => {
         <section style={{ marginBottom: "5.5rem" }}>
           <div className="section-header">
             <h2 className="section-title">PRODUK TERFAVORIT</h2>
-            <a href="#catalog" className="section-link">
-              Lihat Semua Catalog
-            </a>
+            <Link to="/catalog" className="section-link">Lihat Semua Catalog</Link>
           </div>
 
-          <div className="featured-grid">
-            {featuredProducts.map((p) => (
-              <div key={p.id} className="product-preview-card">
-                <div className="preview-img-box">
-                  <img src={p.image} alt={p.name} />
+          {loadingProducts ? (
+            <div className="featured-grid">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="product-preview-card skeleton-card">
+                  <div className="preview-img-box skeleton-box"></div>
+                  <div className="skeleton-box" style={{ height: "24px", width: "75%", marginBottom: "0.6rem" }}></div>
+                  <div className="skeleton-box" style={{ height: "22px", width: "45%", marginBottom: "1.1rem" }}></div>
+                  <div className="skeleton-box" style={{ height: "42px", width: "100%" }}></div>
                 </div>
-                <div className="preview-title">{p.name}</div>
-                <div className="preview-price">{p.price}</div>
-                <a href="#catalog" className="preview-action-btn">
-                  Lihat Produk
-                </a>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="featured-grid">
+              {featuredProducts.map((p) => (
+                <div key={p.id_barang} className="product-preview-card">
+                  <div className="preview-img-box" style={{ backgroundColor: p.bgColor }}>
+                    <img
+                      src={p.gambar}
+                      alt={p.nama_barang}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = p.fallbackGambar;
+                      }}
+                    />
+                  </div>
+                  <div className="preview-title">{p.nama_barang}</div>
+                  <div className="preview-price">
+                    Rp {p.harga.toLocaleString("id-ID")}
+                  </div>
+                  <Link to="/catalog" className="preview-action-btn">
+                    Lihat Produk
+                  </Link>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ textAlign: "center", fontWeight: 700, color: "#665959" }}>
+              Belum ada produk tersedia saat ini.
+            </p>
+          )}
         </section>
 
         {/* --- LAYANAN UNGGULAN SECTION --- */}
         <section style={{ marginBottom: "5.5rem" }}>
           <div className="section-header">
             <h2 className="section-title">LAYANAN UNGGULAN</h2>
-            <a href="#services" className="section-link">
-              Lihat Semua Layanan
-            </a>
+            <Link to="/services" className="section-link">Lihat Semua Layanan</Link>
           </div>
 
           <div className="services-alternating-container">
-            {/* ITEM 1: GROOMING */}
             <div className="service-split-card">
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#FDEAE8" }}
-              >
+              <div className="service-visual-box" style={{ backgroundColor: "#FDEAE8" }}>
                 <span className="service-home-tag">POPULER</span>
                 <span className="service-category-label">GROOMING</span>
               </div>
               <div className="service-content-box">
                 <h3 className="service-home-title">Grooming Anabul</h3>
                 <p className="service-home-desc">
-                  Mandi pembersihan anti-bakteri, potong styling bulu rapi, dan
-                  pembersihan telinga & kuku.
+                  Mandi pembersihan anti-bakteri, potong styling bulu rapi, dan pembersihan telinga & kuku.
                 </p>
                 <div className="service-home-pills">
                   <span>Shampoo Hypoallergenic</span>
                   <span>Mandi Sehat & Cut Styling</span>
                 </div>
-                <a href="#services" className="service-home-btn">
-                  Booking Grooming
-                </a>
+                <Link to="/services" className="service-home-btn">Booking Grooming</Link>
               </div>
             </div>
 
-            {/* ITEM 2: PENITIPAN VIP */}
             <div className="service-split-card reverse">
               <div className="service-content-box">
-                <h3 className="service-home-title">
-                  Penitipan VIP (Pet Hotel)
-                </h3>
+                <h3 className="service-home-title">Penitipan VIP (Pet Hotel)</h3>
                 <p className="service-home-desc">
-                  Kamar AC tersterilkan, makan teratur, dan pengawasan penuh
-                  kasih sayang saat kamu bepergian.
+                  Kamar AC tersterilkan, makan teratur, dan pengawasan penuh kasih sayang saat kamu bepergian.
                 </p>
                 <div className="service-home-pills">
                   <span>Kamar AC Steril</span>
                   <span>Free Update Foto/Video</span>
                 </div>
-                <a href="#services" className="service-home-btn">
-                  Reservasi Pet Hotel
-                </a>
+                <Link to="/services" className="service-home-btn">Reservasi Pet Hotel</Link>
               </div>
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#FEF7DF" }}
-              >
+              <div className="service-visual-box" style={{ backgroundColor: "#FEF7DF" }}>
                 <span className="service-home-tag">BEST VALUE</span>
                 <span className="service-category-label">PET HOTEL</span>
               </div>
             </div>
 
-            {/* ITEM 3: PERAWATAN KESEHATAN */}
             <div className="service-split-card">
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#E3F6F6" }}
-              >
+              <div className="service-visual-box" style={{ backgroundColor: "#E3F6F6" }}>
                 <span className="service-home-tag">HEALTHCARE</span>
                 <span className="service-category-label">HEALTHCARE</span>
               </div>
               <div className="service-content-box">
                 <h3 className="service-home-title">Perawatan & Treatment</h3>
                 <p className="service-home-desc">
-                  Penanganan khusus kutu telinga (ear mites), jamur kulit, serta
-                  layanan pet-car antar-jemput.
+                  Penanganan khusus kutu telinga (ear mites), jamur kulit, serta layanan pet-car antar-jemput.
                 </p>
                 <div className="service-home-pills">
                   <span>Treatment Kutu & Jamur</span>
                   <span>Pet Taxi Antar-Jemput</span>
                 </div>
-                <a href="#services" className="service-home-btn">
-                  Konsultasi & Book
-                </a>
+                <Link to="/services" className="service-home-btn">Konsultasi & Book</Link>
               </div>
             </div>
           </div>
@@ -1006,56 +987,35 @@ const Home = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#catalog">Catalog</a>
-                </li>
-                <li>
-                  <a href="#services">Layanan</a>
-                </li>
-                <li>
-                  <a href="#about">About</a>
-                </li>
-                <li>
-                  <a href="#contact">Contact</a>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#delivery">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info produk terbaru dan penawaran diskon khusus
-                anabulmu.
+                Dapatkan info produk terbaru dan penawaran diskon khusus anabulmu.
               </p>
               <input
                 type="text"
