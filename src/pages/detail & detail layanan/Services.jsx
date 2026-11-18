@@ -1,6 +1,12 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+
+const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
+const API_LAYANAN_URL = `${API_BASE_URL}/api/layanan`;
+const CACHE_LAYANAN_KEY = "meuw_layanan_cache_v1";
+
+const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1", "#FEF7DF", "#E8F4FE"];
 
 const servicesStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
@@ -365,7 +371,17 @@ const servicesStyles = `
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .card-rayo:hover .service-icon-display { transform: scale(1.12) rotate(-5deg); }
+  .service-img-display {
+    max-width: 85%;
+    max-height: 85%;
+    object-fit: contain;
+    border-radius: 16px;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .card-rayo:hover .service-icon-display,
+  .card-rayo:hover .service-img-display { transform: scale(1.12) rotate(-3deg); }
+
   .card-details { padding: 0 0.3rem; }
   .card-title-block { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 0.4rem; }
 
@@ -380,13 +396,13 @@ const servicesStyles = `
 
   .card-service-price { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.3rem; font-weight: 800; color: #F7ADAD; }
 
-  .card-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
+  .card-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; gap: 0.8rem; }
 
   .card-service-desc {
     font-size: 0.82rem;
     color: #665959;
     line-height: 1.4;
-    max-width: 75%;
+    flex: 1;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
   }
@@ -511,6 +527,11 @@ const servicesStyles = `
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.5);
   }
 
+  .btn-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -579,6 +600,15 @@ const servicesStyles = `
     font-weight: 600;
   }
 
+  .no-services {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3.5rem;
+    color: #665959;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
   @media (max-width: 950px) {
     .services-grid-rayo { grid-template-columns: repeat(2, 1fr); }
     .info-boxes-grid { grid-template-columns: 1fr; }
@@ -594,86 +624,118 @@ const servicesStyles = `
   }
 `;
 
+// Helper untuk mendeteksi kategori, icon, dan URL foto layanan dari database
+const formatLayananData = (rawList) => {
+  return rawList.map((item, index) => {
+    const nama = item.nama_layanan || "Layanan MEUW";
+    const lower = nama.toLowerCase();
+
+    let category = "Perawatan";
+    let icon = "🐾";
+    let tag = "HEALTHCARE";
+
+    if (lower.includes("grooming") || lower.includes("mandi") || lower.includes("cut")) {
+      category = "Grooming";
+      icon = lower.includes("cut") || lower.includes("styling") ? "✂️" : "🧼";
+      tag = "POPULER";
+    } else if (lower.includes("hotel") || lower.includes("penitipan") || lower.includes("vip")) {
+      category = "Penitipan";
+      icon = "🏡";
+      tag = "BEST VALUE";
+    } else if (lower.includes("antar") || lower.includes("jemput") || lower.includes("taxi")) {
+      category = "Perawatan";
+      icon = "🚗";
+      tag = "EXTRA";
+    } else if (lower.includes("kutu") || lower.includes("jamur") || lower.includes("treatment")) {
+      category = "Perawatan";
+      icon = "🏥";
+      tag = "HEALTH";
+    }
+
+    let fotoUrl = "";
+    if (typeof item.foto === "string" && item.foto.trim() !== "") {
+      if (/^https?:\/\//i.test(item.foto)) {
+        fotoUrl = item.foto;
+      } else {
+        const normalized = item.foto.replace(/\\/g, "/");
+        const uploadIdx = normalized.toLowerCase().lastIndexOf("/uploads/");
+        fotoUrl =
+          uploadIdx !== -1
+            ? `${API_BASE_URL}${normalized.substring(uploadIdx)}`
+            : `${API_BASE_URL}/uploads/layanan/${normalized.split("/").pop()}`;
+      }
+    }
+
+    return {
+      id_layanan: item.id_layanan || item._id || String(index + 1),
+      nama_layanan: nama,
+      harga: Number(item.harga || 0),
+      deskripsi: item.deskripsi || "Layanan perawatan terbaik untuk anabul.",
+      foto: fotoUrl,
+      category,
+      tag,
+      icon,
+      bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
+    };
+  });
+};
+
 const Services = ({ cartCount = 0, onAddBooking }) => {
+  const navigate = useNavigate();
+  const [servicesData, setServicesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const [bookingForm, setBookingForm] = useState({
     tanggal_mulai: "",
     jam_mulai: "",
     tanggal_selesai: "",
-    status_booking: "MENUNGGU KONFIRMASI",
   });
 
-  const servicesData = [
-    {
-      id_layanan: 1,
-      nama_layanan: "Grooming Mandi Sehat",
-      harga: 60000,
-      deskripsi: "Mandi pembersihan standar anti-bakteri.",
-      estimasi: "60 Menit",
-      category: "Grooming",
-      tag: "POPULER",
-      icon: "🧼",
-      bgColor: "#FDEAE8",
-    },
-    {
-      id_layanan: 2,
-      nama_layanan: "Grooming Anti Kutu & Jamur",
-      harga: 85000,
-      deskripsi: "Penanganan khusus kutu & jamur kulit.",
-      estimasi: "75 Menit",
-      category: "Grooming",
-      tag: "RECOMMENDED",
-      icon: "🏥",
-      bgColor: "#E3F6F6",
-    },
-    {
-      id_layanan: 3,
-      nama_layanan: "Grooming Cut & Styling",
-      harga: 120000,
-      deskripsi: "Mandi lengkap & potong styling bulu.",
-      estimasi: "90 Menit",
-      category: "Grooming",
-      tag: "SPECIAL",
-      icon: "✂️",
-      bgColor: "#FEEAE1",
-    },
-    {
-      id_layanan: 4,
-      nama_layanan: "Pet Hotel / Penitipan VIP",
-      harga: 75000,
-      deskripsi: "Kamar AC steril & pengawasan penuh.",
-      estimasi: "1 Hari",
-      category: "Penitipan",
-      tag: "BEST VALUE",
-      icon: "🏡",
-      bgColor: "#FEF7DF",
-    },
-    {
-      id_layanan: 5,
-      nama_layanan: "Treatment Ear Mites & Jamur",
-      harga: 35000,
-      deskripsi: "Pembersihan kutu telinga & jamur.",
-      estimasi: "30 Menit",
-      category: "Perawatan",
-      tag: "HEALTH",
-      icon: "💊",
-      bgColor: "#E8F4FE",
-    },
-    {
-      id_layanan: 6,
-      nama_layanan: "Antar-Jemput Anabul",
-      harga: 25000,
-      deskripsi: "Layanan pet-car aman antar-jemput.",
-      estimasi: "Fleksibel",
-      category: "Perawatan",
-      tag: "EXTRA",
-      icon: "🚗",
-      bgColor: "#FDEAE8",
-    },
-  ];
+  useEffect(() => {
+    let hasCached = false;
+    const cached = sessionStorage.getItem(CACHE_LAYANAN_KEY);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setServicesData(formatLayananData(parsed));
+          setLoading(false);
+          hasCached = true;
+        }
+      } catch (e) {
+        console.error("Cache layanan parse error:", e);
+      }
+    }
+
+    const fetchLayanan = async () => {
+      try {
+        if (!hasCached) setLoading(true);
+        setError(null);
+
+        const res = await fetch(API_LAYANAN_URL);
+        if (!res.ok) throw new Error(`Gagal memuat layanan (HTTP ${res.status})`);
+
+        const result = await res.json();
+        const rawList = Array.isArray(result.data) ? result.data : [];
+
+        sessionStorage.setItem(CACHE_LAYANAN_KEY, JSON.stringify(rawList));
+        setServicesData(formatLayananData(rawList));
+      } catch (err) {
+        console.error("Error fetch /api/layanan:", err);
+        if (!hasCached) setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLayanan();
+  }, []);
 
   const categories = ["Semua", "Grooming", "Penitipan", "Perawatan"];
 
@@ -686,34 +748,110 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     setModalOpen(true);
   };
 
-  const handleSubmitBooking = (e) => {
+  const handleSubmitBooking = async (e) => {
     e.preventDefault();
+    if (!selectedLayanan) return;
 
-    if (onAddBooking && selectedLayanan) {
-      onAddBooking({
-        nama_layanan: selectedLayanan.nama_layanan,
-        harga: selectedLayanan.harga,
-        tanggal_mulai: bookingForm.tanggal_mulai,
-        jam_mulai: bookingForm.jam_mulai,
-        tanggal_selesai: bookingForm.tanggal_selesai,
-        icon: selectedLayanan.icon,
-      });
+    // Pastikan tanggal_selesai berada setelah tanggal_mulai + jam_mulai sesuai validasi backend
+    const tglMulaiStr = bookingForm.tanggal_mulai;
+    const tglSelesaiStr = `${bookingForm.tanggal_selesai}T23:59:00`;
+
+    const startObj = new Date(`${tglMulaiStr}T${bookingForm.jam_mulai}:00`);
+    const endObj = new Date(tglSelesaiStr);
+
+    if (endObj <= startObj) {
+      alert("Tanggal selesai harus setelah tanggal dan jam mulai booking!");
+      return;
     }
 
-    alert(
-      `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil diajukan!\n\n` +
-        `📅 Tanggal Mulai: ${bookingForm.tanggal_mulai} (${bookingForm.jam_mulai})\n` +
-        `🏁 Tanggal Selesai: ${bookingForm.tanggal_selesai}\n` +
-        `📌 Status: MENUNGGU KONFIRMASI`
-    );
+    setSubmitting(true);
 
-    setModalOpen(false);
-    setBookingForm({
-      tanggal_mulai: "",
-      jam_mulai: "",
-      tanggal_selesai: "",
-      status_booking: "MENUNGGU KONFIRMASI",
-    });
+    try {
+      // Cek user yang login untuk dihubungkan ke transaksi database jika tersedia
+      const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+      const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+      if (currentUser && currentUser.id_user) {
+        // 1. Buat Transaksi di backend
+        const trxRes = await fetch(`${API_BASE_URL}/api/transaksi`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_user: currentUser.id_user,
+            id_store: "1",
+            total_harga: selectedLayanan.harga,
+            metode_pembayaran: "CASH",
+            status_pembayaran: "BELUM BAYAR",
+          }),
+        });
+        const trxJson = await trxRes.json();
+
+        if (trxJson.success && trxJson.data?.id_transaksi) {
+          // 2. Buat Detail Layanan di backend
+          const detailRes = await fetch(`${API_BASE_URL}/api/detail-layanan`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id_transaksi: trxJson.data.id_transaksi,
+              id_layanan: selectedLayanan.id_layanan,
+              jumlah: 1,
+              harga_satuan: selectedLayanan.harga,
+            }),
+          });
+          const detailJson = await detailRes.json();
+
+          if (detailJson.success && detailJson.data?.id_detail_layanan) {
+            // 3. Buat Booking Layanan di backend
+            await fetch(`${API_BASE_URL}/api/booking-layanan`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id_detail_layanan: detailJson.data.id_detail_layanan,
+                tanggal_mulai: tglMulaiStr,
+                jam_mulai: bookingForm.jam_mulai,
+                tanggal_selesai: tglSelesaiStr,
+                status_booking: "MENUNGGU KONFIRMASI",
+              }),
+            });
+          }
+        }
+      }
+
+      // Simpan ke state global App agar langsung muncul di halaman Akun Saya (/riwayat)
+      if (onAddBooking) {
+        onAddBooking({
+          nama_layanan: selectedLayanan.nama_layanan,
+          harga: selectedLayanan.harga,
+          tanggal_mulai: bookingForm.tanggal_mulai,
+          jam_mulai: bookingForm.jam_mulai,
+          tanggal_selesai: bookingForm.tanggal_selesai,
+          icon: selectedLayanan.icon,
+        });
+      }
+
+      alert(
+        `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil diajukan!\n\n` +
+          `📅 Tanggal Mulai: ${bookingForm.tanggal_mulai} (${bookingForm.jam_mulai})\n` +
+          `🏁 Tanggal Selesai: ${bookingForm.tanggal_selesai}\n` +
+          `📌 Status: MENUNGGU KONFIRMASI`
+      );
+
+      setModalOpen(false);
+      setBookingForm({
+        tanggal_mulai: "",
+        jam_mulai: "",
+        tanggal_selesai: "",
+      });
+
+      if (!currentUser) {
+        navigate("/riwayat");
+      }
+    } catch (err) {
+      console.error("Booking error:", err);
+      alert("Terjadi kendala saat mengirim booking, coba lagi sebentar ya!");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -761,7 +899,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
+            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
               👤
             </Link>
             <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
@@ -819,32 +957,54 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         </section>
 
         <section className="services-grid-rayo">
-          {filteredServices.map((item) => (
-            <div key={item.id_layanan} className="card-rayo">
-              <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
-                <span className="card-tag-pill">{item.tag}</span>
-                <div className="service-icon-display">{item.icon}</div>
-              </div>
+          {loading ? (
+            <div className="no-services">🐾 Sedang memuat daftar layanan MEUW...</div>
+          ) : error ? (
+            <div className="no-services" style={{ color: "#E53E3E" }}>
+              😿 Gagal memuat layanan: {error}
+            </div>
+          ) : filteredServices.length > 0 ? (
+            filteredServices.map((item) => (
+              <div key={item.id_layanan} className="card-rayo">
+                <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
+                  <span className="card-tag-pill">{item.tag}</span>
+                  {item.foto ? (
+                    <img
+                      src={item.foto}
+                      alt={item.nama_layanan}
+                      className="service-img-display"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="service-icon-display">{item.icon}</div>
+                  )}
+                </div>
 
-              <div className="card-details">
-                <div className="card-title-block">
-                  <div className="card-service-name">{item.nama_layanan}</div>
-                  <div className="card-service-price">
-                    Rp {item.harga.toLocaleString("id-ID")}
+                <div className="card-details">
+                  <div className="card-title-block">
+                    <div className="card-service-name">{item.nama_layanan}</div>
+                    <div className="card-service-price">
+                      Rp {item.harga.toLocaleString("id-ID")}
+                    </div>
+                  </div>
+
+                  <div className="card-bottom-row">
+                    <p className="card-service-desc">{item.deskripsi}</p>
+                    <button className="card-book-btn" onClick={() => handleOpenModal(item)}>
+                      BOOKING 📅
+                    </button>
                   </div>
                 </div>
-
-                <div className="card-bottom-row">
-                  <p className="card-service-desc">
-                    {item.deskripsi} ({item.estimasi})
-                  </p>
-                  <button className="card-book-btn" onClick={() => handleOpenModal(item)}>
-                    BOOKING 📅
-                  </button>
-                </div>
               </div>
+            ))
+          ) : (
+            <div className="no-services">
+              😿 Belum ada layanan pada kategori "{selectedCategory}".
             </div>
-          ))}
+          )}
         </section>
 
         {modalOpen && selectedLayanan && (
@@ -907,8 +1067,8 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                   />
                 </div>
 
-                <button type="submit" className="btn-submit">
-                  KONFIRMASI BOOKING 💖
+                <button type="submit" className="btn-submit" disabled={submitting}>
+                  {submitting ? "MEMPROSES BOOKING..." : "KONFIRMASI BOOKING 💖"}
                 </button>
               </form>
             </div>
