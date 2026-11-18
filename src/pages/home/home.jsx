@@ -763,8 +763,18 @@ const Home = ({ cartCount = 0 }) => {
         {/* --- NAVBAR --- */}
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -791,18 +801,36 @@ const Home = ({ cartCount = 0 }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link active">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link active">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Akun & Riwayat"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -813,9 +841,13 @@ const Home = ({ cartCount = 0 }) => {
         <header className="hero-home-split">
           <div className="hero-content-left">
             <span className="hero-tag">MEUW PETSHOP JAKARTA</span>
-            <h1 className="hero-title">Pusat perawatan & kebutuhan anabul impian.</h1>
+            <h1 className="hero-title">
+              Pusat perawatan & kebutuhan anabul impian.
+            </h1>
             <p className="hero-subtitle">
-              Rumah kedua untuk anabul kesayanganmu. Dapatkan makanan bernutrisi, aksesoris lucu, dan layanan grooming profesional dengan standar terbaik.
+              Rumah kedua untuk anabul kesayanganmu. Dapatkan makanan
+              bernutrisi, aksesoris lucu, dan layanan grooming profesional
+              dengan standar terbaik.
             </p>
             <Link to="/catalog" className="hero-cta-btn">
               BELANJA SEKARANG
@@ -844,7 +876,9 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">01</div>
             <div>
               <div className="highlight-title">Pengiriman Cepat</div>
-              <div className="highlight-desc">Amanah & langsung sampai tujuan</div>
+              <div className="highlight-desc">
+                Amanah & langsung sampai tujuan
+              </div>
             </div>
           </div>
 
@@ -852,7 +886,9 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">02</div>
             <div>
               <div className="highlight-title">100% Produk Original</div>
-              <div className="highlight-desc">Terjamin fresh & kualitas terbaik</div>
+              <div className="highlight-desc">
+                Terjamin fresh & kualitas terbaik
+              </div>
             </div>
           </div>
 
@@ -860,7 +896,9 @@ const Home = ({ cartCount = 0 }) => {
             <div className="highlight-badge-num">03</div>
             <div>
               <div className="highlight-title">Groomer Sertifikasi</div>
-              <div className="highlight-desc">Penyayang & lembut pada anabul</div>
+              <div className="highlight-desc">
+                Penyayang & lembut pada anabul
+              </div>
             </div>
           </div>
         </section>
@@ -869,7 +907,9 @@ const Home = ({ cartCount = 0 }) => {
         <section style={{ marginBottom: "5.5rem" }}>
           <div className="section-header">
             <h2 className="section-title">PRODUK TERFAVORIT</h2>
-            <Link to="/catalog" className="section-link">Lihat Semua Catalog</Link>
+            <Link to="/catalog" className="section-link">
+              Lihat Semua Catalog
+            </Link>
           </div>
 
           {loadingProducts ? (
@@ -877,9 +917,26 @@ const Home = ({ cartCount = 0 }) => {
               {[1, 2, 3].map((n) => (
                 <div key={n} className="product-preview-card skeleton-card">
                   <div className="preview-img-box skeleton-box"></div>
-                  <div className="skeleton-box" style={{ height: "24px", width: "75%", marginBottom: "0.6rem" }}></div>
-                  <div className="skeleton-box" style={{ height: "22px", width: "45%", marginBottom: "1.1rem" }}></div>
-                  <div className="skeleton-box" style={{ height: "42px", width: "100%" }}></div>
+                  <div
+                    className="skeleton-box"
+                    style={{
+                      height: "24px",
+                      width: "75%",
+                      marginBottom: "0.6rem",
+                    }}
+                  ></div>
+                  <div
+                    className="skeleton-box"
+                    style={{
+                      height: "22px",
+                      width: "45%",
+                      marginBottom: "1.1rem",
+                    }}
+                  ></div>
+                  <div
+                    className="skeleton-box"
+                    style={{ height: "42px", width: "100%" }}
+                  ></div>
                 </div>
               ))}
             </div>
@@ -887,7 +944,10 @@ const Home = ({ cartCount = 0 }) => {
             <div className="featured-grid">
               {featuredProducts.map((p) => (
                 <div key={p.id_barang} className="product-preview-card">
-                  <div className="preview-img-box" style={{ backgroundColor: p.bgColor }}>
+                  <div
+                    className="preview-img-box"
+                    style={{ backgroundColor: p.bgColor }}
+                  >
                     <img
                       src={p.gambar}
                       alt={p.nama_barang}
@@ -902,14 +962,20 @@ const Home = ({ cartCount = 0 }) => {
                   <div className="preview-price">
                     Rp {p.harga.toLocaleString("id-ID")}
                   </div>
-                  <Link to="/catalog" className="preview-action-btn">
+                  <Link
+                    to="/catalog"
+                    state={{ selectedProductId: p.id_barang }}
+                    className="preview-action-btn"
+                  >
                     Lihat Produk
                   </Link>
                 </div>
               ))}
             </div>
           ) : (
-            <p style={{ textAlign: "center", fontWeight: 700, color: "#665959" }}>
+            <p
+              style={{ textAlign: "center", fontWeight: 700, color: "#665959" }}
+            >
               Belum ada produk tersedia saat ini.
             </p>
           )}
@@ -919,61 +985,83 @@ const Home = ({ cartCount = 0 }) => {
         <section style={{ marginBottom: "5.5rem" }}>
           <div className="section-header">
             <h2 className="section-title">LAYANAN UNGGULAN</h2>
-            <Link to="/services" className="section-link">Lihat Semua Layanan</Link>
+            <Link to="/services" className="section-link">
+              Lihat Semua Layanan
+            </Link>
           </div>
 
           <div className="services-alternating-container">
             <div className="service-split-card">
-              <div className="service-visual-box" style={{ backgroundColor: "#FDEAE8" }}>
+              <div
+                className="service-visual-box"
+                style={{ backgroundColor: "#FDEAE8" }}
+              >
                 <span className="service-home-tag">POPULER</span>
                 <span className="service-category-label">GROOMING</span>
               </div>
               <div className="service-content-box">
                 <h3 className="service-home-title">Grooming Anabul</h3>
                 <p className="service-home-desc">
-                  Mandi pembersihan anti-bakteri, potong styling bulu rapi, dan pembersihan telinga & kuku.
+                  Mandi pembersihan anti-bakteri, potong styling bulu rapi, dan
+                  pembersihan telinga & kuku.
                 </p>
                 <div className="service-home-pills">
                   <span>Shampoo Hypoallergenic</span>
                   <span>Mandi Sehat & Cut Styling</span>
                 </div>
-                <Link to="/services" className="service-home-btn">Booking Grooming</Link>
+                <Link to="/services" className="service-home-btn">
+                  Booking Grooming
+                </Link>
               </div>
             </div>
 
             <div className="service-split-card reverse">
               <div className="service-content-box">
-                <h3 className="service-home-title">Penitipan VIP (Pet Hotel)</h3>
+                <h3 className="service-home-title">
+                  Penitipan VIP (Pet Hotel)
+                </h3>
                 <p className="service-home-desc">
-                  Kamar AC tersterilkan, makan teratur, dan pengawasan penuh kasih sayang saat kamu bepergian.
+                  Kamar AC tersterilkan, makan teratur, dan pengawasan penuh
+                  kasih sayang saat kamu bepergian.
                 </p>
                 <div className="service-home-pills">
                   <span>Kamar AC Steril</span>
                   <span>Free Update Foto/Video</span>
                 </div>
-                <Link to="/services" className="service-home-btn">Reservasi Pet Hotel</Link>
+                <Link to="/services" className="service-home-btn">
+                  Reservasi Pet Hotel
+                </Link>
               </div>
-              <div className="service-visual-box" style={{ backgroundColor: "#FEF7DF" }}>
+              <div
+                className="service-visual-box"
+                style={{ backgroundColor: "#FEF7DF" }}
+              >
                 <span className="service-home-tag">BEST VALUE</span>
                 <span className="service-category-label">PET HOTEL</span>
               </div>
             </div>
 
             <div className="service-split-card">
-              <div className="service-visual-box" style={{ backgroundColor: "#E3F6F6" }}>
+              <div
+                className="service-visual-box"
+                style={{ backgroundColor: "#E3F6F6" }}
+              >
                 <span className="service-home-tag">HEALTHCARE</span>
                 <span className="service-category-label">HEALTHCARE</span>
               </div>
               <div className="service-content-box">
                 <h3 className="service-home-title">Perawatan & Treatment</h3>
                 <p className="service-home-desc">
-                  Penanganan khusus kutu telinga (ear mites), jamur kulit, serta layanan pet-car antar-jemput.
+                  Penanganan khusus kutu telinga (ear mites), jamur kulit, serta
+                  layanan pet-car antar-jemput.
                 </p>
                 <div className="service-home-pills">
                   <span>Treatment Kutu & Jamur</span>
                   <span>Pet Taxi Antar-Jemput</span>
                 </div>
-                <Link to="/services" className="service-home-btn">Konsultasi & Book</Link>
+                <Link to="/services" className="service-home-btn">
+                  Konsultasi & Book
+                </Link>
               </div>
             </div>
           </div>
@@ -987,35 +1075,70 @@ const Home = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info produk terbaru dan penawaran diskon khusus anabulmu.
+                Dapatkan info produk terbaru dan penawaran diskon khusus
+                anabulmu.
               </p>
               <input
                 type="text"

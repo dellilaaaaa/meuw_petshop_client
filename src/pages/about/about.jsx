@@ -207,7 +207,7 @@ const aboutStyles = `
   .stat-number { font-family: 'Baloo 2', cursive, sans-serif; font-size: 2.8rem; font-weight: 800; color: #F7ADAD; margin-bottom: 0.2rem; line-height: 1.1; }
   .stat-label { font-size: 0.92rem; font-weight: 800; color: #4A3E3E; font-family: 'Quicksand', sans-serif; }
 
-  .content-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; margin-bottom: 4.5rem; }
+  .content-section { display: grid; grid-template-columns: 1fr 1fr; gap: 2.2rem; margin-bottom: 4.5rem; align-items: stretch; }
 
   .card-about-rayo {
     background-color: #FFFFFF;
@@ -216,7 +216,8 @@ const aboutStyles = `
     padding: 2.4rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
+    text-align: left;
     box-shadow: 0 10px 28px rgba(247, 173, 173, 0.12);
     transition: all 0.35s ease;
   }
@@ -228,45 +229,53 @@ const aboutStyles = `
     font-size: 1.6rem;
     font-weight: 800;
     color: #4A3E3E;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.4rem;
     border-bottom: 2px dashed #F7ADAD;
     padding-bottom: 0.8rem;
+    text-align: center;
   }
 
   .card-about-text {
     font-size: 0.95rem;
     color: #665959;
-    line-height: 1.68;
-    margin-bottom: 1.2rem;
+    line-height: 1.72;
+    margin-bottom: 1.1rem;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
+    text-align: left;
   }
 
-  .value-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+  .card-about-text:last-child {
+    margin-bottom: 0;
+  }
+
+  .value-list { list-style: none; display: flex; flex-direction: column; gap: 1.15rem; }
 
   .value-item {
     display: flex;
     align-items: center;
     gap: 1rem;
-    font-size: 0.92rem;
+    font-size: 0.94rem;
     font-weight: 700;
     color: #4A3E3E;
     font-family: 'Quicksand', sans-serif;
+    text-align: left;
+    line-height: 1.45;
     transition: transform 0.25s ease;
   }
 
   .value-item:hover { transform: translateX(6px); }
 
   .value-icon {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     border-radius: 50% 40% 50% 42%;
     background-color: #B1E5E6;
     border: 2px solid #F7ADAD;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
     box-shadow: 0 4px 10px rgba(177, 229, 230, 0.4);
     animation: floatCute 4s infinite ease-in-out;
@@ -282,6 +291,7 @@ const aboutStyles = `
     grid-template-columns: 1.2fr 1fr;
     gap: 2.2rem;
     align-items: center;
+    text-align: left;
     box-shadow: 0 10px 30px rgba(247, 173, 173, 0.14);
     transition: all 0.35s ease;
   }
@@ -337,6 +347,7 @@ const aboutStyles = `
     border-radius: 42px 42px 34px 34px;
     padding: 4.2rem 3.5rem 2.4rem 3.5rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
   }
 
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
@@ -422,8 +433,18 @@ const About = ({ cartCount = 0 }) => {
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -450,18 +471,36 @@ const About = ({ cartCount = 0 }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link active">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link active">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Riwayat & Review"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -471,7 +510,9 @@ const About = ({ cartCount = 0 }) => {
         <section className="hero-section">
           <h1 className="hero-title">TENTANG MEUW PETSHOP 🐱✨</h1>
           <p className="hero-subtitle">
-            Rumah kedua bagi anabul kesayanganmu. Kami hadir dengan komitmen memberikan perawatan terbaik, produk berkualitas tinggi, dan kenyamanan sepenuh hati.
+            Rumah kedua bagi anabul kesayanganmu. Kami hadir dengan komitmen
+            memberikan perawatan terbaik, produk berkualitas tinggi, dan
+            kenyamanan sepenuh hati.
           </p>
         </section>
 
@@ -495,10 +536,14 @@ const About = ({ cartCount = 0 }) => {
             <h3 className="card-about-title">Cerita Kami 📖</h3>
             <p className="card-about-text">
               Didirikan dengan kecintaan mendalam terhadap hewan peliharaan,{" "}
-              <strong>MEUW PETSHOP</strong> tumbuh dari petshop lokal menjadi pusat perawatan anabul terpercaya. Kami percaya bahwa setiap kucing, anjing, dan anabul lainnya berhak mendapatkan perawatan yang lembut, makanan bernutrisi, dan perlengkapan terbaik.
+              <strong>MEUW PETSHOP</strong> tumbuh dari petshop lokal menjadi
+              pusat perawatan anabul terpercaya. Kami percaya bahwa setiap
+              kucing, anjing, dan anabul lainnya berhak mendapatkan perawatan
+              yang lembut, makanan bernutrisi, dan perlengkapan terbaik.
             </p>
             <p className="card-about-text">
-              Semua produk di katalog kami telah dikurasi secara ketat dan layanan grooming dipandu oleh profesional yang bersertifikat.
+              Semua produk di katalog kami telah dikurasi secara ketat dan
+              layanan grooming dipandu oleh profesional yang bersertifikat.
             </p>
           </div>
 
@@ -529,15 +574,16 @@ const About = ({ cartCount = 0 }) => {
           <div>
             <h3 className="location-info-title">Kunjungi Toko Kami 📍</h3>
             <p className="location-detail">
-              Jl. Anabul Ceria No. 88, Karet Kuningan, Setiabudi, Jakarta Selatan.
+              Jl. Anabul Ceria No. 88, Karet Kuningan, Setiabudi, Jakarta
+              Selatan.
               <br />
               <strong>Buka Setiap Hari:</strong> 08.00 - 20.00 WIB
             </p>
 
             <div className="contact-pill-list">
               <div className="contact-pill">
-                <span>📞</span>
-                <span>+62 812-3456-7890</span>
+                <span>✉️</span>
+                <span>meuwpetshop@gmail.com</span>
               </div>
               <div className="contact-pill">
                 <span>💬</span>
@@ -559,35 +605,70 @@ const About = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info terbaru mengenai layanan & promo spesial untuk anabulmu.
+                Dapatkan info terbaru mengenai layanan & promo spesial untuk
+                anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

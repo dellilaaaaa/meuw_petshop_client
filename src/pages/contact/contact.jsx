@@ -306,11 +306,16 @@ const contactStyles = `
     box-shadow: 0 6px 18px rgba(74, 62, 62, 0.2);
   }
 
-  .btn-submit-contact:hover {
+  .btn-submit-contact:hover:not(:disabled) {
     background-color: #F7ADAD;
     color: #FFF;
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.4);
+  }
+
+  .btn-submit-contact:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
   }
 
   .map-box-container {
@@ -448,13 +453,45 @@ const Contact = ({ cartCount = 0 }) => {
     email: "",
     pesan: "",
   });
+  const [sending, setSending] = useState(false);
 
-  const handleSubmitPesan = (e) => {
+  const handleSubmitPesan = async (e) => {
     e.preventDefault();
-    alert(
-      `💖 Terima kasih ${formData.nama}!\n\nPesan kamu telah terkirim. Tim MEUW Petshop akan membalas ke email (${formData.email}) sesegera mungkin! 🐾`
-    );
-    setFormData({ nama: "", email: "", pesan: "" });
+    setSending(true);
+
+    try {
+      const response = await fetch(
+        "https://formsubmit.co/ajax/meuwpetshop@gmail.com",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            Nama: formData.nama,
+            Email: formData.email,
+            Pesan: formData.pesan,
+            _subject: `Pesan Baru dari Website MEUW - ${formData.nama}`,
+            _template: "table",
+          }),
+        },
+      );
+
+      if (response.ok) {
+        alert(
+          `💖 Terima kasih ${formData.nama}!\n\nPesan kamu telah berhasil dikirim ke meuwpetshop@gmail.com. Tim MEUW Petshop akan membalas ke email (${formData.email}) sesegera mungkin! 🐾`,
+        );
+        setFormData({ nama: "", email: "", pesan: "" });
+      } else {
+        alert("😿 Gagal mengirim pesan. Silakan coba beberapa saat lagi ya!");
+      }
+    } catch (error) {
+      console.error("Gagal kirim email:", error);
+      alert("😿 Terjadi gangguan jaringan saat mengirim pesan.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -466,8 +503,18 @@ const Contact = ({ cartCount = 0 }) => {
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -494,18 +541,36 @@ const Contact = ({ cartCount = 0 }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link active">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link active">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Riwayat & Review"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -519,7 +584,8 @@ const Contact = ({ cartCount = 0 }) => {
           </div>
           <h1 className="hero-title">HUBUNGI KAMI 📞</h1>
           <p className="hero-subtitle">
-            Untuk informasi lebih lanjut, bantuan produk, atau booking layanan grooming, hubungi kami:
+            Untuk informasi lebih lanjut, bantuan produk, atau booking layanan
+            grooming, hubungi kami:
           </p>
         </section>
 
@@ -528,7 +594,8 @@ const Contact = ({ cartCount = 0 }) => {
             <div className="info-icon-box">📍</div>
             <h3 className="info-card-title">Alamat</h3>
             <p className="info-card-text">
-              Jl. Anabul Ceria No. 88, RT.001/RW.003, Karet Kuningan, Kec. Setiabudi, Jakarta Selatan, DKI Jakarta 12940
+              Jl. Anabul Ceria No. 88, RT.001/RW.003, Karet Kuningan, Kec.
+              Setiabudi, Jakarta Selatan, DKI Jakarta 12940
             </p>
           </div>
 
@@ -538,18 +605,14 @@ const Contact = ({ cartCount = 0 }) => {
             <p className="info-card-text">
               085157449090
               <br />
-              +62 812-3456-7890 (WA Admin)
+              +62 858-3456-7890 (WA Admin)
             </p>
           </div>
 
           <div className="info-card-item">
             <div className="info-icon-box">✉️</div>
             <h3 className="info-card-title">Email</h3>
-            <p className="info-card-text">
-              hello@meuwpetshop.id
-              <br />
-              support@meuwpetshop.id
-            </p>
+            <p className="info-card-text">meuwpetshop@gmail.com</p>
           </div>
 
           <div className="info-card-item">
@@ -575,7 +638,9 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="Masukkan nama kamu..."
                   className="form-input"
                   value={formData.nama}
-                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nama: e.target.value })
+                  }
                 />
               </div>
 
@@ -587,7 +652,9 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="nama@email.com"
                   className="form-input"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
               </div>
 
@@ -598,12 +665,18 @@ const Contact = ({ cartCount = 0 }) => {
                   placeholder="Tuliskan pertanyaan seputar produk atau grooming..."
                   className="form-textarea"
                   value={formData.pesan}
-                  onChange={(e) => setFormData({ ...formData, pesan: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, pesan: e.target.value })
+                  }
                 ></textarea>
               </div>
 
-              <button type="submit" className="btn-submit-contact">
-                KIRIM PESAN SEKARANG 💖
+              <button
+                type="submit"
+                className="btn-submit-contact"
+                disabled={sending}
+              >
+                {sending ? "MENGIRIM PESAN... 🐾" : "KIRIM PESAN SEKARANG 💖"}
               </button>
             </form>
           </div>
@@ -638,35 +711,70 @@ const Contact = ({ cartCount = 0 }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Hubungi kami kapan saja untuk kebutuhan nutrisi & perawatan terbaik anabulmu.
+                Hubungi kami kapan saja untuk kebutuhan nutrisi & perawatan
+                terbaik anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

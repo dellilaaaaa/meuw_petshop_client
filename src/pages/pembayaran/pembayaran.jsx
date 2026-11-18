@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const paymentStyles = `
@@ -471,8 +471,53 @@ const paymentStyles = `
 
 const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [method, setMethod] = useState("qris");
-  const subtotal = cartItems.reduce(
+
+  // Ambil hanya item terpilih dari router state, flag centang, atau localStorage
+  const stateItems =
+    location.state?.selectedItems ||
+    location.state?.items ||
+    location.state?.checkoutItems;
+
+  const itemsToPay = (() => {
+    if (Array.isArray(stateItems) && stateItems.length > 0) {
+      return stateItems;
+    }
+
+    const hasSelectionFlag = cartItems.some(
+      (item) =>
+        typeof item.selected === "boolean" ||
+        typeof item.checked === "boolean" ||
+        typeof item.isSelected === "boolean",
+    );
+
+    if (hasSelectionFlag) {
+      return cartItems.filter(
+        (item) =>
+          item.selected === true ||
+          item.checked === true ||
+          item.isSelected === true,
+      );
+    }
+
+    try {
+      const savedCheckout = JSON.parse(
+        localStorage.getItem("checkoutItems") ||
+          localStorage.getItem("selectedCartItems") ||
+          "null",
+      );
+      if (Array.isArray(savedCheckout) && savedCheckout.length > 0) {
+        return savedCheckout;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    return cartItems;
+  })();
+
+  const subtotal = itemsToPay.reduce(
     (sum, item) => sum + item.harga * item.jumlah,
     0,
   );
@@ -575,9 +620,12 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
         {/* --- RINGKASAN TAGIHAN CARD --- */}
         <div className="checkout-card">
           <h3 className="card-section-title">Ringkasan Tagihan 📄</h3>
-          {cartItems.length > 0 ? (
-            cartItems.map((i) => (
-              <div key={i.id_detail_keranjang} className="summary-item-row">
+          {itemsToPay.length > 0 ? (
+            itemsToPay.map((i) => (
+              <div
+                key={i.id_detail_keranjang || i.id_barang}
+                className="summary-item-row"
+              >
                 <span>
                   {i.nama_barang} (x{i.jumlah})
                 </span>
@@ -596,7 +644,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
                 fontWeight: 600,
               }}
             >
-              Belum ada produk di keranjang.
+              Belum ada produk yang dipilih untuk dibayar.
             </p>
           )}
 

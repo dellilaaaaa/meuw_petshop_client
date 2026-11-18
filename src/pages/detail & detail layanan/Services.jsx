@@ -35,7 +35,7 @@ const servicesStyles = `
   }
 
   @keyframes modalPop {
-    from { opacity: 0; transform: scale(0.85) translateY(20px); }
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
@@ -324,7 +324,11 @@ const servicesStyles = `
     margin-bottom: 5rem;
   }
 
-  .card-rayo { display: flex; flex-direction: column; }
+  .card-rayo {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
 
   .card-image-box {
     position: relative;
@@ -383,7 +387,20 @@ const servicesStyles = `
   .card-rayo:hover .service-img-display { transform: scale(1.12) rotate(-3deg); }
 
   .card-details { padding: 0 0.3rem; }
-  .card-title-block { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 0.4rem; }
+
+  .card-info-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .card-title-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+  }
 
   .card-service-name {
     font-family: 'Baloo 2', cursive, sans-serif;
@@ -391,24 +408,13 @@ const servicesStyles = `
     font-weight: 700;
     color: #333;
     line-height: 1.25;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
   }
 
   .card-service-price { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.3rem; font-weight: 800; color: #F7ADAD; }
 
-  .card-bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; gap: 0.8rem; }
-
-  .card-service-desc {
-    font-size: 0.82rem;
-    color: #665959;
-    line-height: 1.4;
-    flex: 1;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
   .card-book-btn {
-    padding: 8px 16px;
+    padding: 9px 16px;
     border-radius: 20px;
     background-color: #4A3E3E;
     color: #FFFDF6;
@@ -429,6 +435,120 @@ const servicesStyles = `
     box-shadow: 0 6px 16px rgba(247, 173, 173, 0.4);
   }
 
+  /* POPUP DETAIL LAYANAN */
+  .detail-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(74, 62, 62, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .detail-modal-card {
+    background-color: #FFFDF6;
+    border: 3px solid #F7ADAD;
+    border-radius: 36px;
+    max-width: 720px;
+    width: 100%;
+    padding: 2rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 1.8rem;
+    box-shadow: 0 24px 60px rgba(74, 62, 62, 0.28);
+    animation: modalPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .detail-modal-image-box {
+    border-radius: 26px;
+    border: 2px solid #F7ADAD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    min-height: 260px;
+  }
+
+  .detail-modal-img {
+    max-width: 100%;
+    max-height: 230px;
+    object-fit: contain;
+    border-radius: 14px;
+  }
+
+  .detail-modal-icon {
+    font-size: 5.5rem;
+    animation: floatCute 3.5s infinite ease-in-out;
+  }
+
+  .detail-modal-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .detail-category-badge {
+    display: inline-block;
+    background-color: #B1E5E6;
+    color: #4A3E3E;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-modal-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #333;
+    line-height: 1.25;
+    margin: 0.2rem 0;
+  }
+
+  .detail-modal-price {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #F7ADAD;
+    margin-bottom: 1rem;
+  }
+
+  .detail-desc-box {
+    background-color: #FFFFFF;
+    border: 1.5px dashed #F7ADAD;
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-bottom: 1.3rem;
+  }
+
+  .detail-desc-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #887A7A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.35rem;
+  }
+
+  .detail-desc-text {
+    font-size: 0.9rem;
+    color: #4A3E3E;
+    line-height: 1.6;
+    font-weight: 600;
+    white-space: pre-line;
+  }
+
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -439,8 +559,8 @@ const servicesStyles = `
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(4px);
+    z-index: 2600;
+    backdrop-filter: blur(6px);
   }
 
   .modal-content {
@@ -462,12 +582,12 @@ const servicesStyles = `
     background: #FFF;
     border: 2px solid #F7ADAD;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: #F7ADAD;
     cursor: pointer;
     font-weight: bold;
@@ -615,6 +735,15 @@ const servicesStyles = `
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
+  @media (max-width: 650px) {
+    .detail-modal-card {
+      grid-template-columns: 1fr;
+      padding: 1.5rem;
+      gap: 1.2rem;
+    }
+    .detail-modal-image-box { min-height: 200px; }
+  }
+
   @media (max-width: 600px) {
     .services-grid-rayo { grid-template-columns: 1fr; }
     .navbar { flex-direction: column; gap: 1rem; }
@@ -634,19 +763,35 @@ const formatLayananData = (rawList) => {
     let icon = "🐾";
     let tag = "HEALTHCARE";
 
-    if (lower.includes("grooming") || lower.includes("mandi") || lower.includes("cut")) {
+    if (
+      lower.includes("grooming") ||
+      lower.includes("mandi") ||
+      lower.includes("cut")
+    ) {
       category = "Grooming";
       icon = lower.includes("cut") || lower.includes("styling") ? "✂️" : "🧼";
       tag = "POPULER";
-    } else if (lower.includes("hotel") || lower.includes("penitipan") || lower.includes("vip")) {
+    } else if (
+      lower.includes("hotel") ||
+      lower.includes("penitipan") ||
+      lower.includes("vip")
+    ) {
       category = "Penitipan";
       icon = "🏡";
       tag = "BEST VALUE";
-    } else if (lower.includes("antar") || lower.includes("jemput") || lower.includes("taxi")) {
+    } else if (
+      lower.includes("antar") ||
+      lower.includes("jemput") ||
+      lower.includes("taxi")
+    ) {
       category = "Perawatan";
       icon = "🚗";
       tag = "EXTRA";
-    } else if (lower.includes("kutu") || lower.includes("jamur") || lower.includes("treatment")) {
+    } else if (
+      lower.includes("kutu") ||
+      lower.includes("jamur") ||
+      lower.includes("treatment")
+    ) {
       category = "Perawatan";
       icon = "🏥";
       tag = "HEALTH";
@@ -687,6 +832,11 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
   const [error, setError] = useState(null);
 
   const [selectedCategory, setSelectedCategory] = useState("Semua");
+
+  // State popup detail layanan (saat kartu diklik)
+  const [detailLayanan, setDetailLayanan] = useState(null);
+
+  // State popup form booking
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -719,7 +869,8 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         setError(null);
 
         const res = await fetch(API_LAYANAN_URL);
-        if (!res.ok) throw new Error(`Gagal memuat layanan (HTTP ${res.status})`);
+        if (!res.ok)
+          throw new Error(`Gagal memuat layanan (HTTP ${res.status})`);
 
         const result = await res.json();
         const rawList = Array.isArray(result.data) ? result.data : [];
@@ -744,6 +895,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
   });
 
   const handleOpenModal = (layanan) => {
+    setDetailLayanan(null);
     setSelectedLayanan(layanan);
     setModalOpen(true);
   };
@@ -752,7 +904,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     e.preventDefault();
     if (!selectedLayanan) return;
 
-    // Pastikan tanggal_selesai berada setelah tanggal_mulai + jam_mulai sesuai validasi backend
     const tglMulaiStr = bookingForm.tanggal_mulai;
     const tglSelesaiStr = `${bookingForm.tanggal_selesai}T23:59:00`;
 
@@ -767,12 +918,11 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     setSubmitting(true);
 
     try {
-      // Cek user yang login untuk dihubungkan ke transaksi database jika tersedia
-      const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
+      const storedUser =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
       const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
       if (currentUser && currentUser.id_user) {
-        // 1. Buat Transaksi di backend
         const trxRes = await fetch(`${API_BASE_URL}/api/transaksi`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -787,7 +937,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         const trxJson = await trxRes.json();
 
         if (trxJson.success && trxJson.data?.id_transaksi) {
-          // 2. Buat Detail Layanan di backend
           const detailRes = await fetch(`${API_BASE_URL}/api/detail-layanan`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -801,7 +950,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           const detailJson = await detailRes.json();
 
           if (detailJson.success && detailJson.data?.id_detail_layanan) {
-            // 3. Buat Booking Layanan di backend
             await fetch(`${API_BASE_URL}/api/booking-layanan`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -817,7 +965,6 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         }
       }
 
-      // Simpan ke state global App agar langsung muncul di halaman Akun Saya (/riwayat)
       if (onAddBooking) {
         onAddBooking({
           nama_layanan: selectedLayanan.nama_layanan,
@@ -833,7 +980,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil diajukan!\n\n` +
           `📅 Tanggal Mulai: ${bookingForm.tanggal_mulai} (${bookingForm.jam_mulai})\n` +
           `🏁 Tanggal Selesai: ${bookingForm.tanggal_selesai}\n` +
-          `📌 Status: MENUNGGU KONFIRMASI`
+          `📌 Status: MENUNGGU KONFIRMASI`,
       );
 
       setModalOpen(false);
@@ -863,8 +1010,18 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -891,18 +1048,36 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link active">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link active">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Akun & Riwayat"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -912,7 +1087,8 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         <section className="hero-section">
           <h1 className="hero-title">LAYANAN & GROOMING ✂️</h1>
           <p className="hero-subtitle">
-            Manjakan anabul kesayanganmu dengan perawatan profesional, steril, dan penuh kasih sayang!
+            Manjakan anabul kesayanganmu dengan perawatan profesional, steril,
+            dan penuh kasih sayang!
           </p>
         </section>
 
@@ -926,9 +1102,18 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           <div className="info-card-rayo">
             <h3 className="info-card-title">Jadwal Operasional ⏰</h3>
             <ul className="schedule-list">
-              <li><span>Senin - Jumat</span><strong>09:00 - 19:00 WIB</strong></li>
-              <li><span>Sabtu - Minggu</span><strong>08:00 - 20:00 WIB</strong></li>
-              <li><span>Terakhir Grooming</span><strong>17:00 WIB</strong></li>
+              <li>
+                <span>Senin - Jumat</span>
+                <strong>09:00 - 19:00 WIB</strong>
+              </li>
+              <li>
+                <span>Sabtu - Minggu</span>
+                <strong>08:00 - 20:00 WIB</strong>
+              </li>
+              <li>
+                <span>Terakhir Grooming</span>
+                <strong>17:00 WIB</strong>
+              </li>
             </ul>
           </div>
 
@@ -958,15 +1143,24 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
 
         <section className="services-grid-rayo">
           {loading ? (
-            <div className="no-services">🐾 Sedang memuat daftar layanan MEUW...</div>
+            <div className="no-services">
+              🐾 Sedang memuat daftar layanan MEUW...
+            </div>
           ) : error ? (
             <div className="no-services" style={{ color: "#E53E3E" }}>
               😿 Gagal memuat layanan: {error}
             </div>
           ) : filteredServices.length > 0 ? (
             filteredServices.map((item) => (
-              <div key={item.id_layanan} className="card-rayo">
-                <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
+              <div
+                key={item.id_layanan}
+                className="card-rayo"
+                onClick={() => setDetailLayanan(item)}
+              >
+                <div
+                  className="card-image-box"
+                  style={{ backgroundColor: item.bgColor }}
+                >
                   <span className="card-tag-pill">{item.tag}</span>
                   {item.foto ? (
                     <img
@@ -984,16 +1178,23 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                 </div>
 
                 <div className="card-details">
-                  <div className="card-title-block">
-                    <div className="card-service-name">{item.nama_layanan}</div>
-                    <div className="card-service-price">
-                      Rp {item.harga.toLocaleString("id-ID")}
+                  <div className="card-info-footer">
+                    <div className="card-title-block">
+                      <div className="card-service-name">
+                        {item.nama_layanan}
+                      </div>
+                      <div className="card-service-price">
+                        Rp {item.harga.toLocaleString("id-ID")}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="card-bottom-row">
-                    <p className="card-service-desc">{item.deskripsi}</p>
-                    <button className="card-book-btn" onClick={() => handleOpenModal(item)}>
+                    <button
+                      className="card-book-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(item);
+                      }}
+                    >
                       BOOKING 📅
                     </button>
                   </div>
@@ -1007,10 +1208,84 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
           )}
         </section>
 
+        {/* POPUP DETAIL DESKRIPSI LAYANAN */}
+        {detailLayanan && (
+          <div
+            className="detail-modal-overlay"
+            onClick={() => setDetailLayanan(null)}
+          >
+            <div
+              className="detail-modal-card"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="modal-close"
+                onClick={() => setDetailLayanan(null)}
+                title="Tutup"
+              >
+                ✕
+              </button>
+
+              <div
+                className="detail-modal-image-box"
+                style={{ backgroundColor: detailLayanan.bgColor }}
+              >
+                {detailLayanan.foto ? (
+                  <img
+                    src={detailLayanan.foto}
+                    alt={detailLayanan.nama_layanan}
+                    className="detail-modal-img"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="detail-modal-icon">{detailLayanan.icon}</div>
+                )}
+              </div>
+
+              <div className="detail-modal-info">
+                <div>
+                  <span className="detail-category-badge">
+                    {detailLayanan.category}
+                  </span>
+                  <h2 className="detail-modal-title">
+                    {detailLayanan.nama_layanan}
+                  </h2>
+                  <div className="detail-modal-price">
+                    Rp {detailLayanan.harga.toLocaleString("id-ID")}
+                  </div>
+
+                  <div className="detail-desc-box">
+                    <div className="detail-desc-label">Deskripsi Layanan</div>
+                    <p className="detail-desc-text">
+                      {detailLayanan.deskripsi}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  className="btn-submit"
+                  style={{ marginTop: 0 }}
+                  onClick={() => handleOpenModal(detailLayanan)}
+                >
+                  BOOKING LAYANAN 📅
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* POPUP FORM BOOKING */}
         {modalOpen && selectedLayanan && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <button className="modal-close" onClick={() => setModalOpen(false)}>✕</button>
+          <div className="modal-overlay" onClick={() => setModalOpen(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="modal-close"
+                onClick={() => setModalOpen(false)}
+              >
+                ✕
+              </button>
               <h3 className="modal-title">Form Booking Layanan 🐾</h3>
               <p
                 style={{
@@ -1035,7 +1310,10 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                       className="form-input"
                       value={bookingForm.tanggal_mulai}
                       onChange={(e) =>
-                        setBookingForm({ ...bookingForm, tanggal_mulai: e.target.value })
+                        setBookingForm({
+                          ...bookingForm,
+                          tanggal_mulai: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -1048,7 +1326,10 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                       className="form-input"
                       value={bookingForm.jam_mulai}
                       onChange={(e) =>
-                        setBookingForm({ ...bookingForm, jam_mulai: e.target.value })
+                        setBookingForm({
+                          ...bookingForm,
+                          jam_mulai: e.target.value,
+                        })
                       }
                     />
                   </div>
@@ -1062,13 +1343,22 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
                     className="form-input"
                     value={bookingForm.tanggal_selesai}
                     onChange={(e) =>
-                      setBookingForm({ ...bookingForm, tanggal_selesai: e.target.value })
+                      setBookingForm({
+                        ...bookingForm,
+                        tanggal_selesai: e.target.value,
+                      })
                     }
                   />
                 </div>
 
-                <button type="submit" className="btn-submit" disabled={submitting}>
-                  {submitting ? "MEMPROSES BOOKING..." : "KONFIRMASI BOOKING 💖"}
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={submitting}
+                >
+                  {submitting
+                    ? "MEMPROSES BOOKING..."
+                    : "KONFIRMASI BOOKING 💖"}
                 </button>
               </form>
             </div>
@@ -1082,28 +1372,62 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
 

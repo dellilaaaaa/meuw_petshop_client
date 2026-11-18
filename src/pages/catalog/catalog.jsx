@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logoImg from "../../images/logo.png";
 
 const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
@@ -37,6 +37,11 @@ const catalogStyles = `
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(22px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popModal {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,7 +95,7 @@ const catalogStyles = `
     font-size: 0.9rem;
     font-weight: 800;
     box-shadow: 0 10px 25px rgba(247, 173, 173, 0.35);
-    z-index: 2000;
+    z-index: 3000;
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -285,7 +290,11 @@ const catalogStyles = `
     margin-bottom: 3.5rem;
   }
 
-  .card-rayo { display: flex; flex-direction: column; }
+  .card-rayo {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
 
   .card-image-box {
     position: relative;
@@ -372,11 +381,18 @@ const catalogStyles = `
     letter-spacing: 0.4px;
   }
 
+  .card-info-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
   .card-title-block {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 0.4rem;
+    flex: 1;
   }
 
   .card-product-name {
@@ -385,7 +401,7 @@ const catalogStyles = `
     font-weight: 700;
     color: #333;
     line-height: 1.25;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
   }
 
   .card-product-price {
@@ -395,26 +411,9 @@ const catalogStyles = `
     color: #F7ADAD;
   }
 
-  .card-bottom-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.8rem;
-    margin-top: 0.4rem;
-  }
-
-  .card-product-desc {
-    font-size: 0.82rem;
-    color: #665959;
-    line-height: 1.45;
-    flex: 1;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
   .card-add-cart-btn {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     border-radius: 50%;
     background-color: #4A3E3E;
@@ -423,7 +422,7 @@ const catalogStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.05rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow: 0 4px 12px rgba(74, 62, 62, 0.2);
@@ -433,6 +432,152 @@ const catalogStyles = `
     transform: scale(1.15) rotate(8deg);
     background-color: #F7ADAD;
     color: #FFF;
+  }
+
+  /* MODAL POPUP PRODUK */
+  .product-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(74, 62, 62, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .product-modal-card {
+    background-color: #FFFDF6;
+    border: 3px solid #F7ADAD;
+    border-radius: 36px;
+    max-width: 720px;
+    width: 100%;
+    padding: 2rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 1.8rem;
+    box-shadow: 0 24px 60px rgba(74, 62, 62, 0.28);
+    animation: popModal 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #FDEAE8;
+    border: 2px solid #F7ADAD;
+    color: #4A3E3E;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+  }
+
+  .modal-close-btn:hover {
+    background-color: #F7ADAD;
+    color: #FFF;
+    transform: rotate(90deg) scale(1.1);
+  }
+
+  .modal-image-box {
+    border-radius: 26px;
+    border: 2px solid #F7ADAD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    min-height: 270px;
+  }
+
+  .modal-img-content {
+    max-width: 100%;
+    max-height: 240px;
+    object-fit: contain;
+    border-radius: 14px;
+  }
+
+  .modal-info-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .modal-product-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #333;
+    line-height: 1.25;
+    margin: 0.4rem 0;
+  }
+
+  .modal-product-price {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #F7ADAD;
+    margin-bottom: 1rem;
+  }
+
+  .modal-desc-box {
+    background-color: #FFFFFF;
+    border: 1.5px dashed #F7ADAD;
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
+    max-height: 180px;
+    overflow-y: auto;
+    margin-bottom: 1.3rem;
+  }
+
+  .modal-desc-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #887A7A;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.35rem;
+  }
+
+  .modal-desc-text {
+    font-size: 0.9rem;
+    color: #4A3E3E;
+    line-height: 1.6;
+    font-weight: 600;
+    white-space: pre-line;
+  }
+
+  .modal-cart-btn {
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 25px;
+    background-color: #4A3E3E;
+    color: #FFFDF6;
+    border: 2px solid #F7ADAD;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 6px 16px rgba(74, 62, 62, 0.2);
+  }
+
+  .modal-cart-btn:hover {
+    background-color: #F7ADAD;
+    color: #FFF;
+    transform: translateY(-2px);
   }
 
   .pagination-container {
@@ -608,6 +753,15 @@ const catalogStyles = `
     .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   }
 
+  @media (max-width: 650px) {
+    .product-modal-card {
+      grid-template-columns: 1fr;
+      padding: 1.5rem;
+      gap: 1.2rem;
+    }
+    .modal-image-box { min-height: 200px; }
+  }
+
   @media (max-width: 600px) {
     .product-grid-rayo { grid-template-columns: 1fr; }
     .navbar { flex-direction: column; gap: 1rem; }
@@ -669,6 +823,7 @@ const formatCatalogData = (rawProducts) => {
 };
 
 const Catalog = ({ cartCount = 0, onAddToCart }) => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [categoriesList, setCategoriesList] = useState([
     { id_kategori: 0, nama_kategori: "Semua" },
@@ -680,6 +835,9 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activePage, setActivePage] = useState(1);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+
+  // State untuk produk yang sedang dibuka di popup modal
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -693,7 +851,8 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Saraswati Putri",
       avatar: "🐱",
       rating: 5,
-      komentar: "Hasil grooming anabul rapi & wangi banget! Anabulku biasa rewel tapi di sini anteng.",
+      komentar:
+        "Hasil grooming anabul rapi & wangi banget! Anabulku biasa rewel tapi di sini anteng.",
       tanggal_review: "2026-10-14 10:00:00",
     },
     {
@@ -702,7 +861,8 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Amelia Zahra",
       avatar: "🐶",
       rating: 5,
-      komentar: "Dry food Royal Canin pengirimannya super cepat! Expired date masih lama & dapet bonus.",
+      komentar:
+        "Dry food Royal Canin pengirimannya super cepat! Expired date masih lama & dapet bonus.",
       tanggal_review: "2026-10-11 15:30:00",
     },
     {
@@ -711,7 +871,8 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Tiara Andini",
       avatar: "🐰",
       rating: 5,
-      komentar: "Tempatnya bersih banget, staff-nya ramah & penyayang binatang. Next mau balik lagi!",
+      komentar:
+        "Tempatnya bersih banget, staff-nya ramah & penyayang binatang. Next mau balik lagi!",
       tanggal_review: "2026-10-09 09:15:00",
     },
     {
@@ -720,20 +881,21 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       nama_user: "Nabila Kanza",
       avatar: "🐱",
       rating: 5,
-      komentar: "Suka banget sama vitamin bulunya, baru seminggu pake bulu kucingku langsung lebat!",
+      komentar:
+        "Suka banget sama vitamin bulunya, baru seminggu pake bulu kucingku langsung lebat!",
       tanggal_review: "2026-10-02 18:20:00",
     },
   ];
 
   useEffect(() => {
-    // 1. Cek cache dulu agar langsung tampil instan tanpa menunggu loading
     let hasCached = false;
     const cachedData = sessionStorage.getItem(CACHE_KEY);
     if (cachedData) {
       try {
         const parsed = JSON.parse(cachedData);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const { formattedProducts, dynamicCategories } = formatCatalogData(parsed);
+          const { formattedProducts, dynamicCategories } =
+            formatCatalogData(parsed);
           setProducts(formattedProducts);
           setCategoriesList(dynamicCategories);
           setLoading(false);
@@ -744,7 +906,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
       }
     }
 
-    // 2. Sinkronisasi data terbaru dari server
     const fetchCatalog = async () => {
       try {
         if (!hasCached) setLoading(true);
@@ -752,14 +913,17 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
         const response = await fetch(API_CATALOG_URL);
         if (!response.ok) {
-          throw new Error(`Gagal memuat data dari server (HTTP ${response.status})`);
+          throw new Error(
+            `Gagal memuat data dari server (HTTP ${response.status})`,
+          );
         }
 
         const result = await response.json();
         const rawProducts = Array.isArray(result.data) ? result.data : [];
 
         sessionStorage.setItem(CACHE_KEY, JSON.stringify(rawProducts));
-        const { formattedProducts, dynamicCategories } = formatCatalogData(rawProducts);
+        const { formattedProducts, dynamicCategories } =
+          formatCatalogData(rawProducts);
         setProducts(formattedProducts);
         setCategoriesList(dynamicCategories);
       } catch (err) {
@@ -773,11 +937,25 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     fetchCatalog();
   }, []);
 
+  // Otomatis buka popup produk jika pengguna klik "Lihat Produk" dari halaman Home
+  useEffect(() => {
+    const targetId = location.state?.selectedProductId;
+    if (targetId && products.length > 0) {
+      const found = products.find(
+        (item) => String(item.id_barang) === String(targetId),
+      );
+      if (found) {
+        setSelectedProduct(found);
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state, products]);
+
   useEffect(() => {
     if (latestReviews.length <= 3) return;
     const timer = setInterval(() => {
       setCurrentReviewIndex((prev) =>
-        prev >= latestReviews.length - 3 ? 0 : prev + 1
+        prev >= latestReviews.length - 3 ? 0 : prev + 1,
       );
     }, 3000);
     return () => clearInterval(timer);
@@ -797,10 +975,13 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     return matchesCategory && matchesSearch;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / itemsPerPage),
+  );
   const paginatedProducts = filteredProducts.slice(
     (activePage - 1) * itemsPerPage,
-    activePage * itemsPerPage
+    activePage * itemsPerPage,
   );
 
   useEffect(() => {
@@ -825,11 +1006,86 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
       {showToast && <div className="toast-notification">{toastMsg}</div>}
 
+      {/* POPUP DETAIL PRODUK */}
+      {selectedProduct && (
+        <div
+          className="product-modal-overlay"
+          onClick={() => setSelectedProduct(null)}
+        >
+          <div
+            className="product-modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close-btn"
+              onClick={() => setSelectedProduct(null)}
+              title="Tutup"
+            >
+              ✕
+            </button>
+
+            <div
+              className="modal-image-box"
+              style={{ backgroundColor: selectedProduct.bgColor }}
+            >
+              <img
+                src={selectedProduct.gambar}
+                alt={selectedProduct.nama_barang}
+                className="modal-img-content"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = selectedProduct.fallbackGambar;
+                }}
+              />
+            </div>
+
+            <div className="modal-info-col">
+              <div>
+                <span className="card-category-label">
+                  {selectedProduct.nama_kategori}
+                </span>
+                <h2 className="modal-product-title">
+                  {selectedProduct.nama_barang}
+                </h2>
+                <div className="modal-product-price">
+                  Rp {selectedProduct.harga.toLocaleString("id-ID")}
+                </div>
+
+                <div className="modal-desc-box">
+                  <div className="modal-desc-label">Deskripsi Produk</div>
+                  <p className="modal-desc-text">{selectedProduct.deskripsi}</p>
+                </div>
+              </div>
+
+              <button
+                className="modal-cart-btn"
+                onClick={() => {
+                  handleAddToCart(selectedProduct);
+                  setSelectedProduct(null);
+                }}
+              >
+                🛒 Tambah ke Keranjang
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -856,18 +1112,36 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link active">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link active">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Akun & Riwayat">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Akun & Riwayat"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -907,17 +1181,32 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
         <section className="product-grid-rayo">
           {loading ? (
-            <div className="no-products">🐾 Sedang memuat produk dari katalog MEUW...</div>
+            <div className="no-products">
+              🐾 Sedang memuat produk dari katalog MEUW...
+            </div>
           ) : error ? (
             <div className="no-products" style={{ color: "#E53E3E" }}>
               😿 Gagal mengambil data: {error}
             </div>
           ) : paginatedProducts.length > 0 ? (
             paginatedProducts.map((item) => (
-              <div key={item.id_barang} className="card-rayo">
-                <div className="card-image-box" style={{ backgroundColor: item.bgColor }}>
+              <div
+                key={item.id_barang}
+                className="card-rayo"
+                onClick={() => setSelectedProduct(item)}
+              >
+                <div
+                  className="card-image-box"
+                  style={{ backgroundColor: item.bgColor }}
+                >
                   <span className="card-tag-pill">{item.nama_kategori}</span>
-                  <button className="card-wishlist-btn" title="Favorit">💖</button>
+                  <button
+                    className="card-wishlist-btn"
+                    title="Favorit"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    💖
+                  </button>
                   <img
                     src={item.gambar}
                     alt={item.nama_barang}
@@ -931,21 +1220,27 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
                 </div>
 
                 <div className="card-details">
-                  <span className="card-category-label">{item.nama_kategori}</span>
+                  <span className="card-category-label">
+                    {item.nama_kategori}
+                  </span>
 
-                  <div className="card-title-block">
-                    <div className="card-product-name">{item.nama_barang}</div>
-                    <div className="card-product-price">
-                      Rp {item.harga.toLocaleString("id-ID")}
+                  <div className="card-info-footer">
+                    <div className="card-title-block">
+                      <div className="card-product-name">
+                        {item.nama_barang}
+                      </div>
+                      <div className="card-product-price">
+                        Rp {item.harga.toLocaleString("id-ID")}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="card-bottom-row">
-                    <p className="card-product-desc">{item.deskripsi}</p>
                     <button
                       className="card-add-cart-btn"
                       title="Tambah ke Keranjang"
-                      onClick={() => handleAddToCart(item)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(item);
+                      }}
                     >
                       🛒
                     </button>
@@ -955,7 +1250,8 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
             ))
           ) : (
             <div className="no-products">
-              😿 Produk "{searchTerm}" pada kategori "{selectedCategory}" tidak ditemukan.
+              😿 Produk "{searchTerm}" pada kategori "{selectedCategory}" tidak
+              ditemukan.
             </div>
           )}
         </section>
@@ -980,7 +1276,9 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
           <div className="reviews-slider-wrapper">
             <div
               className="reviews-slider-track"
-              style={{ transform: `translateX(-${currentReviewIndex * 314}px)` }}
+              style={{
+                transform: `translateX(-${currentReviewIndex * 314}px)`,
+              }}
             >
               {latestReviews.map((rev) => (
                 <div key={rev.id_review} className="review-rayo-card">
@@ -1012,35 +1310,70 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
 
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info produk terbaru dan penawaran diskon khusus anabulmu.
+                Dapatkan info produk terbaru dan penawaran diskon khusus
+                anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
                 <input

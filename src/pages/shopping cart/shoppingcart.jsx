@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+
+const SELECTED_STORAGE_KEY = "meuw_selected_cart_ids_v1";
 
 const cartStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
@@ -653,11 +655,35 @@ const cartStyles = `
 const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
   const navigate = useNavigate();
 
-  // State untuk menyimpan ID item yang dicentang
-  // Default: Dicentang SEMUA saat pertama kali buka
-  const [selectedIds, setSelectedIds] = useState(
-    cartItems.map((item) => item.id_detail_keranjang),
-  );
+  // State untuk menyimpan ID item yang dicentang (tersimpan di localStorage)
+  const [selectedIds, setSelectedIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(SELECTED_STORAGE_KEY);
+      if (saved !== null) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error("Gagal membaca selectedIds dari localStorage:", e);
+    }
+    return cartItems.map((item) => item.id_detail_keranjang);
+  });
+
+  // Sinkronisasi selectedIds ke localStorage setiap ada perubahan
+  useEffect(() => {
+    const existingIds = cartItems.map((item) => item.id_detail_keranjang);
+    const cleaned = selectedIds.filter((id) => existingIds.includes(id));
+
+    if (cleaned.length !== selectedIds.length) {
+      setSelectedIds(cleaned);
+    }
+
+    try {
+      localStorage.setItem(SELECTED_STORAGE_KEY, JSON.stringify(cleaned));
+    } catch (e) {
+      console.error("Gagal menyimpan selectedIds ke localStorage:", e);
+    }
+  }, [selectedIds, cartItems]);
 
   // Toggle Centang 1 Barang
   const handleToggleSelect = (id) => {
@@ -672,9 +698,9 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
 
   const handleToggleSelectAll = () => {
     if (isAllSelected) {
-      setSelectedIds([]); // Uncheck Semua
+      setSelectedIds([]);
     } else {
-      setSelectedIds(cartItems.map((item) => item.id_detail_keranjang)); // Check Semua
+      setSelectedIds(cartItems.map((item) => item.id_detail_keranjang));
     }
   };
 
@@ -725,10 +751,11 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     0,
   );
 
-  // Lanjut ke Pembayaran
+  // Lanjut ke Pembayaran dengan membawa hanya item yang dicentang
   const handleProceedToPayment = () => {
     if (selectedItems.length === 0) return;
-    navigate("/pembayaran");
+    localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+    navigate("/pembayaran", { state: { selectedItems } });
   };
 
   return (
