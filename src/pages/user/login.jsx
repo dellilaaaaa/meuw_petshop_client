@@ -17,22 +17,18 @@ export default function Login() {
     setErrorMsg('');
 
     try {
-      // Ambil data seluruh user dari backend
-      const response = await fetch('https://meuw-petshop-server.vercel.app/api/users');
+      const response = await fetch('https://meuw-petshop-server.vercel.app/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error('Gagal terhubung ke server.');
+        throw new Error(result.message || 'Email atau Password salah!');
       }
 
-      // Cari user yang email dan password-nya cocok
-      const foundUser = result.data.find(
-        (user) => user.email === email && user.password === password
-      );
-
-      if (!foundUser) {
-        throw new Error('Email atau Password salah!');
-      }
+      const foundUser = result.data;
 
       // Simpan data user ke storage
       const userData = JSON.stringify(foundUser);
@@ -43,7 +39,13 @@ export default function Login() {
       }
 
       alert(`Selamat Datang, ${foundUser.nama}!`);
-      navigate('/home'); // Arahkan ke halaman utama/dashboard
+
+      // Otomatis arahkan berdasarkan role
+      if (foundUser.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     } catch (err) {
       setErrorMsg(err.message);
     } finally {

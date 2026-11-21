@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import Home from "./pages/home/home";
 import Catalog from "./pages/catalog/catalog";
 import Services from "./pages/detail & detail layanan/Services";
@@ -191,7 +192,9 @@ function App() {
             <RiwayatPesanan cartCount={cartCount} bookingList={bookingList} />
           }
         />
-
+        {/* Halaman Admin & Laporan */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        
         {/* Fallback jika URL tidak ditemukan */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
