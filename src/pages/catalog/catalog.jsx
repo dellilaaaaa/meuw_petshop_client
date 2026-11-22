@@ -797,10 +797,11 @@ const formatCatalogData = (rawProducts) => {
       tag: kategoriNama.toUpperCase(),
       bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
       gambar:
-        typeof item.foto === "string"
-          ? item.foto
-          : `${API_CATALOG_URL}/${productId}/foto`,
-      fallbackGambar: fallbackImg,
+        typeof item.foto === "string" && item.foto.trim() !== ""
+          ? item.foto.startsWith("http")
+            ? item.foto
+            : `${API_BASE_URL}${item.foto.startsWith("/") ? "" : "/"}${item.foto}`
+          : fallbackImg,
     };
   });
 

@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function Register() {
   const [formData, setFormData] = useState({
+    username: '',
     nama: '',
     email: '',
     no_telp: '',
+    wilayah: 'Jakarta Pusat',
     alamat: '',
     password: '',
     confirmPassword: '',
@@ -35,17 +37,20 @@ export default function Register() {
     setLoading(true);
 
     try {
+      const fullAlamat = `${formData.alamat.trim()}, ${formData.wilayah}`;
+
       const response = await fetch('https://meuw-petshop-server.vercel.app/api/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nama: formData.nama,
-          email: formData.email,
-          no_telp: formData.no_telp,
+          username: formData.username.trim(),
+          nama: formData.nama.trim(),
+          email: formData.email.trim(),
+          no_telp: formData.no_telp.trim(),
           password: formData.password,
-          alamat: formData.alamat,
+          alamat: fullAlamat,
         }),
       });
 
@@ -55,33 +60,30 @@ export default function Register() {
         throw new Error(data.message || 'Pendaftaran gagal. Silakan periksa kembali data Anda.');
       }
 
-      alert('Akun berhasil dibuat! Silakan Log In.');
+      alert(`Akun berhasil dibuat!\nCabang otomatis: MeLuw Petshop - ${formData.wilayah}\nSilakan Log In.`);
       navigate('/login');
-    } catch (err) { //[cite: 2]
-        let message = err.message; //[cite: 2]
-        
-        // Deteksi jika error disebabkan oleh Duplicate Key MongoDB[cite: 2]
-        if (message.includes('E11000') || message.includes('duplicate key')) { //[cite: 2]
-          if (message.includes('no_telp')) { //[cite: 2]
-            message = 'Nomor telepon sudah terdaftar! Gunakan nomor telepon lain.'; //[cite: 2]
-          } else if (message.includes('email')) { //[cite: 2]
-            message = 'Email sudah terdaftar! Gunakan email lain.'; //[cite: 2]
-          } else { //[cite: 2]
-            message = 'Data sudah terdaftar dalam sistem.'; //[cite: 2]
-          } //[cite: 2]
-        } //[cite: 2]
-        setErrorMsg(message); //[cite: 2]
+    } catch (err) {
+      let message = err.message;
+      if (message.includes('E11000') || message.includes('duplicate key')) {
+        if (message.includes('no_telp')) {
+          message = 'Nomor telepon sudah terdaftar! Gunakan nomor telepon lain.';
+        } else if (message.includes('email')) {
+          message = 'Email sudah terdaftar! Gunakan email lain.';
+        } else if (message.includes('username')) {
+          message = 'Username sudah dipakai! Pilih username lain.';
+        } else {
+          message = 'Data sudah terdaftar dalam sistem.';
+        }
+      }
+      setErrorMsg(message);
     } finally {
-        setLoading(false); // Tambahkan ini agar tombol bisa diklik lagi jika error
-  }
+      setLoading(false);
+    }
   };
-  
 
   return (
     <div style={styles.body}>
       <div style={styles.card}>
-        
-        {/* Header Melengkung */}
         <div style={styles.headerContainer}>
           <div style={styles.header}>
             <div style={styles.logoBadge}>🐾</div>
@@ -91,14 +93,29 @@ export default function Register() {
           <div style={styles.headerWave}></div>
         </div>
 
-        {/* Form Content */}
         <div style={styles.content}>
           <h2 style={styles.formTitle}>Create New Account</h2>
 
           {errorMsg && <p style={styles.errorMessage}>{errorMsg}</p>}
 
           <form onSubmit={handleSubmit} style={styles.form}>
-            
+            {/* Input Username */}
+            <div style={styles.inputWrapper}>
+              <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"></path>
+              </svg>
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                value={formData.username}
+                onChange={handleChange}
+                style={styles.input}
+                required
+              />
+            </div>
+
             {/* Input Nama Lengkap */}
             <div style={styles.inputWrapper}>
               <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -149,7 +166,27 @@ export default function Register() {
               />
             </div>
 
-            {/* Input Alamat */}
+            {/* Dropdown Wilayah Jakarta */}
+            <div style={styles.inputWrapper}>
+              <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <select
+                name="wilayah"
+                value={formData.wilayah}
+                onChange={handleChange}
+                style={styles.input}
+                required
+              >
+                <option value="Jakarta Pusat">Wilayah: Jakarta Pusat (Cabang Cikini)</option>
+                <option value="Jakarta Selatan">Wilayah: Jakarta Selatan (Cabang Fatmawati)</option>
+                <option value="Jakarta Timur">Wilayah: Jakarta Timur (Cabang Rawamangun)</option>
+                <option value="Jakarta Barat">Wilayah: Jakarta Barat (Cabang Tanjung Duren)</option>
+              </select>
+            </div>
+
+            {/* Input Alamat Lengkap */}
             <div style={styles.inputWrapper}>
               <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -158,7 +195,7 @@ export default function Register() {
               <input
                 type="text"
                 name="alamat"
-                placeholder="Alamat Lengkap"
+                placeholder="Alamat Lengkap (Jalan, No, Kecamatan)"
                 value={formData.alamat}
                 onChange={handleChange}
                 style={styles.input}
@@ -217,11 +254,9 @@ export default function Register() {
             </button>
           </form>
 
-          {/* Login Link */}
           <p style={styles.loginText}>
             Already have an account? <Link to="/login" style={styles.loginLink}>Log In</Link>
           </p>
-
         </div>
       </div>
     </div>
@@ -241,7 +276,7 @@ const styles = {
   },
   card: {
     width: '100%',
-    maxWidth: '380px',
+    maxWidth: '390px',
     backgroundColor: '#FFFDF6',
     border: '3px solid #F7ADAD',
     borderRadius: '40px',
@@ -317,6 +352,7 @@ const styles = {
   inputIcon: {
     position: 'absolute',
     left: '16px',
+    pointerEvents: 'none',
   },
   input: {
     width: '100%',
@@ -326,7 +362,7 @@ const styles = {
     borderRadius: '25px',
     color: '#4A4A4A',
     fontSize: '12px',
-    fontWeight: '500',
+    fontWeight: '600',
     outline: 'none',
     boxSizing: 'border-box',
     boxShadow: 'inset 0 2px 4px rgba(247, 173, 173, 0.15)',

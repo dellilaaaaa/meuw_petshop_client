@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
   FileSpreadsheet,
   ShoppingBag,
   CalendarClock,
@@ -15,14 +14,26 @@ import {
   Clock,
   Award,
   Search,
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  Store,
 } from "lucide-react";
 
 const API_BASE = "https://meuw-petshop-server.vercel.app/api";
 
+const STORES_LIST = [
+  { id_toko: "1", nama: "Jakarta Pusat (Cikini)" },
+  { id_toko: "2", nama: "Jakarta Selatan (Fatmawati)" },
+  { id_toko: "3", nama: "Jakarta Timur (Rawamangun)" },
+  { id_toko: "4", nama: "Jakarta Barat (Tanjung Duren)" },
+];
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
-  // Ambil data admin yang sedang login
   const [adminUser] = useState(() => {
     try {
       const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -32,7 +43,6 @@ export default function AdminDashboard() {
     }
   });
 
-  // Tab aktif: 'laporan' | 'transaksi' | 'booking' | 'katalog'
   const [activeTab, setActiveTab] = useState("laporan");
 
   // Filter Laporan
@@ -40,7 +50,43 @@ export default function AdminDashboard() {
   const [endDate, setEndDate] = useState("");
   const [jenisLaporan, setJenisLaporan] = useState("semua");
   const [statusFilter, setStatusFilter] = useState("semua");
+  const [cabangFilter, setCabangFilter] = useState("semua");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // State Cabang Aktif di Tab Master Data (1, 2, 3, 4)
+  const [selectedStoreTab, setSelectedStoreTab] = useState("1");
+  const [katalogSearch, setKatalogSearch] = useState("");
+
+  // State Inline Tambah & Edit Produk
+  const [isAddingProduk, setIsAddingProduk] = useState(false);
+  const [newProduk, setNewProduk] = useState({
+    nama_barang: "",
+    harga: "",
+    id_kategori: "1",
+    foto: "",
+    stok_awal: "10",
+  });
+  const [editingProdukId, setEditingProdukId] = useState(null);
+  const [editProdukForm, setEditProdukForm] = useState({
+    nama_barang: "",
+    harga: "",
+    foto: "",
+    jumlah_stok: 0,
+  });
+
+  // State Inline Tambah & Edit Layanan
+  const [isAddingLayanan, setIsAddingLayanan] = useState(false);
+  const [newLayanan, setNewLayanan] = useState({
+    nama_layanan: "",
+    harga: "",
+    deskripsi: "",
+  });
+  const [editingLayananId, setEditingLayananId] = useState(null);
+  const [editLayananForm, setEditLayananForm] = useState({
+    nama_layanan: "",
+    harga: "",
+    deskripsi: "",
+  });
 
   // Data dari Backend
   const [summary, setSummary] = useState({
@@ -57,11 +103,13 @@ export default function AdminDashboard() {
   const [bookingList, setBookingList] = useState([]);
   const [catalogList, setCatalogList] = useState([]);
   const [layananList, setLayananList] = useState([]);
+  const [stokList, setStokList] = useState([]);
+  const [kategoriList, setKategoriList] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
 
-  // Proteksi halaman: hanya role 'admin' yang boleh masuk
   useEffect(() => {
     if (!adminUser || adminUser.role !== "admin") {
       alert("Akses ditolak! Silakan login menggunakan akun Admin.");
@@ -69,28 +117,45 @@ export default function AdminDashboard() {
     }
   }, [adminUser, navigate]);
 
-  // Fetch data laporan & master data
+  const adminHeaders = useCallback(
+    () => ({
+      "Content-Type": "application/json",
+      "x-user-id": String(adminUser?.id_user || "1"),
+    }),
+    [adminUser]
+  );
+
   const fetchAllData = useCallback(async () => {
     if (!adminUser?.id_user) return;
     setLoading(true);
+    sessionStorage.removeItem("meuw_catalog_cache_v1");
+    sessionStorage.removeItem("meuw_layanan_cache_v1");
     try {
       const params = new URLSearchParams();
       if (startDate) params.append("startDate", startDate);
       if (endDate) params.append("endDate", endDate);
       if (jenisLaporan !== "semua") params.append("jenis", jenisLaporan);
       if (statusFilter !== "semua") params.append("status", statusFilter);
+      if (cabangFilter !== "semua") params.append("id_toko", cabangFilter);
 
-      const headers = {
-        "Content-Type": "application/json",
-        "x-user-id": String(adminUser.id_user),
-      };
+      const headers = adminHeaders();
 
-      const [resLaporan, resTrx, resBooking, resCatalog, resLayanan] = await Promise.all([
+      const [
+        resLaporan,
+        resTrx,
+        resBooking,
+        resCatalog,
+        resLayanan,
+        resStok,
+        resKategori,
+      ] = await Promise.all([
         fetch(`${API_BASE}/admin/laporan?${params.toString()}`, { headers }),
         fetch(`${API_BASE}/transaksi`),
         fetch(`${API_BASE}/booking-layanan`),
         fetch(`${API_BASE}/catalog`),
         fetch(`${API_BASE}/layanan`),
+        fetch(`${API_BASE}/stok-cabang`),
+        fetch(`${API_BASE}/kategori-barang`).catch(() => ({ json: async () => ({ data: [] }) })),
       ]);
 
       const dataLaporan = await resLaporan.json();
@@ -110,27 +175,223 @@ export default function AdminDashboard() {
 
       const dataLayanan = await resLayanan.json();
       if (dataLayanan.success) setLayananList(dataLayanan.data || []);
+
+      const dataStok = await resStok.json();
+      if (dataStok.success) setStokList(dataStok.data || []);
+
+      const dataKategori = await resKategori.json();
+      if (dataKategori?.success) setKategoriList(dataKategori.data || []);
     } catch (err) {
       console.error("Gagal memuat data admin:", err);
     } finally {
       setLoading(false);
     }
-  }, [adminUser, startDate, endDate, jenisLaporan, statusFilter]);
+  }, [adminUser, startDate, endDate, jenisLaporan, statusFilter, cabangFilter, adminHeaders]);
 
   useEffect(() => {
     fetchAllData();
   }, [fetchAllData]);
 
-  // Ubah status transaksi
+  // Ambil angka stok barang pada cabang yang sedang dipilih
+  const getStokForStore = (id_barang, id_toko = selectedStoreTab) => {
+    const found = stokList.find(
+      (s) => String(s.id_barang) === String(id_barang) && String(s.id_toko) === String(id_toko)
+    );
+    return found ? found.jumlah_stok : 0;
+  };
+
+  // ==========================================
+  // HANDLER CRUD PRODUK & STOK CABANG (INLINE)
+  // ==========================================
+  const handleCreateProduk = async () => {
+    if (!newProduk.nama_barang.trim() || newProduk.harga === "") {
+      alert("Nama barang dan harga wajib diisi!");
+      return;
+    }
+    setSaving(true);
+    try {
+      const defaultKat =
+        newProduk.id_kategori || (kategoriList[0]?.id_kategori ? String(kategoriList[0].id_kategori) : "1");
+      const res = await fetch(`${API_BASE}/admin/produk`, {
+        method: "POST",
+        headers: adminHeaders(),
+        body: JSON.stringify({
+          nama_barang: newProduk.nama_barang,
+          harga: Number(newProduk.harga),
+          id_kategori: defaultKat,
+          foto: newProduk.foto,
+          stok_awal: parseInt(newProduk.stok_awal, 10) || 0,
+        }),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+
+      setIsAddingProduk(false);
+      setNewProduk({ nama_barang: "", harga: "", id_kategori: "1", foto: "", stok_awal: "10" });
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menambah produk: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditProduk = (item) => {
+    setEditingProdukId(item.id_barang);
+    setEditProdukForm({
+      nama_barang: item.nama_barang,
+      harga: item.harga,
+      foto: item.foto || "",
+      jumlah_stok: getStokForStore(item.id_barang, selectedStoreTab),
+    });
+  };
+
+  const handleSaveEditProduk = async (id_barang) => {
+    if (!editProdukForm.nama_barang.trim() || editProdukForm.harga === "") {
+      alert("Nama barang dan harga tidak boleh kosong!");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/produk/${id_barang}`, {
+        method: "PUT",
+        headers: adminHeaders(),
+        body: JSON.stringify({
+          nama_barang: editProdukForm.nama_barang,
+          harga: Number(editProdukForm.harga),
+          foto: editProdukForm.foto,
+          id_toko: selectedStoreTab,
+          jumlah_stok: parseInt(editProdukForm.jumlah_stok, 10) || 0,
+        }),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+
+      setEditingProdukId(null);
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menyimpan perubahan: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteProduk = async (id_barang, nama_barang) => {
+    if (!window.confirm(`Yakin ingin menghapus produk "${nama_barang}" beserta stoknya di semua cabang?`)) {
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/produk/${id_barang}`, {
+        method: "DELETE",
+        headers: adminHeaders(),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menghapus produk: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ==========================================
+  // HANDLER CRUD LAYANAN (INLINE)
+  // ==========================================
+  const handleCreateLayanan = async () => {
+    if (!newLayanan.nama_layanan.trim() || newLayanan.harga === "" || !newLayanan.deskripsi.trim()) {
+      alert("Nama layanan, harga, dan deskripsi wajib diisi!");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/layanan`, {
+        method: "POST",
+        headers: adminHeaders(),
+        body: JSON.stringify({
+          nama_layanan: newLayanan.nama_layanan,
+          harga: Number(newLayanan.harga),
+          deskripsi: newLayanan.deskripsi,
+        }),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+
+      setIsAddingLayanan(false);
+      setNewLayanan({ nama_layanan: "", harga: "", deskripsi: "" });
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menambah layanan: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditLayanan = (srv) => {
+    setEditingLayananId(srv.id_layanan);
+    setEditLayananForm({
+      nama_layanan: srv.nama_layanan,
+      harga: srv.harga,
+      deskripsi: srv.deskripsi || "",
+    });
+  };
+
+  const handleSaveEditLayanan = async (id_layanan) => {
+    if (!editLayananForm.nama_layanan.trim() || editLayananForm.harga === "" || !editLayananForm.deskripsi.trim()) {
+      alert("Nama layanan, harga, dan deskripsi tidak boleh kosong!");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/layanan/${id_layanan}`, {
+        method: "PUT",
+        headers: adminHeaders(),
+        body: JSON.stringify({
+          nama_layanan: editLayananForm.nama_layanan,
+          harga: Number(editLayananForm.harga),
+          deskripsi: editLayananForm.deskripsi,
+        }),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+
+      setEditingLayananId(null);
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menyimpan layanan: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteLayanan = async (id_layanan, nama_layanan) => {
+    if (!window.confirm(`Yakin ingin menghapus layanan "${nama_layanan}"?`)) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/layanan/${id_layanan}`, {
+        method: "DELETE",
+        headers: adminHeaders(),
+      });
+      const result = await res.json();
+      if (!result.success) throw new Error(result.message);
+      await fetchAllData();
+    } catch (err) {
+      alert(`Gagal menghapus layanan: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ==========================================
+  // HANDLER TRANSAKSI, BOOKING & EXPORT
+  // ==========================================
   const handleUpdateTransaksi = async (id_transaksi, newStatus) => {
     setUpdatingId(id_transaksi);
     try {
       const res = await fetch(`${API_BASE}/admin/transaksi/${id_transaksi}/status`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": String(adminUser.id_user),
-        },
+        headers: adminHeaders(),
         body: JSON.stringify({ status: newStatus }),
       });
       const result = await res.json();
@@ -143,16 +404,12 @@ export default function AdminDashboard() {
     }
   };
 
-  // Ubah status booking layanan
   const handleUpdateBooking = async (id_booking, newStatus) => {
     setUpdatingId(id_booking);
     try {
       const res = await fetch(`${API_BASE}/admin/booking/${id_booking}/status`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": String(adminUser.id_user),
-        },
+        headers: adminHeaders(),
         body: JSON.stringify({ status_booking: newStatus }),
       });
       const result = await res.json();
@@ -165,10 +422,10 @@ export default function AdminDashboard() {
     }
   };
 
-  // Export Laporan ke CSV (bisa dibuka langsung di Microsoft Excel)
   const handleExportCSV = () => {
     const headers = [
       "ID Transaksi",
+      "Cabang Toko",
       "Tanggal",
       "Nama Pelanggan",
       "Kategori",
@@ -181,6 +438,7 @@ export default function AdminDashboard() {
 
     const rows = filteredRecords.map((r) => [
       `#${r.id_transaksi}`,
+      `"${r.nama_toko || "MeLuw Petshop - Jakarta Pusat"}"`,
       new Date(r.tanggal).toLocaleDateString("id-ID"),
       `"${r.nama_pelanggan}"`,
       r.kategori_laporan,
@@ -207,7 +465,6 @@ export default function AdminDashboard() {
     document.body.removeChild(link);
   };
 
-  // Cetak Laporan PDF via browser
   const handlePrint = () => {
     window.print();
   };
@@ -215,6 +472,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     sessionStorage.removeItem("user");
+    localStorage.removeItem("selected_store");
     navigate("/login");
   };
 
@@ -229,7 +487,14 @@ export default function AdminDashboard() {
     (item) =>
       item.nama_item.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.nama_pelanggan.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.nama_toko || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(item.id_transaksi).includes(searchQuery)
+  );
+
+  const filteredCatalog = catalogList.filter(
+    (item) =>
+      item.nama_barang.toLowerCase().includes(katalogSearch.toLowerCase()) ||
+      String(item.id_barang).includes(katalogSearch)
   );
 
   const getStatusBadge = (status) => {
@@ -245,9 +510,10 @@ export default function AdminDashboard() {
 
   if (!adminUser || adminUser.role !== "admin") return null;
 
+  const currentStoreObj = STORES_LIST.find((s) => s.id_toko === selectedStoreTab) || STORES_LIST[0];
+
   return (
     <div style={styles.pageWrapper}>
-      {/* Style khusus agar saat Print PDF hanya mencetak area laporan dengan bersih */}
       <style>{`
         @media print {
           .no-print { display: none !important; }
@@ -337,8 +603,15 @@ export default function AdminDashboard() {
 
       {/* KONTEN UTAMA */}
       <main style={styles.mainContent} className="main-content">
-        {/* Header Cetak Khusus PDF */}
-        <div style={{ display: "none", marginBottom: "20px", borderBottom: "2px solid #F7ADAD", paddingBottom: "12px" }} className="print-only">
+        <div
+          style={{
+            display: "none",
+            marginBottom: "20px",
+            borderBottom: "2px solid #F7ADAD",
+            paddingBottom: "12px",
+          }}
+          className="print-only"
+        >
           <h1 style={{ margin: 0, fontSize: "22px", color: "#4A3B3B" }}>
             LAPORAN PENJUALAN & LAYANAN — MEUW PETSHOP
           </h1>
@@ -349,27 +622,27 @@ export default function AdminDashboard() {
               month: "long",
               year: "numeric",
             })}
-            {startDate || endDate ? ` | Periode: ${startDate || "Awal"} s/d ${endDate || "Sekarang"}` : ""}
           </p>
         </div>
 
-        {/* Top Bar */}
         <header style={styles.topHeader} className="no-print">
           <div>
             <h1 style={styles.pageTitle}>
               {activeTab === "laporan" && "Dashboard & Laporan Penjualan"}
               {activeTab === "transaksi" && "Manajemen Transaksi Pelanggan"}
               {activeTab === "booking" && "Manajemen Booking Layanan"}
-              {activeTab === "katalog" && "Master Data Produk & Layanan"}
+              {activeTab === "katalog" && "Master Data Produk, Stok Cabang & Layanan"}
             </h1>
             <p style={styles.pageSubtitle}>
-              Pantau performa penjualan, status pesanan, dan cetak laporan resmi MEUW Petshop.
+              {activeTab === "katalog"
+                ? "Kelola produk, edit stok per cabang toko secara langsung, dan atur tarif layanan."
+                : "Pantau performa penjualan tiap cabang, status pesanan, dan cetak laporan resmi MEUW Petshop."}
             </p>
           </div>
 
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             <button onClick={fetchAllData} style={styles.btnSecondary} disabled={loading}>
-              <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+              <RefreshCw size={16} />
               <span>{loading ? "Memuat..." : "Refresh Data"}</span>
             </button>
 
@@ -391,7 +664,6 @@ export default function AdminDashboard() {
         {/* ================= TAB 1: DASHBOARD & LAPORAN ================= */}
         {activeTab === "laporan" && (
           <>
-            {/* 4 Kartu KPI */}
             <div style={styles.kpiGrid}>
               <div style={styles.kpiCard}>
                 <div style={{ ...styles.kpiIcon, backgroundColor: "#DCFCE7", color: "#15803D" }}>
@@ -440,8 +712,23 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Panel Filter Laporan */}
             <div style={styles.filterBar} className="no-print">
+              <div style={styles.filterGroup}>
+                <label style={styles.filterLabel}>Cabang Toko</label>
+                <select
+                  value={cabangFilter}
+                  onChange={(e) => setCabangFilter(e.target.value)}
+                  style={styles.inputControl}
+                >
+                  <option value="semua">Semua Cabang (4 Toko)</option>
+                  {STORES_LIST.map((st) => (
+                    <option key={st.id_toko} value={st.id_toko}>
+                      {st.nama}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div style={styles.filterGroup}>
                 <label style={styles.filterLabel}>Dari Tanggal</label>
                 <input
@@ -463,20 +750,20 @@ export default function AdminDashboard() {
               </div>
 
               <div style={styles.filterGroup}>
-                <label style={styles.filterLabel}>Kategori Laporan</label>
+                <label style={styles.filterLabel}>Kategori</label>
                 <select
                   value={jenisLaporan}
                   onChange={(e) => setJenisLaporan(e.target.value)}
                   style={styles.inputControl}
                 >
                   <option value="semua">Semua (Produk & Layanan)</option>
-                  <option value="produk">Penjualan Produk Saja</option>
-                  <option value="layanan">Booking Layanan Saja</option>
+                  <option value="produk">Produk Saja</option>
+                  <option value="layanan">Layanan Saja</option>
                 </select>
               </div>
 
               <div style={styles.filterGroup}>
-                <label style={styles.filterLabel}>Status Transaksi</label>
+                <label style={styles.filterLabel}>Status</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -490,13 +777,13 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              <div style={{ ...styles.filterGroup, flex: 1, minWidth: "200px" }}>
+              <div style={{ ...styles.filterGroup, flex: 1, minWidth: "180px" }}>
                 <label style={styles.filterLabel}>Cari Item / Pelanggan</label>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <Search size={15} style={{ position: "absolute", left: "10px", color: "#998888" }} />
                   <input
                     type="text"
-                    placeholder="Ketik nama item atau pelanggan..."
+                    placeholder="Cari nama item / pelanggan..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={{ ...styles.inputControl, paddingLeft: "32px", width: "100%" }}
@@ -505,7 +792,6 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Tabel Rekapitulasi Laporan */}
             <div style={styles.tableCard}>
               <div style={styles.tableHeader}>
                 <h3 style={styles.tableTitle}>
@@ -518,12 +804,12 @@ export default function AdminDashboard() {
                   <thead>
                     <tr>
                       <th style={styles.th}>ID Trx</th>
+                      <th style={styles.th}>Cabang Toko</th>
                       <th style={styles.th}>Tanggal</th>
                       <th style={styles.th}>Pelanggan</th>
                       <th style={styles.th}>Kategori</th>
                       <th style={styles.th}>Nama Produk / Layanan</th>
                       <th style={{ ...styles.th, textAlign: "center" }}>Qty</th>
-                      <th style={{ ...styles.th, textAlign: "right" }}>Harga Satuan</th>
                       <th style={{ ...styles.th, textAlign: "right" }}>Subtotal</th>
                       <th style={{ ...styles.th, textAlign: "center" }}>Status</th>
                     </tr>
@@ -532,7 +818,7 @@ export default function AdminDashboard() {
                     {filteredRecords.length === 0 ? (
                       <tr>
                         <td colSpan="9" style={styles.emptyCell}>
-                          Belum ada data transaksi pada filter periode ini.
+                          Belum ada data transaksi pada filter periode/cabang ini.
                         </td>
                       </tr>
                     ) : (
@@ -542,6 +828,11 @@ export default function AdminDashboard() {
                           <tr key={`${row.id_referensi}-${idx}`} style={styles.tr}>
                             <td style={styles.td}>
                               <strong>#{row.id_transaksi}</strong>
+                            </td>
+                            <td style={styles.td}>
+                              <span style={{ fontSize: "12px", fontWeight: "700", color: "#665151" }}>
+                                {row.nama_toko || "Jakarta Pusat"}
+                              </span>
                             </td>
                             <td style={styles.td}>
                               {new Date(row.tanggal).toLocaleDateString("id-ID", {
@@ -582,9 +873,6 @@ export default function AdminDashboard() {
                               )}
                             </td>
                             <td style={{ ...styles.td, textAlign: "center" }}>{row.jumlah}</td>
-                            <td style={{ ...styles.td, textAlign: "right" }}>
-                              {formatRupiah(row.harga_satuan)}
-                            </td>
                             <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
                               {formatRupiah(row.subtotal)}
                             </td>
@@ -649,6 +937,7 @@ export default function AdminDashboard() {
                   <tr>
                     <th style={styles.th}>ID Transaksi</th>
                     <th style={styles.th}>ID User</th>
+                    <th style={styles.th}>Cabang</th>
                     <th style={styles.th}>Tanggal</th>
                     <th style={{ ...styles.th, textAlign: "right" }}>Total Harga</th>
                     <th style={{ ...styles.th, textAlign: "center" }}>Status</th>
@@ -658,7 +947,7 @@ export default function AdminDashboard() {
                 <tbody>
                   {transaksiList.length === 0 ? (
                     <tr>
-                      <td colSpan="6" style={styles.emptyCell}>
+                      <td colSpan="7" style={styles.emptyCell}>
                         Belum ada data transaksi di database.
                       </td>
                     </tr>
@@ -671,6 +960,7 @@ export default function AdminDashboard() {
                             <strong>#{trx.id_transaksi}</strong>
                           </td>
                           <td style={styles.td}>User #{trx.id_user}</td>
+                          <td style={styles.td}>Cabang #{trx.id_toko || "1"}</td>
                           <td style={styles.td}>
                             {new Date(trx.tanggal).toLocaleDateString("id-ID")}
                           </td>
@@ -797,13 +1087,93 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ================= TAB 4: DATA PRODUK & LAYANAN ================= */}
+        {/* ================= TAB 4: CRUD PRODUK, STOK CABANG & LAYANAN ================= */}
         {activeTab === "katalog" && (
-          <div style={{ display: "grid", gap: "24px" }}>
-            <div style={styles.tableCard}>
-              <div style={styles.tableHeader}>
-                <h3 style={styles.tableTitle}>Daftar Produk Katalog ({catalogList.length})</h3>
+          <div style={{ display: "grid", gap: "28px" }}>
+            {/* PANEL PILIH CABANG UNTUK KELOLA STOK */}
+            <div style={styles.storeSwitcherCard}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                <Store size={20} color="#E07A7A" />
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "15px", fontWeight: "800", color: "#4A3B3B" }}>
+                    Pilih Cabang Toko untuk Kelola Stok:
+                  </h3>
+                  <p style={{ margin: 0, fontSize: "12px", color: "#776B6B" }}>
+                    Klik tab cabang di bawah untuk melihat dan mengedit stok khusus cabang tersebut langsung di tabel.
+                  </p>
+                </div>
               </div>
+
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                {STORES_LIST.map((st) => {
+                  const isSelected = selectedStoreTab === st.id_toko;
+                  return (
+                    <button
+                      key={st.id_toko}
+                      onClick={() => {
+                        setSelectedStoreTab(st.id_toko);
+                        setEditingProdukId(null);
+                      }}
+                      style={{
+                        padding: "9px 16px",
+                        borderRadius: "14px",
+                        border: isSelected ? "2px solid #E07A7A" : "2px solid #E5DEC9",
+                        backgroundColor: isSelected ? "#F7ADAD" : "#FFFFFF",
+                        color: isSelected ? "#FFFFFF" : "#665151",
+                        fontWeight: "700",
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      🏪 Cabang #{st.id_toko} — {st.nama}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* TABEL 1: DAFTAR PRODUK KATALOG + INLINE EDIT STOK CABANG */}
+            <div style={styles.tableCard}>
+              <div
+                style={{
+                  ...styles.tableHeader,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "12px",
+                }}
+              >
+                <div>
+                  <h3 style={styles.tableTitle}>
+                    Daftar Produk Katalog ({filteredCatalog.length}) — Stok {currentStoreObj.nama}
+                  </h3>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                    <Search size={14} style={{ position: "absolute", left: "10px", color: "#998888" }} />
+                    <input
+                      type="text"
+                      placeholder="Cari nama produk..."
+                      value={katalogSearch}
+                      onChange={(e) => setKatalogSearch(e.target.value)}
+                      style={{ ...styles.inputControl, paddingLeft: "30px", width: "200px" }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={() => setIsAddingProduk(true)}
+                    style={styles.btnCoral}
+                    disabled={isAddingProduk}
+                  >
+                    <Plus size={16} />
+                    <span>Tambah Produk</span>
+                  </button>
+                </div>
+              </div>
+
               <div style={{ overflowX: "auto" }}>
                 <table style={styles.table}>
                   <thead>
@@ -812,50 +1182,275 @@ export default function AdminDashboard() {
                       <th style={styles.th}>Foto</th>
                       <th style={styles.th}>Nama Barang</th>
                       <th style={{ ...styles.th, textAlign: "right" }}>Harga</th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
+                        Stok ({currentStoreObj.nama.split(" ")[1]})
+                      </th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>Aksi Langsung</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {catalogList.map((item) => (
-                      <tr key={item.id_barang} style={styles.tr}>
-                        <td style={styles.td}>#{item.id_barang}</td>
+                    {/* BARIS TAMBAH PRODUK BARU (INLINE) */}
+                    {isAddingProduk && (
+                      <tr style={{ backgroundColor: "#FFF5F5", borderBottom: "2px solid #F7ADAD" }}>
                         <td style={styles.td}>
-                          {item.foto ? (
-                            <img
-                              src={
-                                item.foto.startsWith("http")
-                                  ? item.foto
-                                  : `https://meuw-petshop-server.vercel.app${item.foto}`
-                              }
-                              alt={item.nama_barang}
-                              style={{
-                                width: "44px",
-                                height: "44px",
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                                border: "1px solid #F7ADAD",
-                              }}
-                            />
-                          ) : (
-                            "-"
-                          )}
+                          <span style={{ fontSize: "11px", fontWeight: "800", color: "#E07A7A" }}>
+                            BARU
+                          </span>
                         </td>
                         <td style={styles.td}>
-                          <strong>{item.nama_barang}</strong>
+                          <input
+                            type="text"
+                            placeholder="URL Foto (opsional)"
+                            value={newProduk.foto}
+                            onChange={(e) => setNewProduk({ ...newProduk, foto: e.target.value })}
+                            style={{ ...styles.inputControl, width: "130px", fontSize: "12px" }}
+                          />
                         </td>
-                        <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
-                          {formatRupiah(item.harga)}
+                        <td style={styles.td}>
+                          <input
+                            type="text"
+                            placeholder="Nama barang baru..."
+                            value={newProduk.nama_barang}
+                            onChange={(e) =>
+                              setNewProduk({ ...newProduk, nama_barang: e.target.value })
+                            }
+                            style={{ ...styles.inputControl, width: "100%", minWidth: "180px" }}
+                          />
+                        </td>
+                        <td style={{ ...styles.td, textAlign: "right" }}>
+                          <input
+                            type="number"
+                            placeholder="Harga (Rp)"
+                            value={newProduk.harga}
+                            onChange={(e) => setNewProduk({ ...newProduk, harga: e.target.value })}
+                            style={{ ...styles.inputControl, width: "120px", textAlign: "right" }}
+                          />
+                        </td>
+                        <td style={{ ...styles.td, textAlign: "center" }}>
+                          <input
+                            type="number"
+                            min="0"
+                            title="Stok awal untuk semua cabang"
+                            value={newProduk.stok_awal}
+                            onChange={(e) =>
+                              setNewProduk({ ...newProduk, stok_awal: e.target.value })
+                            }
+                            style={{ ...styles.inputControl, width: "75px", textAlign: "center" }}
+                          />
+                        </td>
+                        <td style={{ ...styles.td, textAlign: "center" }}>
+                          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                            <button
+                              onClick={handleCreateProduk}
+                              disabled={saving}
+                              style={styles.actionSaveBtn}
+                              title="Simpan Produk Baru"
+                            >
+                              <Check size={15} /> Simpan
+                            </button>
+                            <button
+                              onClick={() => setIsAddingProduk(false)}
+                              style={styles.actionCancelBtn}
+                              title="Batal"
+                            >
+                              <X size={15} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    )}
+
+                    {/* DAFTAR PRODUK */}
+                    {filteredCatalog.map((item) => {
+                      const isEditing = editingProdukId === item.id_barang;
+                      const stokSaatIni = getStokForStore(item.id_barang, selectedStoreTab);
+
+                      return (
+                        <tr
+                          key={item.id_barang}
+                          style={{
+                            ...styles.tr,
+                            backgroundColor: isEditing ? "#FFFBEB" : "transparent",
+                          }}
+                        >
+                          <td style={styles.td}>#{item.id_barang}</td>
+
+                          {/* FOTO */}
+                          <td style={styles.td}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                placeholder="URL Foto"
+                                value={editProdukForm.foto}
+                                onChange={(e) =>
+                                  setEditProdukForm({ ...editProdukForm, foto: e.target.value })
+                                }
+                                style={{ ...styles.inputControl, width: "120px", fontSize: "12px" }}
+                              />
+                            ) : item.foto ? (
+                              <img
+                                src={
+                                  item.foto.startsWith("http")
+                                    ? item.foto
+                                    : `https://meuw-petshop-server.vercel.app${item.foto}`
+                                }
+                                alt={item.nama_barang}
+                                style={{
+                                  width: "44px",
+                                  height: "44px",
+                                  objectFit: "cover",
+                                  borderRadius: "8px",
+                                  border: "1px solid #F7ADAD",
+                                }}
+                              />
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+
+                          {/* NAMA BARANG */}
+                          <td style={styles.td}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editProdukForm.nama_barang}
+                                onChange={(e) =>
+                                  setEditProdukForm({
+                                    ...editProdukForm,
+                                    nama_barang: e.target.value,
+                                  })
+                                }
+                                style={{ ...styles.inputControl, width: "100%", minWidth: "180px" }}
+                              />
+                            ) : (
+                              <strong>{item.nama_barang}</strong>
+                            )}
+                          </td>
+
+                          {/* HARGA */}
+                          <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                value={editProdukForm.harga}
+                                onChange={(e) =>
+                                  setEditProdukForm({ ...editProdukForm, harga: e.target.value })
+                                }
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "120px",
+                                  textAlign: "right",
+                                }}
+                              />
+                            ) : (
+                              formatRupiah(item.harga)
+                            )}
+                          </td>
+
+                          {/* STOK CABANG AKTIF */}
+                          <td style={{ ...styles.td, textAlign: "center" }}>
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                min="0"
+                                value={editProdukForm.jumlah_stok}
+                                onChange={(e) =>
+                                  setEditProdukForm({
+                                    ...editProdukForm,
+                                    jumlah_stok: e.target.value,
+                                  })
+                                }
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "75px",
+                                  textAlign: "center",
+                                  fontWeight: "800",
+                                }}
+                              />
+                            ) : (
+                              <span
+                                style={{
+                                  padding: "4px 12px",
+                                  borderRadius: "20px",
+                                  fontSize: "12px",
+                                  fontWeight: "800",
+                                  backgroundColor: stokSaatIni <= 5 ? "#FEE2E2" : "#DCFCE7",
+                                  color: stokSaatIni <= 5 ? "#991B1B" : "#166534",
+                                }}
+                              >
+                                {stokSaatIni} pcs
+                              </span>
+                            )}
+                          </td>
+
+                          {/* TOMBOL AKSI INLINE */}
+                          <td style={{ ...styles.td, textAlign: "center" }}>
+                            {isEditing ? (
+                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                                <button
+                                  onClick={() => handleSaveEditProduk(item.id_barang)}
+                                  disabled={saving}
+                                  style={styles.actionSaveBtn}
+                                >
+                                  <Check size={14} /> Simpan
+                                </button>
+                                <button
+                                  onClick={() => setEditingProdukId(null)}
+                                  style={styles.actionCancelBtn}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                                <button
+                                  onClick={() => startEditProduk(item)}
+                                  style={styles.actionEditBtn}
+                                  title="Edit Produk & Stok Cabang"
+                                >
+                                  <Pencil size={14} /> Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProduk(item.id_barang, item.nama_barang)}
+                                  style={styles.actionDeleteBtn}
+                                  title="Hapus Produk"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
 
+            {/* TABEL 2: DAFTAR LAYANAN PETSHOP + INLINE CRUD */}
             <div style={styles.tableCard}>
-              <div style={styles.tableHeader}>
+              <div
+                style={{
+                  ...styles.tableHeader,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "12px",
+                }}
+              >
                 <h3 style={styles.tableTitle}>Daftar Layanan Petshop ({layananList.length})</h3>
+                <button
+                  onClick={() => setIsAddingLayanan(true)}
+                  style={styles.btnCoral}
+                  disabled={isAddingLayanan}
+                >
+                  <Plus size={16} />
+                  <span>Tambah Layanan</span>
+                </button>
               </div>
+
               <div style={{ overflowX: "auto" }}>
                 <table style={styles.table}>
                   <thead>
@@ -864,21 +1459,177 @@ export default function AdminDashboard() {
                       <th style={styles.th}>Nama Layanan</th>
                       <th style={styles.th}>Deskripsi</th>
                       <th style={{ ...styles.th, textAlign: "right" }}>Harga</th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>Aksi Langsung</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {layananList.map((srv) => (
-                      <tr key={srv.id_layanan} style={styles.tr}>
-                        <td style={styles.td}>#{srv.id_layanan}</td>
+                    {/* BARIS TAMBAH LAYANAN BARU (INLINE) */}
+                    {isAddingLayanan && (
+                      <tr style={{ backgroundColor: "#FFF5F5", borderBottom: "2px solid #F7ADAD" }}>
                         <td style={styles.td}>
-                          <strong>{srv.nama_layanan}</strong>
+                          <span style={{ fontSize: "11px", fontWeight: "800", color: "#E07A7A" }}>
+                            BARU
+                          </span>
                         </td>
-                        <td style={styles.td}>{srv.deskripsi}</td>
-                        <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
-                          {formatRupiah(srv.harga)}
+                        <td style={styles.td}>
+                          <input
+                            type="text"
+                            placeholder="Nama layanan baru..."
+                            value={newLayanan.nama_layanan}
+                            onChange={(e) =>
+                              setNewLayanan({ ...newLayanan, nama_layanan: e.target.value })
+                            }
+                            style={{ ...styles.inputControl, width: "100%", minWidth: "160px" }}
+                          />
+                        </td>
+                        <td style={styles.td}>
+                          <input
+                            type="text"
+                            placeholder="Deskripsi layanan..."
+                            value={newLayanan.deskripsi}
+                            onChange={(e) =>
+                              setNewLayanan({ ...newLayanan, deskripsi: e.target.value })
+                            }
+                            style={{ ...styles.inputControl, width: "100%", minWidth: "200px" }}
+                          />
+                        </td>
+                        <td style={{ ...styles.td, textAlign: "right" }}>
+                          <input
+                            type="number"
+                            placeholder="Harga (Rp)"
+                            value={newLayanan.harga}
+                            onChange={(e) =>
+                              setNewLayanan({ ...newLayanan, harga: e.target.value })
+                            }
+                            style={{ ...styles.inputControl, width: "120px", textAlign: "right" }}
+                          />
+                        </td>
+                        <td style={{ ...styles.td, textAlign: "center" }}>
+                          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                            <button
+                              onClick={handleCreateLayanan}
+                              disabled={saving}
+                              style={styles.actionSaveBtn}
+                            >
+                              <Check size={14} /> Simpan
+                            </button>
+                            <button
+                              onClick={() => setIsAddingLayanan(false)}
+                              style={styles.actionCancelBtn}
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
-                    ))}
+                    )}
+
+                    {/* DAFTAR LAYANAN */}
+                    {layananList.map((srv) => {
+                      const isEditing = editingLayananId === srv.id_layanan;
+                      return (
+                        <tr
+                          key={srv.id_layanan}
+                          style={{
+                            ...styles.tr,
+                            backgroundColor: isEditing ? "#FFFBEB" : "transparent",
+                          }}
+                        >
+                          <td style={styles.td}>#{srv.id_layanan}</td>
+                          <td style={styles.td}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editLayananForm.nama_layanan}
+                                onChange={(e) =>
+                                  setEditLayananForm({
+                                    ...editLayananForm,
+                                    nama_layanan: e.target.value,
+                                  })
+                                }
+                                style={{ ...styles.inputControl, width: "100%", minWidth: "160px" }}
+                              />
+                            ) : (
+                              <strong>{srv.nama_layanan}</strong>
+                            )}
+                          </td>
+                          <td style={styles.td}>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={editLayananForm.deskripsi}
+                                onChange={(e) =>
+                                  setEditLayananForm({
+                                    ...editLayananForm,
+                                    deskripsi: e.target.value,
+                                  })
+                                }
+                                style={{ ...styles.inputControl, width: "100%", minWidth: "200px" }}
+                              />
+                            ) : (
+                              srv.deskripsi
+                            )}
+                          </td>
+                          <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                value={editLayananForm.harga}
+                                onChange={(e) =>
+                                  setEditLayananForm({
+                                    ...editLayananForm,
+                                    harga: e.target.value,
+                                  })
+                                }
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "120px",
+                                  textAlign: "right",
+                                }}
+                              />
+                            ) : (
+                              formatRupiah(srv.harga)
+                            )}
+                          </td>
+                          <td style={{ ...styles.td, textAlign: "center" }}>
+                            {isEditing ? (
+                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                                <button
+                                  onClick={() => handleSaveEditLayanan(srv.id_layanan)}
+                                  disabled={saving}
+                                  style={styles.actionSaveBtn}
+                                >
+                                  <Check size={14} /> Simpan
+                                </button>
+                                <button
+                                  onClick={() => setEditingLayananId(null)}
+                                  style={styles.actionCancelBtn}
+                                >
+                                  <X size={14} />
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                                <button
+                                  onClick={() => startEditLayanan(srv)}
+                                  style={styles.actionEditBtn}
+                                >
+                                  <Pencil size={14} /> Edit
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteLayanan(srv.id_layanan, srv.nama_layanan)
+                                  }
+                                  style={styles.actionDeleteBtn}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -917,22 +1668,9 @@ const styles = {
     borderBottom: "2px dashed #F7ADAD",
     marginBottom: "20px",
   },
-  brandTitle: {
-    margin: 0,
-    fontSize: "19px",
-    fontWeight: "800",
-    color: "#E07A7A",
-  },
-  brandSub: {
-    fontSize: "11px",
-    color: "#887777",
-    fontWeight: "600",
-  },
-  navList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-  },
+  brandTitle: { margin: 0, fontSize: "19px", fontWeight: "800", color: "#E07A7A" },
+  brandSub: { fontSize: "11px", color: "#887777", fontWeight: "600" },
+  navList: { display: "flex", flexDirection: "column", gap: "8px" },
   navBtn: {
     display: "flex",
     alignItems: "center",
@@ -969,12 +1707,7 @@ const styles = {
     flexDirection: "column",
     gap: "12px",
   },
-  adminProfile: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "6px",
-  },
+  adminProfile: { display: "flex", alignItems: "center", gap: "10px", padding: "6px" },
   avatar: {
     width: "36px",
     height: "36px",
@@ -995,11 +1728,7 @@ const styles = {
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
-  adminRole: {
-    fontSize: "11px",
-    color: "#E07A7A",
-    fontWeight: "600",
-  },
+  adminRole: { fontSize: "11px", color: "#E07A7A", fontWeight: "600" },
   logoutBtn: {
     display: "flex",
     alignItems: "center",
@@ -1014,11 +1743,7 @@ const styles = {
     fontSize: "13px",
     cursor: "pointer",
   },
-  mainContent: {
-    flex: 1,
-    padding: "28px 32px",
-    overflowY: "auto",
-  },
+  mainContent: { flex: 1, padding: "28px 32px", overflowY: "auto" },
   topHeader: {
     display: "flex",
     justifyContent: "space-between",
@@ -1027,17 +1752,8 @@ const styles = {
     gap: "16px",
     marginBottom: "24px",
   },
-  pageTitle: {
-    margin: 0,
-    fontSize: "24px",
-    fontWeight: "800",
-    color: "#4A3B3B",
-  },
-  pageSubtitle: {
-    margin: "4px 0 0 0",
-    fontSize: "13px",
-    color: "#776B6B",
-  },
+  pageTitle: { margin: 0, fontSize: "24px", fontWeight: "800", color: "#4A3B3B" },
+  pageSubtitle: { margin: "4px 0 0 0", fontSize: "13px", color: "#776B6B" },
   btnSecondary: {
     display: "flex",
     alignItems: "center",
@@ -1068,7 +1784,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "6px",
-    padding: "10px 16px",
+    padding: "9px 15px",
     borderRadius: "12px",
     border: "2px solid #E07A7A",
     backgroundColor: "#F7ADAD",
@@ -1102,21 +1818,15 @@ const styles = {
     justifyContent: "center",
     flexShrink: 0,
   },
-  kpiLabel: {
-    fontSize: "12px",
-    fontWeight: "600",
-    color: "#887777",
-    display: "block",
-  },
-  kpiValue: {
-    margin: "2px 0",
-    fontSize: "20px",
-    fontWeight: "800",
-    color: "#4A3B3B",
-  },
-  kpiHint: {
-    fontSize: "11px",
-    color: "#998888",
+  kpiLabel: { fontSize: "12px", fontWeight: "600", color: "#887777", display: "block" },
+  kpiValue: { margin: "2px 0", fontSize: "20px", fontWeight: "800", color: "#4A3B3B" },
+  kpiHint: { fontSize: "11px", color: "#998888" },
+  storeSwitcherCard: {
+    backgroundColor: "#FFFDF6",
+    border: "2px solid #F7ADAD",
+    borderRadius: "20px",
+    padding: "18px 20px",
+    boxShadow: "0 4px 12px rgba(247, 173, 173, 0.12)",
   },
   filterBar: {
     backgroundColor: "#FFFDF6",
@@ -1129,18 +1839,10 @@ const styles = {
     marginBottom: "20px",
     alignItems: "flex-end",
   },
-  filterGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-  filterLabel: {
-    fontSize: "11px",
-    fontWeight: "700",
-    color: "#665151",
-  },
+  filterGroup: { display: "flex", flexDirection: "column", gap: "5px" },
+  filterLabel: { fontSize: "11px", fontWeight: "700", color: "#665151" },
   inputControl: {
-    padding: "8px 12px",
+    padding: "7px 11px",
     borderRadius: "10px",
     border: "1.5px solid #F7ADAD",
     backgroundColor: "#FFFFFF",
@@ -1160,17 +1862,8 @@ const styles = {
     borderBottom: "2px solid #FDE8E8",
     backgroundColor: "#FFF8F8",
   },
-  tableTitle: {
-    margin: 0,
-    fontSize: "16px",
-    fontWeight: "800",
-    color: "#4A3B3B",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    fontSize: "13px",
-  },
+  tableTitle: { margin: 0, fontSize: "16px", fontWeight: "800", color: "#4A3B3B" },
+  table: { width: "100%", borderCollapse: "collapse", fontSize: "13px" },
   th: {
     padding: "12px 16px",
     textAlign: "left",
@@ -1180,18 +1873,55 @@ const styles = {
     borderBottom: "2px solid #F7ADAD",
     whiteSpace: "nowrap",
   },
-  tr: {
-    borderBottom: "1px solid #F3ECE0",
+  tr: { borderBottom: "1px solid #F3ECE0" },
+  td: { padding: "12px 16px", color: "#4A3B3B", verticalAlign: "middle" },
+  emptyCell: { padding: "32px", textAlign: "center", color: "#887777", fontStyle: "italic" },
+  actionEditBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    padding: "6px 10px",
+    borderRadius: "8px",
+    border: "1.5px solid #91DCDE",
+    backgroundColor: "#E6FAFA",
+    color: "#225B5C",
+    fontWeight: "700",
+    fontSize: "12px",
+    cursor: "pointer",
   },
-  td: {
-    padding: "12px 16px",
-    color: "#4A3B3B",
-    verticalAlign: "middle",
+  actionDeleteBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 9px",
+    borderRadius: "8px",
+    border: "1.5px solid #FCA5A5",
+    backgroundColor: "#FEE2E2",
+    color: "#991B1B",
+    cursor: "pointer",
   },
-  emptyCell: {
-    padding: "32px",
-    textAlign: "center",
-    color: "#887777",
-    fontStyle: "italic",
+  actionSaveBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
+    padding: "6px 11px",
+    borderRadius: "8px",
+    border: "none",
+    backgroundColor: "#16A34A",
+    color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: "12px",
+    cursor: "pointer",
+  },
+  actionCancelBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 9px",
+    borderRadius: "8px",
+    border: "1.5px solid #D6D3D1",
+    backgroundColor: "#F5F5F4",
+    color: "#57534E",
+    cursor: "pointer",
   },
 };

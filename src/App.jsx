@@ -5,7 +5,6 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import AdminDashboard from "./pages/admin/AdminDashboard";
 import Home from "./pages/home/home";
 import Catalog from "./pages/catalog/catalog";
 import Services from "./pages/detail & detail layanan/Services";
@@ -16,9 +15,37 @@ import Contact from "./pages/contact/contact";
 import RiwayatPesanan from "./pages/riwayat pesanan/riwayatpesanan";
 import Login from "./pages/user/login";
 import Register from "./pages/user/register";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const CART_STORAGE_KEY = "meuw_cart_items_v1";
 const BOOKING_STORAGE_KEY = "meuw_booking_list_v1";
+
+const getCurrentUser = () => {
+  try {
+    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+// Guard untuk halaman pelanggan/publik: jika yang login adalah Admin, paksa masuk ke /admin
+const CustomerOnlyRoute = ({ children }) => {
+  const user = getCurrentUser();
+  if (user && user.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+  return children;
+};
+
+// Guard untuk halaman Admin: hanya role === "admin" yang boleh masuk
+const AdminOnlyRoute = ({ children }) => {
+  const user = getCurrentUser();
+  if (!user || user.role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const DEFAULT_CART_ITEMS = [
   {
@@ -67,7 +94,6 @@ const DEFAULT_BOOKING_LIST = [
 ];
 
 function App() {
-  // STATE KERANJANG GLOBAL (Tersimpan di localStorage agar tidak reset saat refresh)
   const [cartItems, setCartItems] = useState(() => {
     try {
       const saved = localStorage.getItem(CART_STORAGE_KEY);
@@ -81,7 +107,6 @@ function App() {
     return DEFAULT_CART_ITEMS;
   });
 
-  // STATE RIWAYAT BOOKING LAYANAN GLOBAL
   const [bookingList, setBookingList] = useState(() => {
     try {
       const saved = localStorage.getItem(BOOKING_STORAGE_KEY);
@@ -149,53 +174,98 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Tampilan awal langsung ke halaman Home */}
-        <Route path="/" element={<Home cartCount={cartCount} />} />
-
         {/* Halaman Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Halaman Utama Aplikasi */}
-        <Route path="/home" element={<Home cartCount={cartCount} />} />
+        {/* Halaman Khusus Customer / Pengunjung (Admin otomatis dialihkan ke /admin) */}
+        <Route
+          path="/"
+          element={
+            <CustomerOnlyRoute>
+              <Home cartCount={cartCount} />
+            </CustomerOnlyRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <CustomerOnlyRoute>
+              <Home cartCount={cartCount} />
+            </CustomerOnlyRoute>
+          }
+        />
         <Route
           path="/catalog"
           element={
-            <Catalog cartCount={cartCount} onAddToCart={handleAddToCart} />
+            <CustomerOnlyRoute>
+              <Catalog cartCount={cartCount} onAddToCart={handleAddToCart} />
+            </CustomerOnlyRoute>
           }
         />
         <Route
           path="/services"
           element={
-            <Services cartCount={cartCount} onAddBooking={handleAddBooking} />
+            <CustomerOnlyRoute>
+              <Services cartCount={cartCount} onAddBooking={handleAddBooking} />
+            </CustomerOnlyRoute>
           }
         />
         <Route
           path="/cart"
           element={
-            <ShoppingCart
-              cartItems={cartItems}
-              setCartItems={setCartItems}
-              cartCount={cartCount}
-            />
+            <CustomerOnlyRoute>
+              <ShoppingCart
+                cartItems={cartItems}
+                setCartItems={setCartItems}
+                cartCount={cartCount}
+              />
+            </CustomerOnlyRoute>
           }
         />
         <Route
           path="/pembayaran"
-          element={<Pembayaran cartItems={cartItems} cartCount={cartCount} />}
+          element={
+            <CustomerOnlyRoute>
+              <Pembayaran cartItems={cartItems} cartCount={cartCount} />
+            </CustomerOnlyRoute>
+          }
         />
-        <Route path="/about" element={<About cartCount={cartCount} />} />
-        <Route path="/contact" element={<Contact cartCount={cartCount} />} />
+        <Route
+          path="/about"
+          element={
+            <CustomerOnlyRoute>
+              <About cartCount={cartCount} />
+            </CustomerOnlyRoute>
+          }
+        />
+        <Route
+          path="/contact"
+          element={
+            <CustomerOnlyRoute>
+              <Contact cartCount={cartCount} />
+            </CustomerOnlyRoute>
+          }
+        />
         <Route
           path="/riwayat"
           element={
-            <RiwayatPesanan cartCount={cartCount} bookingList={bookingList} />
+            <CustomerOnlyRoute>
+              <RiwayatPesanan cartCount={cartCount} bookingList={bookingList} />
+            </CustomerOnlyRoute>
           }
         />
-        {/* Halaman Admin & Laporan */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        
-        {/* Fallback jika URL tidak ditemukan */}
+
+        {/* Halaman Khusus Admin */}
+        <Route
+          path="/admin"
+          element={
+            <AdminOnlyRoute>
+              <AdminDashboard />
+            </AdminOnlyRoute>
+          }
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

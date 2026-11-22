@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+
+const API_BASE = "https://meuw-petshop-server.vercel.app/api";
 
 const riwayatStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (KONSISTEN DI SEMUA HALAMAN)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -28,21 +26,11 @@ const riwayatStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -66,7 +54,6 @@ const riwayatStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -82,7 +69,6 @@ const riwayatStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -101,9 +87,7 @@ const riwayatStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -143,11 +127,7 @@ const riwayatStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -167,15 +147,8 @@ const riwayatStyles = `
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .nav-icon-circle.active {
-    background-color: #F7ADAD;
-    color: #FFFDF6;
-  }
-
-  .nav-icon-circle:hover {
-    transform: translateY(-5px) scale(1.15) rotate(8deg);
-    background-color: #B1E5E6;
-  }
+  .nav-icon-circle.active { background-color: #F7ADAD; color: #FFFDF6; }
+  .nav-icon-circle:hover { transform: translateY(-5px) scale(1.15) rotate(8deg); background-color: #B1E5E6; }
 
   .cart-badge {
     position: absolute;
@@ -196,7 +169,6 @@ const riwayatStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO TITLE --- */
   .page-title {
     font-family: 'Baloo 2', cursive, sans-serif;
     font-size: 3.2rem;
@@ -207,12 +179,11 @@ const riwayatStyles = `
     text-shadow: 0 3px 6px rgba(247, 173, 173, 0.15);
   }
 
-  /* --- TAB PILL CONTAINER --- */
   .tab-pill-container {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.2rem;
     flex-wrap: wrap;
   }
 
@@ -237,7 +208,32 @@ const riwayatStyles = `
     box-shadow: 0 8px 20px rgba(247, 173, 173, 0.35);
   }
 
-  /* --- PROFILE CARD --- */
+  .status-filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .status-chip {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid #E5DEC9;
+    background-color: #FFF;
+    color: #665959;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .status-chip.active {
+    background-color: #B1E5E6;
+    border-color: #91DCDE;
+    color: #225B5C;
+  }
+
   .profile-card-rayo {
     background-color: #FFF;
     border: 2px solid #F7ADAD;
@@ -305,24 +301,9 @@ const riwayatStyles = `
     padding: 1rem 1.2rem;
   }
 
-  .profile-info-item.full-width {
-    grid-column: span 2;
-  }
-
-  .profile-label {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #998888;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-
-  .profile-value {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #4A3E3E;
-  }
+  .profile-info-item.full-width { grid-column: span 2; }
+  .profile-label { font-size: 0.78rem; font-weight: 700; color: #998888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .profile-value { font-size: 1rem; font-weight: 700; color: #4A3E3E; }
 
   .logout-btn {
     width: 100%;
@@ -338,15 +319,8 @@ const riwayatStyles = `
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .logout-btn:hover {
-    background-color: #D9534F;
-    border-color: #D9534F;
-    color: #FFF;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(217, 83, 79, 0.3);
-  }
+  .logout-btn:hover { background-color: #D9534F; border-color: #D9534F; color: #FFF; transform: translateY(-3px); }
 
-  /* --- NOT LOGGED IN BOX --- */
   .guest-box {
     background-color: #FFF;
     border: 2px dashed #F7ADAD;
@@ -358,13 +332,7 @@ const riwayatStyles = `
     box-shadow: 0 10px 28px rgba(247, 173, 173, 0.14);
   }
 
-  .guest-btn-group {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.8rem;
-    flex-wrap: wrap;
-  }
+  .guest-btn-group { display: flex; justify-content: center; gap: 1rem; margin-top: 1.8rem; flex-wrap: wrap; }
 
   .btn-primary-cute {
     background-color: #4A3E3E;
@@ -375,13 +343,6 @@ const riwayatStyles = `
     text-decoration: none;
     font-weight: 800;
     font-size: 0.92rem;
-    transition: all 0.3s ease;
-  }
-
-  .btn-primary-cute:hover {
-    background-color: #F7ADAD;
-    color: #FFF;
-    transform: translateY(-3px);
   }
 
   .btn-secondary-cute {
@@ -393,37 +354,27 @@ const riwayatStyles = `
     text-decoration: none;
     font-weight: 800;
     font-size: 0.92rem;
-    transition: all 0.3s ease;
   }
 
-  .btn-secondary-cute:hover {
-    background-color: #CCFBFA;
-    transform: translateY(-3px);
-  }
-
-  /* --- ORDER CARD RAYO --- */
   .order-card-rayo {
     background-color: #FFF;
     border: 2px solid #F7ADAD;
     border-radius: 32px 20px 30px 20px;
     padding: 1.8rem;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.6rem;
     box-shadow: 0 8px 24px rgba(247, 173, 173, 0.12);
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .order-card-rayo:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 14px 30px rgba(247, 173, 173, 0.22);
   }
 
   .order-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 0.9rem;
     border-bottom: 1.5px dashed #FFEBEB;
-    padding-bottom: 0.6rem;
+    padding-bottom: 0.7rem;
   }
 
   .order-id {
@@ -436,18 +387,9 @@ const riwayatStyles = `
   .status-badge {
     font-family: 'Quicksand', sans-serif;
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     padding: 4px 14px;
     border-radius: 15px;
-    background-color: #E8F8F5;
-    color: #26A69A;
-    border: 1.5px solid #26A69A;
-  }
-
-  .status-badge.pending {
-    background-color: #FFF3E0;
-    color: #E65100;
-    border-color: #E65100;
   }
 
   .order-details-text {
@@ -456,7 +398,17 @@ const riwayatStyles = `
     line-height: 1.6;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .order-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 0.8rem;
+    border-top: 1.5px dashed #FFEBEB;
   }
 
   .order-price-tag {
@@ -464,10 +416,42 @@ const riwayatStyles = `
     color: #F7ADAD;
     font-weight: 800;
     font-size: 1.35rem;
-    text-align: right;
   }
 
-  /* --- EMPTY STATE --- */
+  .action-pill-btn {
+    padding: 7px 16px;
+    border-radius: 18px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    transition: all 0.2s;
+  }
+
+  /* MODAL TIMELINE HISTORI */
+  .timeline-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(74, 62, 62, 0.45);
+    backdrop-filter: blur(6px);
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .timeline-modal {
+    background: #FFFDF6;
+    border: 3px solid #F7ADAD;
+    border-radius: 32px;
+    max-width: 520px;
+    width: 100%;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(74, 62, 62, 0.25);
+  }
+
   .empty-history-box {
     background-color: #FFF;
     border: 2px dashed #F7ADAD;
@@ -494,7 +478,6 @@ const riwayatStyles = `
     margin-bottom: 0.4rem;
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -504,106 +487,16 @@ const riwayatStyles = `
     margin-top: 4.5rem;
   }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
-  }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
+  .footer-brand { font-family: 'Baloo 2', cursive, sans-serif; font-size: 4rem; font-weight: 800; color: #FFFDF6; line-height: 1; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+  .footer-col-list a { text-decoration: none; color: #FFFDF6; opacity: 0.92; font-size: 0.88rem; font-weight: 600; }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-weight: 600; }
+  .newsletter-input { width: 100%; padding: 10px 0; background: transparent; border: none; border-bottom: 2px solid rgba(255, 253, 246, 0.7); color: #FFFDF6; outline: none; font-size: 0.9rem; font-weight: 600; }
+  .footer-bottom-bar { border-top: 1.5px solid rgba(255, 253, 246, 0.3); padding-top: 1.8rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; opacity: 0.92; font-weight: 600; }
 
-  .footer-brand {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
-    font-weight: 800;
-    color: #FFFDF6;
-    line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-    display: inline-block;
-  }
-
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
-  }
-
-  .footer-col-title {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 700;
-    font-size: 1.15rem;
-    margin-bottom: 1.2rem;
-    color: #FFFDF6;
-  }
-
-  .footer-col-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  .footer-col-list a {
-    text-decoration: none;
-    color: #FFFDF6;
-    opacity: 0.92;
-    font-size: 0.88rem;
-    transition: all 0.25s ease;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-    display: inline-block;
-  }
-
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
-  }
-
-  .newsletter-desc {
-    font-size: 0.88rem;
-    opacity: 0.92;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
-  .newsletter-input {
-    width: 100%;
-    padding: 10px 0;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid rgba(255, 253, 246, 0.7);
-    color: #FFFDF6;
-    outline: none;
-    font-size: 0.9rem;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-    transition: border-color 0.3s ease;
-  }
-
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
-  }
-
-  .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.82rem;
-    opacity: 0.92;
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 600;
-  }
-
-  @media (max-width: 850px) {
-    .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
-  }
-
+  @media (max-width: 850px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
   @media (max-width: 600px) {
     .navbar { flex-direction: column; gap: 1rem; }
     .footer-grid { grid-template-columns: 1fr; }
@@ -615,12 +508,33 @@ const riwayatStyles = `
   }
 `;
 
+const STORE_NAMES = {
+  "1": "MeLuw Petshop - Jakarta Pusat",
+  "2": "MeLuw Petshop - Jakarta Selatan",
+  "3": "MeLuw Petshop - Jakarta Timur",
+  "4": "MeLuw Petshop - Jakarta Barat",
+};
+
 const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profil");
+  const [activeTab, setActiveTab] = useState("produk");
+  const [statusFilter, setStatusFilter] = useState("Semua");
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Ambil data user yang sedang login dari localStorage atau sessionStorage
+  const [orders, setOrders] = useState([]);
+  const [allDetails, setAllDetails] = useState([]);
+  const [catalogMap, setCatalogMap] = useState({});
+  const [dbBookings, setDbBookings] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  // State Modal Timeline HistoriTransaksi
+  const [trackingModal, setTrackingModal] = useState({
+    open: false,
+    id_transaksi: null,
+    logs: [],
+    loading: false,
+  });
+
   useEffect(() => {
     const storedUser =
       localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -633,23 +547,115 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     }
   }, []);
 
+  const fetchUserTransactions = useCallback(async () => {
+    if (!currentUser?.id_user) return;
+    setLoadingOrders(true);
+    try {
+      const [resTrx, resDetail, resCat, resBook] = await Promise.all([
+        fetch(`${API_BASE}/transaksi?id_user=${encodeURIComponent(currentUser.id_user)}`),
+        fetch(`${API_BASE}/detail-transaksi`),
+        fetch(`${API_BASE}/catalog`),
+        fetch(`${API_BASE}/booking-layanan`),
+      ]);
+
+      const dataTrx = await resTrx.json();
+      const dataDetail = await resDetail.json();
+      const dataCat = await resCat.json();
+      const dataBook = await resBook.json();
+
+      if (dataTrx.success) {
+        // Pastikan hanya transaksi milik user yang sedang login
+        const userTrx = (dataTrx.data || []).filter(
+          (t) => String(t.id_user) === String(currentUser.id_user)
+        );
+        setOrders(userTrx);
+      }
+      if (dataDetail.success) setAllDetails(dataDetail.data || []);
+      if (dataCat.success) {
+        const map = {};
+        (dataCat.data || []).forEach((c) => {
+          map[String(c.id_barang)] = c.nama_barang;
+        });
+        setCatalogMap(map);
+      }
+      if (dataBook.success) setDbBookings(dataBook.data || []);
+    } catch (err) {
+      console.error("Gagal mengambil riwayat transaksi:", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    fetchUserTransactions();
+  }, [fetchUserTransactions]);
+
+  const handleOpenTracking = async (id_transaksi) => {
+    setTrackingModal({ open: true, id_transaksi, logs: [], loading: true });
+    try {
+      const res = await fetch(`${API_BASE}/histori-transaksi/${id_transaksi}`);
+      const json = await res.json();
+      setTrackingModal({
+        open: true,
+        id_transaksi,
+        logs: json.success ? json.data || [] : [],
+        loading: false,
+      });
+    } catch {
+      setTrackingModal((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleCustomerStatusUpdate = async (id_transaksi, status_terbaru, catatan) => {
+    const confirmMsg =
+      status_terbaru === "Dibatalkan"
+        ? `Yakin ingin membatalkan pesanan #${id_transaksi}? Stok akan dikembalikan ke cabang.`
+        : `Konfirmasi bahwa pesanan #${id_transaksi} sudah kamu terima dengan baik?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/transaksi/${id_transaksi}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status_terbaru, catatan }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || json.message || "Gagal memperbarui status");
+      }
+      await fetchUserTransactions();
+    } catch (err) {
+      alert(`Gagal memperbarui pesanan: ${err.message}`);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     sessionStorage.removeItem("user");
+    localStorage.removeItem("selected_store");
     setCurrentUser(null);
     alert("Kamu berhasil keluar dari akun. Sampai jumpa lagi! 🐾");
     navigate("/login");
   };
 
-  const riwayatProduk = [
-    {
-      id_transaksi: "TRX-20261014-01",
-      tanggal: "14 Okt 2026",
-      items: "Royal Canin Mother & Babycat (1x), Shampoo Anti Kutu (2x)",
-      total: 375000,
-      status: "SELESAI",
-    },
-  ];
+  const getStatusStyle = (status) => {
+    const s = (status || "").toUpperCase();
+    if (s === "SELESAI")
+      return { bg: "#DCFCE7", color: "#166534", border: "#86EFAC" };
+    if (s === "DIPROSES")
+      return { bg: "#DBEAFE", color: "#1E40AF", border: "#93C5FD" };
+    if (s === "DIBATALKAN")
+      return { bg: "#FEE2E2", color: "#991B1B", border: "#FCA5A5" };
+    return { bg: "#FEF9C3", color: "#854D0E", border: "#FDE047" };
+  };
+
+  const filteredOrders = orders.filter((o) =>
+    statusFilter === "Semua" ? true : o.status === statusFilter
+  );
+
+  // Gabungkan booking dari database + local state jika ada
+  const combinedBookings = dbBookings.length > 0 ? dbBookings : bookingList;
 
   return (
     <>
@@ -657,22 +663,116 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
 
       <div className="bg-top-accent"></div>
 
-      <div className="wrapper">
-        {/* --- NAVBAR --- */}
-        <nav className="navbar">
-          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
+      {/* MODAL TIMELINE HISTORI TRANSAKSI */}
+      {trackingModal.open && (
+        <div
+          className="timeline-overlay"
+          onClick={() => setTrackingModal({ open: false, id_transaksi: null, logs: [], loading: false })}
+        >
+          <div className="timeline-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setTrackingModal({ open: false, id_transaksi: null, logs: [], loading: false })}
               style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
+                position: "absolute",
+                top: "16px",
+                right: "18px",
+                width: "34px",
+                height: "34px",
+                borderRadius: "50%",
+                border: "2px solid #F7ADAD",
+                background: "#FFF",
+                fontWeight: 800,
+                cursor: "pointer",
               }}
             >
+              ✕
+            </button>
+
+            <h3
+              style={{
+                fontFamily: "'Baloo 2', cursive, sans-serif",
+                fontSize: "1.5rem",
+                fontWeight: 800,
+                color: "#4A3E3E",
+                marginBottom: "0.3rem",
+              }}
+            >
+              📍 Lacak Pesanan #{trackingModal.id_transaksi}
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "#776B6B", marginBottom: "1.2rem", fontWeight: 600 }}>
+              Riwayat perubahan status tercatat otomatis di sistem MEUW Petshop:
+            </p>
+
+            {trackingModal.loading ? (
+              <p style={{ textAlign: "center", padding: "1.5rem", fontWeight: 700 }}>
+                Memuat jejak transaksi...
+              </p>
+            ) : trackingModal.logs.length === 0 ? (
+              <p style={{ textAlign: "center", padding: "1.5rem", color: "#887777" }}>
+                Belum ada log histori untuk transaksi ini.
+              </p>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {trackingModal.logs.map((log, idx) => {
+                  const st = getStatusStyle(log.status_terbaru);
+                  return (
+                    <div
+                      key={log.id_histori || idx}
+                      style={{
+                        background: "#FFF",
+                        border: "1.5px solid #F7ADAD",
+                        borderRadius: "16px",
+                        padding: "12px 14px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            padding: "2px 10px",
+                            borderRadius: "12px",
+                            fontSize: "0.75rem",
+                            fontWeight: 800,
+                            backgroundColor: st.bg,
+                            color: st.color,
+                            border: `1px solid ${st.border}`,
+                          }}
+                        >
+                          {log.status_terbaru}
+                        </span>
+                        <span style={{ fontSize: "0.75rem", color: "#887777", fontWeight: 700 }}>
+                          {new Date(log.tanggal_perubahan).toLocaleString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "0.86rem", color: "#4A3E3E", fontWeight: 600 }}>
+                        {log.catatan || `Status diperbarui menjadi ${log.status_terbaru}`}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="wrapper">
+        <nav className="navbar">
+          <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -699,127 +799,284 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">
-              Home
-            </Link>
-            <Link to="/catalog" className="nav-menu-link">
-              Catalog
-            </Link>
-            <Link to="/services" className="nav-menu-link">
-              Layanan
-            </Link>
-            <Link to="/about" className="nav-menu-link">
-              About
-            </Link>
-            <Link to="/contact" className="nav-menu-link">
-              Contact
-            </Link>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <Link
-              to="/riwayat"
-              className="nav-icon-circle active"
-              title="Akun & Riwayat"
-            >
+            <Link to="/riwayat" className="nav-icon-circle active" title="Akun & Riwayat">
               👤
             </Link>
-            <Link
-              to="/cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
           </div>
         </nav>
 
-        {/* --- HERO TITLE --- */}
-        <h1 className="page-title">AKUN SAYA 🐾</h1>
+        <h1 className="page-title">AKUN & RIWAYAT SAYA 🐾</h1>
 
-        {/* --- CEK STATUS LOGIN USER --- */}
         {!currentUser ? (
-          /* TAMPILAN JIKA USER BELUM LOGIN */
           <div className="guest-box">
             <span className="empty-history-icon">🐱</span>
-            <h2 className="empty-history-title">
-              Kamu belum masuk ke akun MEUW
-            </h2>
-            <p
-              style={{
-                fontFamily: "Quicksand, sans-serif",
-                fontWeight: 600,
-                marginTop: "0.5rem",
-              }}
-            >
-              Silakan Log In terlebih dahulu untuk melihat profil lengkap,
-              riwayat belanja, dan jadwal booking anabulmu!
+            <h2 className="empty-history-title">Kamu belum masuk ke akun MEUW</h2>
+            <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600, marginTop: "0.5rem" }}>
+              Silakan Log In terlebih dahulu untuk melihat profil lengkap, riwayat belanja, dan jadwal booking anabulmu!
             </p>
             <div className="guest-btn-group">
-              <Link to="/login" className="btn-primary-cute">
-                Log In Sekarang
-              </Link>
-              <Link to="/register" className="btn-secondary-cute">
-                Daftar Akun Baru
-              </Link>
+              <Link to="/login" className="btn-primary-cute">Log In Sekarang</Link>
+              <Link to="/register" className="btn-secondary-cute">Daftar Akun Baru</Link>
             </div>
           </div>
         ) : (
-          /* TAMPILAN JIKA USER SUDAH LOGIN */
           <>
-            {/* --- TAB BUTTONS --- */}
             <div className="tab-pill-container">
+              <button
+                className={`tab-btn ${activeTab === "produk" ? "active" : ""}`}
+                onClick={() => setActiveTab("produk")}
+              >
+                📦 Riwayat Transaksi ({orders.length})
+              </button>
+              <button
+                className={`tab-btn ${activeTab === "layanan" ? "active" : ""}`}
+                onClick={() => setActiveTab("layanan")}
+              >
+                📅 Booking Layanan ({combinedBookings.length})
+              </button>
               <button
                 className={`tab-btn ${activeTab === "profil" ? "active" : ""}`}
                 onClick={() => setActiveTab("profil")}
               >
                 👤 Profil Saya
               </button>
-              <button
-                className={`tab-btn ${activeTab === "produk" ? "active" : ""}`}
-                onClick={() => setActiveTab("produk")}
-              >
-                📦 Belanja Produk ({riwayatProduk.length})
-              </button>
-              <button
-                className={`tab-btn ${activeTab === "layanan" ? "active" : ""}`}
-                onClick={() => setActiveTab("layanan")}
-              >
-                📅 Booking Layanan ({bookingList.length})
-              </button>
             </div>
 
-            {/* --- TAB 1: PROFIL SAYA --- */}
+            {/* TAB 1: RIWAYAT TRANSAKSI REAL-TIME */}
+            {activeTab === "produk" && (
+              <>
+                <div className="status-filter-bar">
+                  {["Semua", "Pending", "Diproses", "Selesai", "Dibatalkan"].map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setStatusFilter(st)}
+                      className={`status-chip ${statusFilter === st ? "active" : ""}`}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </div>
+
+                {loadingOrders ? (
+                  <div className="empty-history-box">
+                    <span className="empty-history-icon">🐾</span>
+                    <h3 className="empty-history-title">Memuat riwayat transaksimu...</h3>
+                  </div>
+                ) : filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => {
+                    const itemsForOrder = allDetails.filter(
+                      (d) => String(d.id_transaksi) === String(order.id_transaksi)
+                    );
+                    const stStyle = getStatusStyle(order.status);
+
+                    return (
+                      <div key={order.id_transaksi} className="order-card-rayo">
+                        <div className="order-card-header">
+                          <div>
+                            <span className="order-id">Transaksi #{order.id_transaksi}</span>
+                            <span
+                              style={{
+                                marginLeft: "10px",
+                                fontSize: "0.8rem",
+                                color: "#887777",
+                                fontWeight: 700,
+                              }}
+                            >
+                              •{" "}
+                              {new Date(order.tanggal).toLocaleDateString("id-ID", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              })}
+                            </span>
+                            <div style={{ fontSize: "0.78rem", color: "#665959", fontWeight: 700 }}>
+                              🏪 {STORE_NAMES[String(order.id_toko)] || `Cabang #${order.id_toko}`}
+                            </div>
+                          </div>
+
+                          <span
+                            className="status-badge"
+                            style={{
+                              backgroundColor: stStyle.bg,
+                              color: stStyle.color,
+                              border: `1.5px solid ${stStyle.border}`,
+                            }}
+                          >
+                            {order.status.toUpperCase()}
+                          </span>
+                        </div>
+
+                        <div className="order-details-text">
+                          {itemsForOrder.length > 0 ? (
+                            itemsForOrder.map((det) => (
+                              <div key={det.id_detail_transaksi}>
+                                • {catalogMap[String(det.id_barang)] || `Produk #${det.id_barang}`}{" "}
+                                <strong>(x{det.jumlah})</strong> — Rp{" "}
+                                {(det.jumlah * det.harga_satuan).toLocaleString("id-ID")}
+                              </div>
+                            ))
+                          ) : (
+                            <span>Pesanan Layanan / Paket MEUW Petshop</span>
+                          )}
+                        </div>
+
+                        <div className="order-footer-row">
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTracking(order.id_transaksi)}
+                              className="action-pill-btn"
+                              style={{
+                                backgroundColor: "#E3F6F6",
+                                color: "#225B5C",
+                                border: "1.5px solid #91DCDE",
+                              }}
+                            >
+                              📍 Lacak Status
+                            </button>
+
+                            {order.status === "Pending" && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCustomerStatusUpdate(
+                                    order.id_transaksi,
+                                    "Dibatalkan",
+                                    "Dibatalkan oleh pelanggan sebelum diproses"
+                                  )
+                                }
+                                className="action-pill-btn"
+                                style={{
+                                  backgroundColor: "#FEE2E2",
+                                  color: "#991B1B",
+                                  border: "1.5px solid #FCA5A5",
+                                }}
+                              >
+                                ✕ Batalkan Pesanan
+                              </button>
+                            )}
+
+                            {order.status === "Diproses" && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCustomerStatusUpdate(
+                                    order.id_transaksi,
+                                    "Selesai",
+                                    "Pesanan telah diterima dengan baik oleh pelanggan"
+                                  )
+                                }
+                                className="action-pill-btn"
+                                style={{
+                                  backgroundColor: "#DCFCE7",
+                                  color: "#166534",
+                                  border: "1.5px solid #86EFAC",
+                                }}
+                              >
+                                ✓ Pesanan Diterima
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="order-price-tag">
+                            Total: Rp {Number(order.total_harga || 0).toLocaleString("id-ID")}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="empty-history-box">
+                    <span className="empty-history-icon">📦</span>
+                    <h3 className="empty-history-title">
+                      Belum ada transaksi pada kategori "{statusFilter}"
+                    </h3>
+                    <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}>
+                      Yuk jelajahi katalog makanan dan perlengkapan anabul!
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* TAB 2: BOOKING LAYANAN */}
+            {activeTab === "layanan" &&
+              (combinedBookings.length > 0 ? (
+                combinedBookings.map((bk) => {
+                  const stStyle = getStatusStyle(bk.status_booking);
+                  return (
+                    <div key={bk.id_booking} className="order-card-rayo">
+                      <div className="order-card-header">
+                        <span className="order-id">Booking #{bk.id_booking}</span>
+                        <span
+                          className="status-badge"
+                          style={{
+                            backgroundColor: stStyle.bg,
+                            color: stStyle.color,
+                            border: `1.5px solid ${stStyle.border}`,
+                          }}
+                        >
+                          {(bk.status_booking || "").toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="order-details-text">
+                        {bk.icon || "✂️"}{" "}
+                        <strong>{bk.nama_layanan || `Layanan #${bk.id_detail_layanan}`}</strong>{" "}
+                        (Jadwal:{" "}
+                        {new Date(bk.tanggal_mulai).toLocaleDateString("id-ID")} pukul{" "}
+                        {bk.jam_mulai} s/d{" "}
+                        {new Date(bk.tanggal_selesai).toLocaleDateString("id-ID")})
+                      </div>
+                      {bk.harga && (
+                        <div className="order-price-tag">
+                          Rp {Number(bk.harga).toLocaleString("id-ID")}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="empty-history-box">
+                  <span className="empty-history-icon">📅</span>
+                  <h3 className="empty-history-title">Belum ada booking layanan</h3>
+                  <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}>
+                    Manjakan anabulmu dengan booking grooming atau pet hotel sekarang!
+                  </p>
+                </div>
+              ))}
+
+            {/* TAB 3: PROFIL SAYA */}
             {activeTab === "profil" && (
               <div className="profile-card-rayo">
                 <div className="profile-header-box">
                   <div className="profile-avatar-circle">🐾</div>
                   <div>
-                    <div className="profile-name">
-                      {currentUser.nama || "Pet Lovers"}
-                    </div>
-                    <span className="profile-badge-member">
-                      Member MEUW Petshop 💖
-                    </span>
+                    <div className="profile-name">{currentUser.nama || "Pet Lovers"}</div>
+                    <span className="profile-badge-member">Member MEUW Petshop 💖</span>
                   </div>
                 </div>
 
                 <div className="profile-info-grid">
                   <div className="profile-info-item">
                     <div className="profile-label">Email</div>
-                    <div className="profile-value">
-                      {currentUser.email || "-"}
-                    </div>
+                    <div className="profile-value">{currentUser.email || "-"}</div>
                   </div>
-
                   <div className="profile-info-item">
                     <div className="profile-label">No. Telepon</div>
-                    <div className="profile-value">
-                      {currentUser.no_telp || "-"}
-                    </div>
+                    <div className="profile-value">{currentUser.no_telp || "-"}</div>
                   </div>
-
                   <div className="profile-info-item full-width">
                     <div className="profile-label">Alamat Pengiriman</div>
                     <div className="profile-value">
@@ -833,148 +1090,47 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                 </button>
               </div>
             )}
-
-            {/* --- TAB 2: BELANJA PRODUK --- */}
-            {activeTab === "produk" &&
-              (riwayatProduk.length > 0 ? (
-                riwayatProduk.map((order) => (
-                  <div key={order.id_transaksi} className="order-card-rayo">
-                    <div className="order-card-header">
-                      <span className="order-id">{order.id_transaksi}</span>
-                      <span className="status-badge">{order.status}</span>
-                    </div>
-                    <div className="order-details-text">{order.items}</div>
-                    <div className="order-price-tag">
-                      Rp {order.total.toLocaleString("id-ID")}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="empty-history-box">
-                  <span className="empty-history-icon">📦</span>
-                  <h3 className="empty-history-title">
-                    Belum ada riwayat belanja produk
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "Quicksand, sans-serif",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Yuk jelajahi katalog makanan dan mainan anabul!
-                  </p>
-                </div>
-              ))}
-
-            {/* --- TAB 3: BOOKING LAYANAN --- */}
-            {activeTab === "layanan" &&
-              (bookingList.length > 0 ? (
-                bookingList.map((bk) => (
-                  <div key={bk.id_booking} className="order-card-rayo">
-                    <div className="order-card-header">
-                      <span className="order-id">{bk.id_booking}</span>
-                      <span className="status-badge pending">
-                        {bk.status_booking.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="order-details-text">
-                      {bk.icon} <strong>{bk.nama_layanan}</strong> (Tgl:{" "}
-                      {bk.tanggal_mulai} s/d {bk.tanggal_selesai})
-                    </div>
-                    <div className="order-price-tag">
-                      Rp {bk.harga.toLocaleString("id-ID")}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="empty-history-box">
-                  <span className="empty-history-icon">📅</span>
-                  <h3 className="empty-history-title">
-                    Belum ada booking layanan
-                  </h3>
-                  <p
-                    style={{
-                      fontFamily: "Quicksand, sans-serif",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Manjakan anabulmu dengan booking grooming atau pet hotel
-                    sekarang!
-                  </p>
-                </div>
-              ))}
           </>
         )}
 
-        {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
           <div className="footer-grid">
             <div className="footer-brand">MEUW</div>
-
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <Link to="/catalog">Catalog</Link>
-                </li>
-                <li>
-                  <Link to="/services">Layanan</Link>
-                </li>
-                <li>
-                  <Link to="/about">About</Link>
-                </li>
-                <li>
-                  <Link to="/contact">Contact</Link>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Pantau riwayat transaksi & booking perawatan anabulmu secara
-                real-time.
+                Pantau riwayat transaksi & booking perawatan anabulmu secara real-time.
               </p>
               <div className="newsletter-input-wrapper">
-                <input
-                  type="email"
-                  placeholder="Masukkan email..."
-                  className="newsletter-input"
-                />
+                <input type="email" placeholder="Masukkan email..." className="newsletter-input" />
               </div>
             </div>
           </div>
-
           <div className="footer-bottom-bar">
             <div>All rights reserved MEUW PETSHOP © 2026</div>
             <div>Privacy policy</div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { detectNearestStore } from '../../utils/storeHelper';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -30,20 +31,31 @@ export default function Login() {
 
       const foundUser = result.data;
 
-      // Simpan data user ke storage
-      const userData = JSON.stringify(foundUser);
+      // Deteksi cabang otomatis dari alamat user
+      let selectedStore = null;
+      try {
+        const storeRes = await fetch('https://meuw-petshop-server.vercel.app/api/stores');
+        const storeJson = await storeRes.json();
+        selectedStore = detectNearestStore(foundUser.alamat, storeJson.data || []);
+      } catch {
+        selectedStore = detectNearestStore(foundUser.alamat, []);
+      }
+
+      const userWithStore = { ...foundUser, assigned_store: selectedStore };
+      const userData = JSON.stringify(userWithStore);
+
       if (rememberMe) {
         localStorage.setItem('user', userData);
       } else {
         sessionStorage.setItem('user', userData);
       }
+      localStorage.setItem('selected_store', JSON.stringify(selectedStore));
 
-      alert(`Selamat Datang, ${foundUser.nama}!`);
-
-      // Otomatis arahkan berdasarkan role
       if (foundUser.role === 'admin') {
+        alert(`Selamat Datang Admin, ${foundUser.nama}!`);
         navigate('/admin');
       } else {
+        alert(`Selamat Datang, ${foundUser.nama}!\nCabang pelayanan otomatis: ${selectedStore.nama_toko}`);
         navigate('/home');
       }
     } catch (err) {
@@ -56,8 +68,6 @@ export default function Login() {
   return (
     <div style={styles.body}>
       <div style={styles.card}>
-        
-        {/* Header Melengkung */}
         <div style={styles.headerContainer}>
           <div style={styles.header}>
             <div style={styles.logoBadge}>🐾</div>
@@ -67,15 +77,12 @@ export default function Login() {
           <div style={styles.headerWave}></div>
         </div>
 
-        {/* Form Content */}
         <div style={styles.content}>
           <h2 style={styles.formTitle}>Log in Your Account</h2>
 
           {errorMsg && <p style={styles.errorMessage}>{errorMsg}</p>}
 
           <form onSubmit={handleSubmit} style={styles.form}>
-            
-            {/* Input Email */}
             <div style={styles.inputWrapper}>
               <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -91,7 +98,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Input Password */}
             <div style={styles.inputWrapper}>
               <svg style={styles.inputIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -107,7 +113,6 @@ export default function Login() {
               />
             </div>
 
-            {/* Remember & Forgot */}
             <div style={styles.flexRow}>
               <label style={styles.rememberLabel}>
                 <input
@@ -121,7 +126,6 @@ export default function Login() {
               <a href="#forgot" style={styles.forgotLink}>Forgot Password?</a>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -139,34 +143,9 @@ export default function Login() {
             </button>
           </form>
 
-          {/* Social Sign In */}
-          <div style={styles.socialSection}>
-            <p style={styles.socialText}>Or Continue With</p>
-            <div style={styles.socialIcons}>
-              <a href="#fb" style={styles.socialBtn}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-                </svg>
-              </a>
-              <a href="#ig" style={styles.socialBtn}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-                </svg>
-              </a>
-              <a href="#tw" style={styles.socialBtn}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F7ADAD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-
           <p style={styles.registerText}>
             Don't have an account? <Link to="/register" style={styles.registerLink}>Sign Up</Link>
           </p>
-
         </div>
       </div>
     </div>
@@ -312,33 +291,6 @@ const styles = {
     fontWeight: '700',
     fontSize: '14px',
     transition: 'all 0.25s ease',
-  },
-  socialSection: {
-    marginTop: '5px',
-    textAlign: 'center',
-  },
-  socialText: {
-    fontSize: '11px',
-    marginBottom: '10px',
-    color: '#998888',
-    fontWeight: '500',
-  },
-  socialIcons: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '12px',
-  },
-  socialBtn: {
-    width: '36px',
-    height: '36px',
-    borderRadius: '50%',
-    backgroundColor: '#FFFDF6',
-    border: '2px solid #F7ADAD',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textDecoration: 'none',
-    boxShadow: '0 4px 8px rgba(247, 173, 173, 0.2)',
   },
   registerText: {
     textAlign: 'center',

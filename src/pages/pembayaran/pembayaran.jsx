@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+import { detectNearestStore } from "../../utils/storeHelper";
+
+const API_BASE = "https://meuw-petshop-server.vercel.app/api";
 
 const paymentStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (KONSISTEN DI SEMUA HALAMAN)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -28,21 +27,11 @@ const paymentStyles = `
   }
 
   @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body, #root {
     width: 100% !important;
@@ -66,7 +55,6 @@ const paymentStyles = `
     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  /* --- AKSEN HOOD / BLOB BACKDROP --- */
   .bg-top-accent {
     position: absolute;
     top: -60px;
@@ -82,7 +70,6 @@ const paymentStyles = `
     animation: floatCute 8s infinite ease-in-out;
   }
 
-  /* --- NAVBAR --- */
   .navbar {
     display: flex;
     justify-content: space-between;
@@ -101,9 +88,7 @@ const paymentStyles = `
     transition: transform 0.3s ease;
   }
 
-  .nav-logo-wrapper:hover {
-    animation: wiggle 0.6s ease-in-out infinite;
-  }
+  .nav-logo-wrapper:hover { animation: wiggle 0.6s ease-in-out infinite; }
 
   .nav-logo-img {
     width: 50px;
@@ -143,11 +128,7 @@ const paymentStyles = `
     transform: translateY(-3px) scale(1.05);
   }
 
-  .nav-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
+  .nav-actions { display: flex; align-items: center; gap: 0.8rem; }
 
   .nav-icon-circle {
     width: 44px;
@@ -191,7 +172,6 @@ const paymentStyles = `
     animation: pulseBadge 1.8s infinite ease-in-out;
   }
 
-  /* --- HERO TITLE --- */
   .page-title {
     font-family: 'Baloo 2', cursive, sans-serif;
     font-size: 3rem;
@@ -202,7 +182,6 @@ const paymentStyles = `
     text-align: center;
   }
 
-  /* --- CHECKOUT CARD --- */
   .checkout-card {
     background-color: #FFF;
     border: 2px solid #F7ADAD;
@@ -211,11 +190,6 @@ const paymentStyles = `
     margin-bottom: 2rem;
     box-shadow: 0 10px 28px rgba(247, 173, 173, 0.12);
     transition: all 0.35s ease;
-  }
-
-  .checkout-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 34px rgba(247, 173, 173, 0.2);
   }
 
   .card-section-title {
@@ -252,16 +226,15 @@ const paymentStyles = `
     align-items: center;
   }
 
-  /* --- METHOD BUTTONS & INSTRUCTIONS --- */
   .method-btn-group {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
     flex-wrap: wrap;
   }
 
   .method-btn {
-    padding: 10px 24px;
+    padding: 10px 22px;
     border-radius: 25px;
     border: 2px solid #F7ADAD;
     font-size: 0.9rem;
@@ -279,14 +252,8 @@ const paymentStyles = `
     transform: translateY(-2px) scale(1.04);
   }
 
-  .method-btn:not(.active) {
-    background-color: #FFF;
-    color: #4A3E3E;
-  }
-
-  .method-btn:hover {
-    transform: translateY(-3px) scale(1.05);
-  }
+  .method-btn:not(.active) { background-color: #FFF; color: #4A3E3E; }
+  .method-btn:hover { transform: translateY(-3px) scale(1.05); }
 
   .payment-details-box {
     background-color: #FFFDF6;
@@ -351,7 +318,11 @@ const paymentStyles = `
     box-shadow: 0 12px 26px rgba(247, 173, 173, 0.5);
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK (5 KOLOM PRESISI) --- */
+  .btn-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -375,12 +346,6 @@ const paymentStyles = `
     color: #FFFDF6;
     line-height: 1;
     text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-    display: inline-block;
-  }
-
-  .footer-brand:hover {
-    animation: wiggle 0.6s ease-in-out;
   }
 
   .footer-col-title {
@@ -406,12 +371,6 @@ const paymentStyles = `
     transition: all 0.25s ease;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    display: inline-block;
-  }
-
-  .footer-col-list a:hover {
-    opacity: 1;
-    transform: translateX(6px);
   }
 
   .newsletter-desc {
@@ -434,15 +393,6 @@ const paymentStyles = `
     font-size: 0.9rem;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    transition: border-color 0.3s ease;
-  }
-
-  .newsletter-input:focus {
-    border-bottom-color: #FFFDF6;
-  }
-
-  .newsletter-input::placeholder {
-    color: rgba(255, 253, 246, 0.65);
   }
 
   .footer-bottom-bar {
@@ -469,12 +419,32 @@ const paymentStyles = `
   }
 `;
 
-const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
+const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [method, setMethod] = useState("qris");
+  const [deliveryType, setDeliveryType] = useState("Kurir Instan");
+  const [submitting, setSubmitting] = useState(false);
 
-  // Ambil hanya item terpilih dari router state, flag centang, atau localStorage
+  const currentUser = (() => {
+    try {
+      const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const assignedStore =
+    currentUser?.assigned_store ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("selected_store");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+      return detectNearestStore(currentUser?.alamat || "");
+    })();
+
   const stateItems =
     location.state?.selectedItems ||
     location.state?.items ||
@@ -489,7 +459,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
       (item) =>
         typeof item.selected === "boolean" ||
         typeof item.checked === "boolean" ||
-        typeof item.isSelected === "boolean",
+        typeof item.isSelected === "boolean"
     );
 
     if (hasSelectionFlag) {
@@ -497,7 +467,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
         (item) =>
           item.selected === true ||
           item.checked === true ||
-          item.isSelected === true,
+          item.isSelected === true
       );
     }
 
@@ -505,7 +475,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
       const savedCheckout = JSON.parse(
         localStorage.getItem("checkoutItems") ||
           localStorage.getItem("selectedCartItems") ||
-          "null",
+          "null"
       );
       if (Array.isArray(savedCheckout) && savedCheckout.length > 0) {
         return savedCheckout;
@@ -519,40 +489,127 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
 
   const subtotal = itemsToPay.reduce(
     (sum, item) => sum + item.harga * item.jumlah,
-    0,
+    0
   );
 
-  const handleConfirm = () => {
-    alert(
-      `🎉 Pembayaran sebesar Rp ${subtotal.toLocaleString("id-ID")} berhasil diproses!\n\nTerima kasih telah berbelanja di MEUW Petshop! 🐾`,
-    );
-    navigate("/catalog");
+  const handleCopyVA = () => {
+    navigator.clipboard?.writeText("880192837461002");
+    alert("Nomor Virtual Account 8801 9283 7461 002 berhasil disalin! 📋");
+  };
+
+  const handleConfirm = async () => {
+    if (!currentUser || !currentUser.id_user) {
+      alert("Silakan login terlebih dahulu sebelum melakukan pembayaran!");
+      navigate("/login");
+      return;
+    }
+
+    if (itemsToPay.length === 0) {
+      alert("Keranjang belanja masih kosong!");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const idUser = String(currentUser.id_user);
+      const idToko = String(assignedStore?.id_toko || "1");
+
+      // QRIS Instant langsung terverifikasi ("Diproses"), sedangkan VA/COD menunggu konfirmasi ("Pending")
+      const statusAwal = method === "qris" ? "Diproses" : "Pending";
+      const labelMetode =
+        method === "qris"
+          ? "QRIS Instant"
+          : method === "va"
+          ? "Transfer Virtual Account"
+          : "Bayar di Tempat / Kasir Cabang (COD)";
+
+      const trxRes = await fetch(`${API_BASE}/transaksi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_user: idUser,
+          id_toko: idToko,
+          total_harga: subtotal,
+          status: statusAwal,
+          metode_pembayaran: labelMetode,
+          metode_pengiriman: deliveryType,
+        }),
+      });
+      const trxJson = await trxRes.json();
+
+      if (!trxRes.ok || !trxJson.success) {
+        throw new Error(trxJson.error || trxJson.message || "Gagal menyimpan transaksi");
+      }
+
+      const newIdTransaksi = trxJson.data.id_transaksi;
+
+      // Simpan setiap item ke DetailTransaksi sekaligus memotong stok cabang toko
+      for (const item of itemsToPay) {
+        const detRes = await fetch(`${API_BASE}/detail-transaksi`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_transaksi: String(newIdTransaksi),
+            id_barang: String(item.id_barang),
+            jumlah: Number(item.jumlah),
+            harga_satuan: Number(item.harga),
+          }),
+        });
+        const detJson = await detRes.json();
+        if (!detRes.ok || !detJson.success) {
+          // Batalkan transaksi jika salah satu item stoknya tidak cukup
+          await fetch(`${API_BASE}/transaksi/${newIdTransaksi}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              status_terbaru: "Dibatalkan",
+              catatan: detJson.error || "Stok cabang tidak mencukupi",
+            }),
+          });
+          throw new Error(detJson.error || detJson.message || "Stok barang tidak cukup");
+        }
+      }
+
+      // Hapus item yang sudah dibayar dari state/localStorage keranjang
+      const paidIds = new Set(itemsToPay.map((i) => String(i.id_barang)));
+      if (typeof setCartItems === "function") {
+        setCartItems((prev) => prev.filter((i) => !paidIds.has(String(i.id_barang))));
+      } else {
+        try {
+          const rawCart = JSON.parse(localStorage.getItem("meuw_cart_items_v1") || "[]");
+          const remaining = rawCart.filter((i) => !paidIds.has(String(i.id_barang)));
+          localStorage.setItem("meuw_cart_items_v1", JSON.stringify(remaining));
+        } catch {}
+      }
+      localStorage.removeItem("checkoutItems");
+      localStorage.removeItem("selectedCartItems");
+
+      alert(
+        `🎉 Transaksi #${newIdTransaksi} berhasil dibuat!\n` +
+          `💰 Total: Rp ${subtotal.toLocaleString("id-ID")}\n` +
+          `💳 Metode: ${labelMetode}\n` +
+          `📌 Status: ${statusAwal}\n` +
+          `🏪 Cabang: ${assignedStore.nama_toko}`
+      );
+      navigate("/riwayat");
+    } catch (err) {
+      alert(`⚠️ Gagal memproses pembayaran:\n${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <>
       <style>{paymentStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
-        {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img
-              src={logoImg}
-              alt="MEUW Petshop Logo"
-              className="nav-logo-img"
-            />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                lineHeight: "1",
-              }}
-            >
+            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -579,36 +636,16 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">
-              Home
-            </Link>
-            <Link to="/catalog" className="nav-menu-link">
-              Catalog
-            </Link>
-            <Link to="/services" className="nav-menu-link">
-              Layanan
-            </Link>
-            <Link to="/about" className="nav-menu-link">
-              About
-            </Link>
-            <Link to="/contact" className="nav-menu-link">
-              Contact
-            </Link>
+            <Link to="/home" className="nav-menu-link">Home</Link>
+            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
+            <Link to="/services" className="nav-menu-link">Layanan</Link>
+            <Link to="/about" className="nav-menu-link">About</Link>
+            <Link to="/contact" className="nav-menu-link">Contact</Link>
           </div>
 
           <div className="nav-actions">
-            <Link
-              to="/riwayat"
-              className="nav-icon-circle"
-              title="Riwayat & Review"
-            >
-              👤
-            </Link>
-            <Link
-              to="/cart"
-              className="nav-icon-circle"
-              title="Keranjang Belanja"
-            >
+            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">👤</Link>
+            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -617,9 +654,69 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
 
         <h1 className="page-title">PEMBAYARAN 💳</h1>
 
-        {/* --- RINGKASAN TAGIHAN CARD --- */}
+        {/* CARD 1: RINGKASAN TAGIHAN & CABANG */}
         <div className="checkout-card">
           <h3 className="card-section-title">Ringkasan Tagihan 📄</h3>
+
+          <div
+            style={{
+              backgroundColor: "#FFF5F5",
+              border: "1.5px solid #F7ADAD",
+              borderRadius: "16px",
+              padding: "12px 16px",
+              marginBottom: "1rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
+            <div>
+              <div style={{ fontSize: "0.78rem", color: "#887777", fontWeight: 700 }}>
+                📍 Cabang Pelayanan Otomatis (Sesuai Wilayah Anda):
+              </div>
+              <div style={{ fontSize: "0.95rem", color: "#4A3E3E", fontWeight: 800 }}>
+                {assignedStore.nama_toko}
+              </div>
+              <div style={{ fontSize: "0.8rem", color: "#665959" }}>
+                {assignedStore.alamat}
+              </div>
+            </div>
+            <span
+              style={{
+                backgroundColor: "#B1E5E6",
+                color: "#225B5C",
+                fontSize: "0.75rem",
+                fontWeight: 800,
+                padding: "4px 12px",
+                borderRadius: "20px",
+              }}
+            >
+              Cabang #{assignedStore.id_toko}
+            </span>
+          </div>
+
+          {/* Pilihan Pengambilan */}
+          <div style={{ marginBottom: "1.2rem" }}>
+            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#665959", marginBottom: "0.5rem" }}>
+              🚚 Opsi Pengambilan Pesanan:
+            </div>
+            <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
+              {["Kurir Instan", "Ambil di Toko Cabang"].map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setDeliveryType(opt)}
+                  className={`method-btn ${deliveryType === opt ? "active" : ""}`}
+                  style={{ padding: "7px 16px", fontSize: "0.82rem" }}
+                >
+                  {opt === "Kurir Instan" ? "🛵 Kurir Instan" : "🏪 Ambil di Toko Cabang"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {itemsToPay.length > 0 ? (
             itemsToPay.map((i) => (
               <div
@@ -656,7 +753,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
           </div>
         </div>
 
-        {/* --- METODE PEMBAYARAN CARD --- */}
+        {/* CARD 2: METODE PEMBAYARAN */}
         <div className="checkout-card">
           <h3 className="card-section-title">Metode Pembayaran 💸</h3>
 
@@ -665,18 +762,23 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
               className={`method-btn ${method === "qris" ? "active" : ""}`}
               onClick={() => setMethod("qris")}
             >
-              📱 QRIS Instant
+              📱 QRIS Instant (Otomatis Terverifikasi)
             </button>
             <button
               className={`method-btn ${method === "va" ? "active" : ""}`}
               onClick={() => setMethod("va")}
             >
-              🏦 Virtual Account (BCA/Mandiri/BRI)
+              🏦 Transfer Virtual Account
+            </button>
+            <button
+              className={`method-btn ${method === "cod" ? "active" : ""}`}
+              onClick={() => setMethod("cod")}
+            >
+              💵 COD / Bayar di Kasir Cabang
             </button>
           </div>
 
-          {/* DETAIL INSTUKSI BERDASARKAN METODE */}
-          {method === "qris" ? (
+          {method === "qris" && (
             <div className="payment-details-box">
               <div style={{ fontWeight: 800, fontSize: "0.95rem" }}>
                 Scan QRIS dengan e-Wallet / M-Banking Favoritmu 📲
@@ -687,108 +789,104 @@ const Pembayaran = ({ cartItems = [], cartCount = 0 }) => {
                   MEUW QRIS
                 </span>
               </div>
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  color: "#665959",
-                  fontWeight: 600,
-                }}
-              >
-                Berlaku untuk GoPay, OVO, Dana, ShopeePay & semua M-Banking.
+              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
+                Pembayaran QRIS langsung terverifikasi otomatis dan status pesanan menjadi{" "}
+                <strong>Diproses</strong>.
               </p>
             </div>
-          ) : (
+          )}
+
+          {method === "va" && (
             <div className="payment-details-box">
               <div style={{ fontWeight: 800, fontSize: "0.95rem" }}>
                 Nomor Virtual Account MEUW Petshop:
               </div>
               <div className="va-number-box">8801 9283 7461 002</div>
-              <p
-                style={{
-                  fontSize: "0.85rem",
-                  color: "#665959",
-                  fontWeight: 600,
-                }}
-              >
-                Transfer sesuai nominal persis hingga 3 digit terakhir.
+              <div>
+                <button
+                  type="button"
+                  onClick={handleCopyVA}
+                  style={{
+                    backgroundColor: "#B1E5E6",
+                    color: "#225B5C",
+                    border: "1.5px solid #91DCDE",
+                    padding: "5px 14px",
+                    borderRadius: "14px",
+                    fontWeight: 800,
+                    fontSize: "0.78rem",
+                    cursor: "pointer",
+                    marginBottom: "0.6rem",
+                  }}
+                >
+                  📋 Salin Nomor VA
+                </button>
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
+                Status awal pesanan <strong>Pending</strong> dan akan segera diverifikasi oleh Admin cabang.
               </p>
             </div>
           )}
 
-          <button className="btn-submit" onClick={handleConfirm}>
-            KONFIRMASI PEMBAYARAN 💖
+          {method === "cod" && (
+            <div className="payment-details-box">
+              <div style={{ fontSize: "2.4rem", marginBottom: "0.4rem" }}>💵</div>
+              <div style={{ fontWeight: 800, fontSize: "0.95rem", marginBottom: "0.3rem" }}>
+                Bayar Tunai saat Kurir Tiba / di Kasir {assignedStore.nama_toko}
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
+                Siapkan uang pas sebesar <strong>Rp {subtotal.toLocaleString("id-ID")}</strong>. Status awal pesanan{" "}
+                <strong>Pending</strong> hingga dikonfirmasi kasir/admin.
+              </p>
+            </div>
+          )}
+
+          <button className="btn-submit" onClick={handleConfirm} disabled={submitting}>
+            {submitting
+              ? "MEMPROSES TRANSAKSI..."
+              : method === "qris"
+              ? "SIMULASIKAN BAYAR QRIS & PROSES 💖"
+              : "BUAT PESANAN SEKARANG 💖"}
           </button>
         </div>
 
-        {/* --- FOOTER RAYO BOX --- */}
         <footer className="footer-rayo-box">
           <div className="footer-grid">
             <div className="footer-brand">MEUW</div>
-
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li>
-                  <Link to="/catalog">Catalog</Link>
-                </li>
-                <li>
-                  <Link to="/services">Layanan</Link>
-                </li>
-                <li>
-                  <Link to="/about">About</Link>
-                </li>
-                <li>
-                  <Link to="/contact">Contact</Link>
-                </li>
+                <li><Link to="/catalog">Catalog</Link></li>
+                <li><Link to="/services">Layanan</Link></li>
+                <li><Link to="/about">About</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#shipping">Delivery methods</a>
-                </li>
-                <li>
-                  <a href="#time">Time & cost</a>
-                </li>
-                <li>
-                  <a href="#tracking">Order tracking</a>
-                </li>
+                <li><Link to="/riwayat">Delivery methods</Link></li>
+                <li><Link to="/riwayat">Time & cost</Link></li>
+                <li><Link to="/riwayat">Order tracking</Link></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li>
-                  <a href="#instagram">Instagram</a>
-                </li>
-                <li>
-                  <a href="#tiktok">TikTok</a>
-                </li>
-                <li>
-                  <a href="#facebook">Facebook</a>
-                </li>
+                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
+                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
+                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
               </ul>
             </div>
-
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info pembayaran & promo spesial untuk transaksi
-                anabulmu.
+                Dapatkan info pembayaran & promo spesial untuk transaksi anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
-                <input
-                  type="email"
-                  placeholder="Masukkan email..."
-                  className="newsletter-input"
-                />
+                <input type="email" placeholder="Masukkan email..." className="newsletter-input" />
               </div>
             </div>
           </div>
-
           <div className="footer-bottom-bar">
             <div>All rights reserved MEUW PETSHOP © 2026</div>
             <div>Privacy policy</div>
