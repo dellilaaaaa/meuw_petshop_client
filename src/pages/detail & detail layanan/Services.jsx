@@ -321,7 +321,7 @@ const servicesStyles = `
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2.2rem 1.8rem;
-    margin-bottom: 5rem;
+    margin-bottom: 4.5rem;
   }
 
   .card-rayo {
@@ -652,30 +652,50 @@ const servicesStyles = `
     cursor: not-allowed;
   }
 
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
   }
 
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
+  }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
     display: inline-block;
   }
 
   .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
-  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
-  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+
+  .footer-col-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    color: #FFFDF6;
+  }
+
+  .footer-col-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
 
   .footer-col-list a {
     text-decoration: none;
@@ -689,7 +709,15 @@ const servicesStyles = `
   }
 
   .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
-  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
+
+  .newsletter-desc {
+    font-size: 0.88rem;
+    opacity: 0.92;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  }
 
   .newsletter-input {
     width: 100%;
@@ -709,8 +737,8 @@ const servicesStyles = `
   .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -47,38 +47,7 @@ const AdminOnlyRoute = ({ children }) => {
   return children;
 };
 
-const DEFAULT_CART_ITEMS = [
-  {
-    id_detail_keranjang: 101,
-    id_keranjang: 1,
-    id_barang: 1,
-    nama_barang: "Royal Canin Mother & Babycat 2kg",
-    harga: 285000,
-    satuan: "pcs",
-    jumlah: 1,
-    gambar: "https://via.placeholder.com/150/F7ADAD/FFFDF6?text=Dry+Food",
-  },
-  {
-    id_detail_keranjang: 102,
-    id_keranjang: 1,
-    id_barang: 3,
-    nama_barang: "Shampoo Anti Kutu & Jamur 250ml",
-    harga: 45000,
-    satuan: "botol",
-    jumlah: 2,
-    gambar: "https://via.placeholder.com/150/F7ADAD/FFFDF6?text=Shampoo",
-  },
-  {
-    id_detail_keranjang: 103,
-    id_keranjang: 1,
-    id_barang: 5,
-    nama_barang: "Creamy Treats Kucing (Isi 4)",
-    harga: 22000,
-    satuan: "pack",
-    jumlah: 3,
-    gambar: "https://via.placeholder.com/150/F7ADAD/FFFDF6?text=Snack",
-  },
-];
+const DEFAULT_CART_ITEMS = [];
 
 const DEFAULT_BOOKING_LIST = [
   {
@@ -227,7 +196,11 @@ function App() {
           path="/pembayaran"
           element={
             <CustomerOnlyRoute>
-              <Pembayaran cartItems={cartItems} cartCount={cartCount} />
+              <Pembayaran
+                cartItems={cartItems}
+                cartCount={cartCount}
+                setCartItems={setCartItems}
+              />
             </CustomerOnlyRoute>
           }
         />

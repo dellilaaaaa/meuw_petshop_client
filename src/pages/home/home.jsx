@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+import heroPetImg from "../../images/hero-pet.jpg";
 
 const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
 const API_CATALOG_URL = `${API_BASE_URL}/api/catalog`;
-const CACHE_KEY = "meuw_catalog_cache_v1";
-const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1"];
+const API_LAYANAN_URL = `${API_BASE_URL}/api/layanan`;
+const CACHE_KEY = "meuw_catalog_cache_v2";
+const CACHE_LAYANAN_KEY = "meuw_layanan_cache_v1";
+const PASTEL_COLORS = ["#FDEAE8", "#FEF7DF", "#E3F6F6"];
 
 const homeStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
@@ -490,7 +493,21 @@ const homeStyles = `
     align-items: center;
     justify-content: center;
     position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
     box-shadow: inset 0 2px 10px rgba(247, 173, 173, 0.12);
+  }
+
+  .service-visual-img {
+    max-width: 82%;
+    max-height: 82%;
+    object-fit: contain;
+    border-radius: 18px;
+    transition: transform 0.35s ease;
+  }
+
+  .service-split-card:hover .service-visual-img {
+    transform: scale(1.06);
   }
 
   .service-category-label {
@@ -520,15 +537,24 @@ const homeStyles = `
     padding: 5px 16px;
     border-radius: 16px;
     font-family: 'Quicksand', sans-serif;
+    z-index: 2;
   }
 
   .service-home-title {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 2.2rem;
+    font-size: 2.1rem;
     font-weight: 800;
     color: #4A3E3E;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
     line-height: 1.2;
+  }
+
+  .service-home-price {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #F7ADAD;
+    margin-bottom: 0.8rem;
   }
 
   .service-home-desc {
@@ -584,21 +610,25 @@ const homeStyles = `
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
+    margin-top: 4rem;
   }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
   }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
@@ -611,7 +641,7 @@ const homeStyles = `
     font-family: 'Baloo 2', cursive, sans-serif;
     font-weight: 700;
     font-size: 1.15rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     color: #FFFDF6;
   }
 
@@ -619,7 +649,7 @@ const homeStyles = `
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 
   .footer-col-list a {
@@ -638,7 +668,7 @@ const homeStyles = `
   .newsletter-desc {
     font-size: 0.88rem;
     opacity: 0.92;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     line-height: 1.5;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
@@ -662,8 +692,8 @@ const homeStyles = `
   .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -695,7 +725,10 @@ const formatRawProducts = (rawProducts) =>
         ? item.id_kategori.nama_kategori
         : item.nama_kategori || "Produk MEUW";
 
-    const productId = item._id || item.id_barang || index + 1;
+    const productId =
+      item.id_barang !== undefined && item.id_barang !== null
+        ? item.id_barang
+        : item._id || index + 1;
     const encodedLabel = encodeURIComponent(kategoriNama);
 
     return {
@@ -704,10 +737,90 @@ const formatRawProducts = (rawProducts) =>
       harga: Number(item.harga || 0),
       bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
       gambar:
-        typeof item.foto === "string"
-          ? item.foto
-          : `${API_CATALOG_URL}/${productId}/foto`,
+        typeof item.foto === "string" && item.foto.trim() !== ""
+          ? item.foto.startsWith("http")
+            ? item.foto
+            : `${API_BASE_URL}${item.foto.startsWith("/") ? "" : "/"}${item.foto}`
+          : `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`,
       fallbackGambar: `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`,
+    };
+  });
+
+const formatLayananHome = (rawList) =>
+  rawList.map((item, index) => {
+    const nama = item.nama_layanan || "Layanan MEUW";
+    const lower = nama.toLowerCase();
+
+    let tag = "HEALTHCARE";
+    let label = "HEALTHCARE";
+    let badge1 = "Perawatan Profesional";
+    let badge2 = "Peralatan Steril";
+
+    if (
+      lower.includes("grooming") ||
+      lower.includes("mandi") ||
+      lower.includes("cut")
+    ) {
+      tag = "POPULER";
+      label = "GROOMING";
+      badge1 = "Shampoo Hypoallergenic";
+      badge2 = "Mandi Sehat & Cut Styling";
+    } else if (
+      lower.includes("hotel") ||
+      lower.includes("penitipan") ||
+      lower.includes("vip")
+    ) {
+      tag = "BEST VALUE";
+      label = "PET HOTEL";
+      badge1 = "Kamar AC Steril";
+      badge2 = "Free Update Foto/Video";
+    } else if (
+      lower.includes("antar") ||
+      lower.includes("jemput") ||
+      lower.includes("taxi")
+    ) {
+      tag = "EXTRA CARE";
+      label = "PET TAXI";
+      badge1 = "Armada Nyaman & Aman";
+      badge2 = "Antar-Jemput Tepat Waktu";
+    } else if (
+      lower.includes("kutu") ||
+      lower.includes("jamur") ||
+      lower.includes("treatment")
+    ) {
+      tag = "HEALTHCARE";
+      label = "TREATMENT";
+      badge1 = "Treatment Kutu & Jamur";
+      badge2 = "Penanganan Lembut";
+    }
+
+    let fotoUrl = "";
+    if (typeof item.foto === "string" && item.foto.trim() !== "") {
+      if (/^https?:\/\//i.test(item.foto)) {
+        fotoUrl = item.foto;
+      } else {
+        const normalized = item.foto.replace(/\\/g, "/");
+        const uploadIdx = normalized.toLowerCase().lastIndexOf("/uploads/");
+        fotoUrl =
+          uploadIdx !== -1
+            ? `${API_BASE_URL}${normalized.substring(uploadIdx)}`
+            : `${API_BASE_URL}/uploads/layanan/${normalized.split("/").pop()}`;
+      }
+    }
+
+    return {
+      id_layanan: item.id_layanan || item._id || String(index + 1),
+      nama_layanan: nama,
+      harga: Number(item.harga || 0),
+      deskripsi:
+        item.deskripsi ||
+        "Layanan perawatan terbaik untuk anabul kesayanganmu.",
+      foto: fotoUrl,
+      tag,
+      label,
+      badge1,
+      badge2,
+      bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
     };
   });
 
@@ -715,8 +828,10 @@ const Home = ({ cartCount = 0 }) => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
+  const [featuredServices, setFeaturedServices] = useState([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+
   useEffect(() => {
-    // 1. Cek cache dulu agar langsung tampil instan (0 detik)
     const cachedData = sessionStorage.getItem(CACHE_KEY);
     if (cachedData) {
       try {
@@ -730,7 +845,6 @@ const Home = ({ cartCount = 0 }) => {
       }
     }
 
-    // 2. Tetap ambil data terbaru dari server di background
     const fetchProducts = async () => {
       try {
         const response = await fetch(API_CATALOG_URL);
@@ -750,7 +864,43 @@ const Home = ({ cartCount = 0 }) => {
       }
     };
 
+    const cachedLayanan = sessionStorage.getItem(CACHE_LAYANAN_KEY);
+    if (cachedLayanan) {
+      try {
+        const parsedLayanan = JSON.parse(cachedLayanan);
+        if (Array.isArray(parsedLayanan) && parsedLayanan.length > 0) {
+          setFeaturedServices(formatLayananHome(parsedLayanan).slice(0, 3));
+          setLoadingServices(false);
+        }
+      } catch (e) {
+        console.error("Cache layanan parse error:", e);
+      }
+    }
+
+    const fetchServices = async () => {
+      try {
+        const response = await fetch(API_LAYANAN_URL);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        const rawServices = Array.isArray(result.data) ? result.data : [];
+
+        if (rawServices.length > 0) {
+          sessionStorage.setItem(
+            CACHE_LAYANAN_KEY,
+            JSON.stringify(rawServices),
+          );
+          setFeaturedServices(formatLayananHome(rawServices).slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Gagal mengambil layanan dari database:", error);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+
     fetchProducts();
+    fetchServices();
   }, []);
 
   return (
@@ -855,18 +1005,15 @@ const Home = ({ cartCount = 0 }) => {
           </div>
 
           <div className="hero-image-right">
-            <img src={logoImg} alt="MEUW Store" className="hero-big-logo" />
-            <div
+            <img
+              src={heroPetImg}
+              alt="MEUW Petshop Anabul"
               style={{
-                fontFamily: "Baloo 2, cursive",
-                fontWeight: 700,
-                color: "#F7ADAD",
-                fontSize: "1.2rem",
-                marginTop: "1rem",
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
               }}
-            >
-              MEUW CARE & STORE
-            </div>
+            />
           </div>
         </header>
 
@@ -981,7 +1128,7 @@ const Home = ({ cartCount = 0 }) => {
           )}
         </section>
 
-        {/* --- LAYANAN UNGGULAN SECTION --- */}
+        {/* --- LAYANAN UNGGULAN SECTION (DARI DATABASE /api/layanan) --- */}
         <section style={{ marginBottom: "5.5rem" }}>
           <div className="section-header">
             <h2 className="section-title">LAYANAN UNGGULAN</h2>
@@ -990,81 +1137,112 @@ const Home = ({ cartCount = 0 }) => {
             </Link>
           </div>
 
-          <div className="services-alternating-container">
-            <div className="service-split-card">
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#FDEAE8" }}
-              >
-                <span className="service-home-tag">POPULER</span>
-                <span className="service-category-label">GROOMING</span>
-              </div>
-              <div className="service-content-box">
-                <h3 className="service-home-title">Grooming Anabul</h3>
-                <p className="service-home-desc">
-                  Mandi pembersihan anti-bakteri, potong styling bulu rapi, dan
-                  pembersihan telinga & kuku.
-                </p>
-                <div className="service-home-pills">
-                  <span>Shampoo Hypoallergenic</span>
-                  <span>Mandi Sehat & Cut Styling</span>
+          {loadingServices ? (
+            <div className="services-alternating-container">
+              {[1, 2].map((n) => (
+                <div key={n} className="service-split-card skeleton-card">
+                  <div className="service-visual-box skeleton-box"></div>
+                  <div
+                    className="service-content-box"
+                    style={{ width: "100%" }}
+                  >
+                    <div
+                      className="skeleton-box"
+                      style={{
+                        height: "32px",
+                        width: "60%",
+                        marginBottom: "1rem",
+                      }}
+                    ></div>
+                    <div
+                      className="skeleton-box"
+                      style={{
+                        height: "64px",
+                        width: "90%",
+                        marginBottom: "1.5rem",
+                      }}
+                    ></div>
+                    <div
+                      className="skeleton-box"
+                      style={{ height: "44px", width: "190px" }}
+                    ></div>
+                  </div>
                 </div>
-                <Link to="/services" className="service-home-btn">
-                  Booking Grooming
-                </Link>
-              </div>
+              ))}
             </div>
+          ) : featuredServices.length > 0 ? (
+            <div className="services-alternating-container">
+              {featuredServices.map((srv, idx) => {
+                const isReverse = idx % 2 === 1;
 
-            <div className="service-split-card reverse">
-              <div className="service-content-box">
-                <h3 className="service-home-title">
-                  Penitipan VIP (Pet Hotel)
-                </h3>
-                <p className="service-home-desc">
-                  Kamar AC tersterilkan, makan teratur, dan pengawasan penuh
-                  kasih sayang saat kamu bepergian.
-                </p>
-                <div className="service-home-pills">
-                  <span>Kamar AC Steril</span>
-                  <span>Free Update Foto/Video</span>
-                </div>
-                <Link to="/services" className="service-home-btn">
-                  Reservasi Pet Hotel
-                </Link>
-              </div>
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#FEF7DF" }}
-              >
-                <span className="service-home-tag">BEST VALUE</span>
-                <span className="service-category-label">PET HOTEL</span>
-              </div>
-            </div>
+                const visualBox = (
+                  <div
+                    className="service-visual-box"
+                    style={{ backgroundColor: srv.bgColor }}
+                  >
+                    <span className="service-home-tag">{srv.tag}</span>
+                    {srv.foto ? (
+                      <img
+                        src={srv.foto}
+                        alt={srv.nama_layanan}
+                        className="service-visual-img"
+                        loading="lazy"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span className="service-category-label">
+                        {srv.label}
+                      </span>
+                    )}
+                  </div>
+                );
 
-            <div className="service-split-card">
-              <div
-                className="service-visual-box"
-                style={{ backgroundColor: "#E3F6F6" }}
-              >
-                <span className="service-home-tag">HEALTHCARE</span>
-                <span className="service-category-label">HEALTHCARE</span>
-              </div>
-              <div className="service-content-box">
-                <h3 className="service-home-title">Perawatan & Treatment</h3>
-                <p className="service-home-desc">
-                  Penanganan khusus kutu telinga (ear mites), jamur kulit, serta
-                  layanan pet-car antar-jemput.
-                </p>
-                <div className="service-home-pills">
-                  <span>Treatment Kutu & Jamur</span>
-                  <span>Pet Taxi Antar-Jemput</span>
-                </div>
-                <Link to="/services" className="service-home-btn">
-                  Konsultasi & Book
-                </Link>
-              </div>
+                const contentBox = (
+                  <div className="service-content-box">
+                    <h3 className="service-home-title">{srv.nama_layanan}</h3>
+                    <div className="service-home-price">
+                      Rp {srv.harga.toLocaleString("id-ID")}
+                    </div>
+                    <p className="service-home-desc">{srv.deskripsi}</p>
+                    <div className="service-home-pills">
+                      <span>{srv.badge1}</span>
+                      <span>{srv.badge2}</span>
+                    </div>
+                    <Link to="/services" className="service-home-btn">
+                      Booking Layanan
+                    </Link>
+                  </div>
+                );
+
+                return (
+                  <div
+                    key={srv.id_layanan}
+                    className={`service-split-card ${isReverse ? "reverse" : ""}`}
+                  >
+                    {isReverse ? (
+                      <>
+                        {contentBox}
+                        {visualBox}
+                      </>
+                    ) : (
+                      <>
+                        {visualBox}
+                        {contentBox}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          ) : (
+            <p
+              style={{ textAlign: "center", fontWeight: 700, color: "#665959" }}
+            >
+              Belum ada layanan tersedia saat ini.
+            </p>
+          )}
         </section>
 
         {/* --- FOOTER EXPLICIT --- */}

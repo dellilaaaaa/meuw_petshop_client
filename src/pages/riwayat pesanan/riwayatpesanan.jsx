@@ -481,14 +481,26 @@ const riwayatStyles = `
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.5rem 2.8rem 1.6rem 2.8rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
-    margin-top: 4.5rem;
   }
 
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
-  .footer-brand { font-family: 'Baloo 2', cursive, sans-serif; font-size: 4rem; font-weight: 800; color: #FFFDF6; line-height: 1; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .footer-brand {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: #FFFDF6;
+    line-height: 1;
+    display: inline-block;
+  }
   .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
   .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
   .footer-col-list a { text-decoration: none; color: #FFFDF6; opacity: 0.92; font-size: 0.88rem; font-weight: 600; }
@@ -509,10 +521,10 @@ const riwayatStyles = `
 `;
 
 const STORE_NAMES = {
-  "1": "MeLuw Petshop - Jakarta Pusat",
-  "2": "MeLuw Petshop - Jakarta Selatan",
-  "3": "MeLuw Petshop - Jakarta Timur",
-  "4": "MeLuw Petshop - Jakarta Barat",
+  1: "MEUW Petshop - Jakarta Pusat",
+  2: "MEUW Petshop - Jakarta Selatan",
+  3: "MEUW Petshop - Jakarta Timur",
+  4: "MEUW Petshop - Jakarta Barat",
 };
 
 const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
@@ -552,7 +564,9 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     setLoadingOrders(true);
     try {
       const [resTrx, resDetail, resCat, resBook] = await Promise.all([
-        fetch(`${API_BASE}/transaksi?id_user=${encodeURIComponent(currentUser.id_user)}`),
+        fetch(
+          `${API_BASE}/transaksi?id_user=${encodeURIComponent(currentUser.id_user)}`,
+        ),
         fetch(`${API_BASE}/detail-transaksi`),
         fetch(`${API_BASE}/catalog`),
         fetch(`${API_BASE}/booking-layanan`),
@@ -566,7 +580,7 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
       if (dataTrx.success) {
         // Pastikan hanya transaksi milik user yang sedang login
         const userTrx = (dataTrx.data || []).filter(
-          (t) => String(t.id_user) === String(currentUser.id_user)
+          (t) => String(t.id_user) === String(currentUser.id_user),
         );
         setOrders(userTrx);
       }
@@ -606,7 +620,11 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     }
   };
 
-  const handleCustomerStatusUpdate = async (id_transaksi, status_terbaru, catatan) => {
+  const handleCustomerStatusUpdate = async (
+    id_transaksi,
+    status_terbaru,
+    catatan,
+  ) => {
     const confirmMsg =
       status_terbaru === "Dibatalkan"
         ? `Yakin ingin membatalkan pesanan #${id_transaksi}? Stok akan dikembalikan ke cabang.`
@@ -622,7 +640,9 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || json.message || "Gagal memperbarui status");
+        throw new Error(
+          json.error || json.message || "Gagal memperbarui status",
+        );
       }
       await fetchUserTransactions();
     } catch (err) {
@@ -651,7 +671,7 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
   };
 
   const filteredOrders = orders.filter((o) =>
-    statusFilter === "Semua" ? true : o.status === statusFilter
+    statusFilter === "Semua" ? true : o.status === statusFilter,
   );
 
   // Gabungkan booking dari database + local state jika ada
@@ -667,11 +687,25 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
       {trackingModal.open && (
         <div
           className="timeline-overlay"
-          onClick={() => setTrackingModal({ open: false, id_transaksi: null, logs: [], loading: false })}
+          onClick={() =>
+            setTrackingModal({
+              open: false,
+              id_transaksi: null,
+              logs: [],
+              loading: false,
+            })
+          }
         >
           <div className="timeline-modal" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => setTrackingModal({ open: false, id_transaksi: null, logs: [], loading: false })}
+              onClick={() =>
+                setTrackingModal({
+                  open: false,
+                  id_transaksi: null,
+                  logs: [],
+                  loading: false,
+                })
+              }
               style={{
                 position: "absolute",
                 top: "16px",
@@ -699,20 +733,45 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
             >
               📍 Lacak Pesanan #{trackingModal.id_transaksi}
             </h3>
-            <p style={{ fontSize: "0.85rem", color: "#776B6B", marginBottom: "1.2rem", fontWeight: 600 }}>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "#776B6B",
+                marginBottom: "1.2rem",
+                fontWeight: 600,
+              }}
+            >
               Riwayat perubahan status tercatat otomatis di sistem MEUW Petshop:
             </p>
 
             {trackingModal.loading ? (
-              <p style={{ textAlign: "center", padding: "1.5rem", fontWeight: 700 }}>
+              <p
+                style={{
+                  textAlign: "center",
+                  padding: "1.5rem",
+                  fontWeight: 700,
+                }}
+              >
                 Memuat jejak transaksi...
               </p>
             ) : trackingModal.logs.length === 0 ? (
-              <p style={{ textAlign: "center", padding: "1.5rem", color: "#887777" }}>
+              <p
+                style={{
+                  textAlign: "center",
+                  padding: "1.5rem",
+                  color: "#887777",
+                }}
+              >
                 Belum ada log histori untuk transaksi ini.
               </p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "12px",
+                }}
+              >
                 {trackingModal.logs.map((log, idx) => {
                   const st = getStatusStyle(log.status_terbaru);
                   return (
@@ -746,18 +805,34 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                         >
                           {log.status_terbaru}
                         </span>
-                        <span style={{ fontSize: "0.75rem", color: "#887777", fontWeight: 700 }}>
-                          {new Date(log.tanggal_perubahan).toLocaleString("id-ID", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            color: "#887777",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {new Date(log.tanggal_perubahan).toLocaleString(
+                            "id-ID",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </span>
                       </div>
-                      <div style={{ fontSize: "0.86rem", color: "#4A3E3E", fontWeight: 600 }}>
-                        {log.catatan || `Status diperbarui menjadi ${log.status_terbaru}`}
+                      <div
+                        style={{
+                          fontSize: "0.86rem",
+                          color: "#4A3E3E",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {log.catatan ||
+                          `Status diperbarui menjadi ${log.status_terbaru}`}
                       </div>
                     </div>
                   );
@@ -771,8 +846,18 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -799,18 +884,36 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle active" title="Akun & Riwayat">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle active"
+              title="Akun & Riwayat"
+            >
               👤
             </Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -822,13 +925,26 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
         {!currentUser ? (
           <div className="guest-box">
             <span className="empty-history-icon">🐱</span>
-            <h2 className="empty-history-title">Kamu belum masuk ke akun MEUW</h2>
-            <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600, marginTop: "0.5rem" }}>
-              Silakan Log In terlebih dahulu untuk melihat profil lengkap, riwayat belanja, dan jadwal booking anabulmu!
+            <h2 className="empty-history-title">
+              Kamu belum masuk ke akun MEUW
+            </h2>
+            <p
+              style={{
+                fontFamily: "Quicksand, sans-serif",
+                fontWeight: 600,
+                marginTop: "0.5rem",
+              }}
+            >
+              Silakan Log In terlebih dahulu untuk melihat profil lengkap,
+              riwayat belanja, dan jadwal booking anabulmu!
             </p>
             <div className="guest-btn-group">
-              <Link to="/login" className="btn-primary-cute">Log In Sekarang</Link>
-              <Link to="/register" className="btn-secondary-cute">Daftar Akun Baru</Link>
+              <Link to="/login" className="btn-primary-cute">
+                Log In Sekarang
+              </Link>
+              <Link to="/register" className="btn-secondary-cute">
+                Daftar Akun Baru
+              </Link>
             </div>
           </div>
         ) : (
@@ -858,7 +974,13 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
             {activeTab === "produk" && (
               <>
                 <div className="status-filter-bar">
-                  {["Semua", "Pending", "Diproses", "Selesai", "Dibatalkan"].map((st) => (
+                  {[
+                    "Semua",
+                    "Pending",
+                    "Diproses",
+                    "Selesai",
+                    "Dibatalkan",
+                  ].map((st) => (
                     <button
                       key={st}
                       onClick={() => setStatusFilter(st)}
@@ -872,12 +994,15 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                 {loadingOrders ? (
                   <div className="empty-history-box">
                     <span className="empty-history-icon">🐾</span>
-                    <h3 className="empty-history-title">Memuat riwayat transaksimu...</h3>
+                    <h3 className="empty-history-title">
+                      Memuat riwayat transaksimu...
+                    </h3>
                   </div>
                 ) : filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => {
                     const itemsForOrder = allDetails.filter(
-                      (d) => String(d.id_transaksi) === String(order.id_transaksi)
+                      (d) =>
+                        String(d.id_transaksi) === String(order.id_transaksi),
                     );
                     const stStyle = getStatusStyle(order.status);
 
@@ -885,7 +1010,9 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                       <div key={order.id_transaksi} className="order-card-rayo">
                         <div className="order-card-header">
                           <div>
-                            <span className="order-id">Transaksi #{order.id_transaksi}</span>
+                            <span className="order-id">
+                              Transaksi #{order.id_transaksi}
+                            </span>
                             <span
                               style={{
                                 marginLeft: "10px",
@@ -895,14 +1022,25 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                               }}
                             >
                               •{" "}
-                              {new Date(order.tanggal).toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
+                              {new Date(order.tanggal).toLocaleDateString(
+                                "id-ID",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
                             </span>
-                            <div style={{ fontSize: "0.78rem", color: "#665959", fontWeight: 700 }}>
-                              🏪 {STORE_NAMES[String(order.id_toko)] || `Cabang #${order.id_toko}`}
+                            <div
+                              style={{
+                                fontSize: "0.78rem",
+                                color: "#665959",
+                                fontWeight: 700,
+                              }}
+                            >
+                              🏪{" "}
+                              {STORE_NAMES[String(order.id_toko)] ||
+                                `Cabang #${order.id_toko}`}
                             </div>
                           </div>
 
@@ -922,9 +1060,13 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                           {itemsForOrder.length > 0 ? (
                             itemsForOrder.map((det) => (
                               <div key={det.id_detail_transaksi}>
-                                • {catalogMap[String(det.id_barang)] || `Produk #${det.id_barang}`}{" "}
+                                •{" "}
+                                {catalogMap[String(det.id_barang)] ||
+                                  `Produk #${det.id_barang}`}{" "}
                                 <strong>(x{det.jumlah})</strong> — Rp{" "}
-                                {(det.jumlah * det.harga_satuan).toLocaleString("id-ID")}
+                                {(det.jumlah * det.harga_satuan).toLocaleString(
+                                  "id-ID",
+                                )}
                               </div>
                             ))
                           ) : (
@@ -933,10 +1075,18 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                         </div>
 
                         <div className="order-footer-row">
-                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                              flexWrap: "wrap",
+                            }}
+                          >
                             <button
                               type="button"
-                              onClick={() => handleOpenTracking(order.id_transaksi)}
+                              onClick={() =>
+                                handleOpenTracking(order.id_transaksi)
+                              }
                               className="action-pill-btn"
                               style={{
                                 backgroundColor: "#E3F6F6",
@@ -954,7 +1104,7 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                                   handleCustomerStatusUpdate(
                                     order.id_transaksi,
                                     "Dibatalkan",
-                                    "Dibatalkan oleh pelanggan sebelum diproses"
+                                    "Dibatalkan oleh pelanggan sebelum diproses",
                                   )
                                 }
                                 className="action-pill-btn"
@@ -975,7 +1125,7 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                                   handleCustomerStatusUpdate(
                                     order.id_transaksi,
                                     "Selesai",
-                                    "Pesanan telah diterima dengan baik oleh pelanggan"
+                                    "Pesanan telah diterima dengan baik oleh pelanggan",
                                   )
                                 }
                                 className="action-pill-btn"
@@ -991,7 +1141,10 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                           </div>
 
                           <div className="order-price-tag">
-                            Total: Rp {Number(order.total_harga || 0).toLocaleString("id-ID")}
+                            Total: Rp{" "}
+                            {Number(order.total_harga || 0).toLocaleString(
+                              "id-ID",
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1003,7 +1156,12 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                     <h3 className="empty-history-title">
                       Belum ada transaksi pada kategori "{statusFilter}"
                     </h3>
-                    <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}>
+                    <p
+                      style={{
+                        fontFamily: "Quicksand, sans-serif",
+                        fontWeight: 600,
+                      }}
+                    >
                       Yuk jelajahi katalog makanan dan perlengkapan anabul!
                     </p>
                   </div>
@@ -1019,7 +1177,9 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                   return (
                     <div key={bk.id_booking} className="order-card-rayo">
                       <div className="order-card-header">
-                        <span className="order-id">Booking #{bk.id_booking}</span>
+                        <span className="order-id">
+                          Booking #{bk.id_booking}
+                        </span>
                         <span
                           className="status-badge"
                           style={{
@@ -1033,11 +1193,17 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                       </div>
                       <div className="order-details-text">
                         {bk.icon || "✂️"}{" "}
-                        <strong>{bk.nama_layanan || `Layanan #${bk.id_detail_layanan}`}</strong>{" "}
+                        <strong>
+                          {bk.nama_layanan ||
+                            `Layanan #${bk.id_detail_layanan}`}
+                        </strong>{" "}
                         (Jadwal:{" "}
-                        {new Date(bk.tanggal_mulai).toLocaleDateString("id-ID")} pukul{" "}
-                        {bk.jam_mulai} s/d{" "}
-                        {new Date(bk.tanggal_selesai).toLocaleDateString("id-ID")})
+                        {new Date(bk.tanggal_mulai).toLocaleDateString("id-ID")}{" "}
+                        pukul {bk.jam_mulai} s/d{" "}
+                        {new Date(bk.tanggal_selesai).toLocaleDateString(
+                          "id-ID",
+                        )}
+                        )
                       </div>
                       {bk.harga && (
                         <div className="order-price-tag">
@@ -1050,9 +1216,17 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
               ) : (
                 <div className="empty-history-box">
                   <span className="empty-history-icon">📅</span>
-                  <h3 className="empty-history-title">Belum ada booking layanan</h3>
-                  <p style={{ fontFamily: "Quicksand, sans-serif", fontWeight: 600 }}>
-                    Manjakan anabulmu dengan booking grooming atau pet hotel sekarang!
+                  <h3 className="empty-history-title">
+                    Belum ada booking layanan
+                  </h3>
+                  <p
+                    style={{
+                      fontFamily: "Quicksand, sans-serif",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Manjakan anabulmu dengan booking grooming atau pet hotel
+                    sekarang!
                   </p>
                 </div>
               ))}
@@ -1063,19 +1237,27 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                 <div className="profile-header-box">
                   <div className="profile-avatar-circle">🐾</div>
                   <div>
-                    <div className="profile-name">{currentUser.nama || "Pet Lovers"}</div>
-                    <span className="profile-badge-member">Member MEUW Petshop 💖</span>
+                    <div className="profile-name">
+                      {currentUser.nama || "Pet Lovers"}
+                    </div>
+                    <span className="profile-badge-member">
+                      Member MEUW Petshop 💖
+                    </span>
                   </div>
                 </div>
 
                 <div className="profile-info-grid">
                   <div className="profile-info-item">
                     <div className="profile-label">Email</div>
-                    <div className="profile-value">{currentUser.email || "-"}</div>
+                    <div className="profile-value">
+                      {currentUser.email || "-"}
+                    </div>
                   </div>
                   <div className="profile-info-item">
                     <div className="profile-label">No. Telepon</div>
-                    <div className="profile-value">{currentUser.no_telp || "-"}</div>
+                    <div className="profile-value">
+                      {currentUser.no_telp || "-"}
+                    </div>
                   </div>
                   <div className="profile-info-item full-width">
                     <div className="profile-label">Alamat Pengiriman</div>
@@ -1099,35 +1281,74 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Pantau riwayat transaksi & booking perawatan anabulmu secara real-time.
+                Pantau riwayat transaksi & booking perawatan anabulmu secara
+                real-time.
               </p>
               <div className="newsletter-input-wrapper">
-                <input type="email" placeholder="Masukkan email..." className="newsletter-input" />
+                <input
+                  type="email"
+                  placeholder="Masukkan email..."
+                  className="newsletter-input"
+                />
               </div>
             </div>
           </div>

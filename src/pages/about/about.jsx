@@ -320,46 +320,44 @@ const aboutStyles = `
 
   .contact-pill:hover { transform: translateY(-3px) scale(1.05); background-color: #F7ADAD; color: #FFFDF6; }
 
-  .map-placeholder-box {
+  .map-embed-box {
     width: 100%;
-    height: 210px;
-    background: linear-gradient(135deg, #FFFDF6 0%, #FDEAE8 100%);
+    height: 240px;
     border: 2px solid #F7ADAD;
     border-radius: 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #F7ADAD;
-    font-weight: 800;
-    font-size: 0.95rem;
-    gap: 0.6rem;
-    font-family: 'Baloo 2', cursive, sans-serif;
+    overflow: hidden;
     box-shadow: inset 0 2px 10px rgba(247, 173, 173, 0.12);
-    transition: transform 0.35s ease;
+    background-color: #FDEAE8;
   }
 
-  .map-placeholder-box:hover { transform: scale(1.02); }
+  .map-embed-box iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
 
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.5rem 2.8rem 1.6rem 2.8rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
-    text-align: left;
   }
 
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.6rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
     display: inline-block;
   }
 
@@ -574,8 +572,8 @@ const About = ({ cartCount = 0 }) => {
           <div>
             <h3 className="location-info-title">Kunjungi Toko Kami 📍</h3>
             <p className="location-detail">
-              Jl. Anabul Ceria No. 88, Karet Kuningan, Setiabudi, Jakarta
-              Selatan.
+              Jl. Tanjung Duren Barat 2 No.1, RT.1/RW.5, Tj. Duren Utara, Kec.
+              Grogol Petamburan, Jakarta Barat 11470.
               <br />
               <strong>Buka Setiap Hari:</strong> 08.00 - 20.00 WIB
             </p>
@@ -592,9 +590,14 @@ const About = ({ cartCount = 0 }) => {
             </div>
           </div>
 
-          <div className="map-placeholder-box">
-            <span style={{ fontSize: "2.5rem" }}>🗺️</span>
-            <span>MEUW PETSHOP STORE LOCATION</span>
+          <div className="map-embed-box">
+            <iframe
+              title="Lokasi MEUW Petshop Store"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.6638567936798!2d106.78322639999999!3d-6.1757355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f7c264998871%3A0x25224ba2f2443f47!2sUniversitas%20Dian%20Nusantara%20Kampus%20Tanjung%20Duren!5e0!3m2!1sen!2sid!4v1795352019160!5m2!1sen!2sid"
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+            ></iframe>
           </div>
         </section>
 

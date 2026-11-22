@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+import qrisImg from "../../images/qris-meuw.jpeg";
 import { detectNearestStore } from "../../utils/storeHelper";
 
 const API_BASE = "https://meuw-petshop-server.vercel.app/api";
@@ -259,39 +260,48 @@ const paymentStyles = `
     background-color: #FFFDF6;
     border: 2px dashed #F7ADAD;
     border-radius: 24px;
-    padding: 1.5rem;
+    padding: 1.8rem 1.2rem;
     margin-bottom: 1.8rem;
     text-align: center;
   }
 
-  .qris-preview-qr {
-    width: 170px;
-    height: 170px;
+  .qris-image-frame {
+    width: 100%;
+    max-width: 280px;
+    margin: 1rem auto;
+    padding: 10px;
     background-color: #FFF;
-    border: 2px solid #F7ADAD;
-    border-radius: 18px;
-    margin: 0.8rem auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    color: #4A3E3E;
-    box-shadow: 0 6px 18px rgba(247, 173, 173, 0.15);
+    border: 3px solid #F7ADAD;
+    border-radius: 24px;
+    box-shadow: 0 10px 26px rgba(247, 173, 173, 0.25);
   }
 
-  .va-number-box {
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #F7ADAD;
-    background-color: #FFF;
-    border: 2px solid #F7ADAD;
-    padding: 10px 20px;
+  .qris-image-frame img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+  }
+
+  .btn-download-qris {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 0.8rem;
+    padding: 8px 18px;
+    background-color: #B1E5E6;
+    color: #225B5C;
+    border: 2px solid #91DCDE;
     border-radius: 20px;
-    display: inline-block;
-    margin: 0.8rem 0;
-    letter-spacing: 1.5px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+
+  .btn-download-qris:hover {
+    background-color: #CCFBFA;
+    transform: translateY(-2px);
   }
 
   .btn-submit {
@@ -323,36 +333,42 @@ const paymentStyles = `
     cursor: not-allowed;
   }
 
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
-    margin-top: 3rem;
+    text-align: left;
+    margin-top: 4rem;
   }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
   }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    display: inline-block;
   }
+
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
 
   .footer-col-title {
     font-family: 'Baloo 2', cursive, sans-serif;
     font-weight: 700;
     font-size: 1.15rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     color: #FFFDF6;
   }
 
@@ -360,7 +376,7 @@ const paymentStyles = `
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 
   .footer-col-list a {
@@ -371,12 +387,15 @@ const paymentStyles = `
     transition: all 0.25s ease;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
+    display: inline-block;
   }
+
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
 
   .newsletter-desc {
     font-size: 0.88rem;
     opacity: 0.92;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     line-height: 1.5;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
@@ -393,11 +412,15 @@ const paymentStyles = `
     font-size: 0.9rem;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
+    transition: border-color 0.3s ease;
   }
 
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
+
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -428,7 +451,8 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
 
   const currentUser = (() => {
     try {
-      const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+      const raw =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -459,7 +483,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
       (item) =>
         typeof item.selected === "boolean" ||
         typeof item.checked === "boolean" ||
-        typeof item.isSelected === "boolean"
+        typeof item.isSelected === "boolean",
     );
 
     if (hasSelectionFlag) {
@@ -467,7 +491,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
         (item) =>
           item.selected === true ||
           item.checked === true ||
-          item.isSelected === true
+          item.isSelected === true,
       );
     }
 
@@ -475,7 +499,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
       const savedCheckout = JSON.parse(
         localStorage.getItem("checkoutItems") ||
           localStorage.getItem("selectedCartItems") ||
-          "null"
+          "null",
       );
       if (Array.isArray(savedCheckout) && savedCheckout.length > 0) {
         return savedCheckout;
@@ -489,13 +513,8 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
 
   const subtotal = itemsToPay.reduce(
     (sum, item) => sum + item.harga * item.jumlah,
-    0
+    0,
   );
-
-  const handleCopyVA = () => {
-    navigator.clipboard?.writeText("880192837461002");
-    alert("Nomor Virtual Account 8801 9283 7461 002 berhasil disalin! 📋");
-  };
 
   const handleConfirm = async () => {
     if (!currentUser || !currentUser.id_user) {
@@ -514,13 +533,10 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
       const idUser = String(currentUser.id_user);
       const idToko = String(assignedStore?.id_toko || "1");
 
-      // QRIS Instant langsung terverifikasi ("Diproses"), sedangkan VA/COD menunggu konfirmasi ("Pending")
       const statusAwal = method === "qris" ? "Diproses" : "Pending";
       const labelMetode =
         method === "qris"
           ? "QRIS Instant"
-          : method === "va"
-          ? "Transfer Virtual Account"
           : "Bayar di Tempat / Kasir Cabang (COD)";
 
       const trxRes = await fetch(`${API_BASE}/transaksi`, {
@@ -538,12 +554,13 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
       const trxJson = await trxRes.json();
 
       if (!trxRes.ok || !trxJson.success) {
-        throw new Error(trxJson.error || trxJson.message || "Gagal menyimpan transaksi");
+        throw new Error(
+          trxJson.error || trxJson.message || "Gagal menyimpan transaksi",
+        );
       }
 
       const newIdTransaksi = trxJson.data.id_transaksi;
 
-      // Simpan setiap item ke DetailTransaksi sekaligus memotong stok cabang toko
       for (const item of itemsToPay) {
         const detRes = await fetch(`${API_BASE}/detail-transaksi`, {
           method: "POST",
@@ -557,7 +574,6 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
         });
         const detJson = await detRes.json();
         if (!detRes.ok || !detJson.success) {
-          // Batalkan transaksi jika salah satu item stoknya tidak cukup
           await fetch(`${API_BASE}/transaksi/${newIdTransaksi}/status`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -566,18 +582,25 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
               catatan: detJson.error || "Stok cabang tidak mencukupi",
             }),
           });
-          throw new Error(detJson.error || detJson.message || "Stok barang tidak cukup");
+          throw new Error(
+            detJson.error || detJson.message || "Stok barang tidak cukup",
+          );
         }
       }
 
-      // Hapus item yang sudah dibayar dari state/localStorage keranjang
       const paidIds = new Set(itemsToPay.map((i) => String(i.id_barang)));
       if (typeof setCartItems === "function") {
-        setCartItems((prev) => prev.filter((i) => !paidIds.has(String(i.id_barang))));
+        setCartItems((prev) =>
+          prev.filter((i) => !paidIds.has(String(i.id_barang))),
+        );
       } else {
         try {
-          const rawCart = JSON.parse(localStorage.getItem("meuw_cart_items_v1") || "[]");
-          const remaining = rawCart.filter((i) => !paidIds.has(String(i.id_barang)));
+          const rawCart = JSON.parse(
+            localStorage.getItem("meuw_cart_items_v1") || "[]",
+          );
+          const remaining = rawCart.filter(
+            (i) => !paidIds.has(String(i.id_barang)),
+          );
           localStorage.setItem("meuw_cart_items_v1", JSON.stringify(remaining));
         } catch {}
       }
@@ -589,7 +612,7 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
           `💰 Total: Rp ${subtotal.toLocaleString("id-ID")}\n` +
           `💳 Metode: ${labelMetode}\n` +
           `📌 Status: ${statusAwal}\n` +
-          `🏪 Cabang: ${assignedStore.nama_toko}`
+          `🏪 Cabang: ${assignedStore.nama_toko}`,
       );
       navigate("/riwayat");
     } catch (err) {
@@ -608,8 +631,18 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
       <div className="wrapper">
         <nav className="navbar">
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
-            <img src={logoImg} alt="MEUW Petshop Logo" className="nav-logo-img" />
-            <div style={{ display: "flex", flexDirection: "column", lineHeight: "1" }}>
+            <img
+              src={logoImg}
+              alt="MEUW Petshop Logo"
+              className="nav-logo-img"
+            />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                lineHeight: "1",
+              }}
+            >
               <span
                 style={{
                   fontFamily: "'Baloo 2', cursive, sans-serif",
@@ -636,16 +669,36 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
           </Link>
 
           <div className="nav-menu-pill">
-            <Link to="/home" className="nav-menu-link">Home</Link>
-            <Link to="/catalog" className="nav-menu-link">Catalog</Link>
-            <Link to="/services" className="nav-menu-link">Layanan</Link>
-            <Link to="/about" className="nav-menu-link">About</Link>
-            <Link to="/contact" className="nav-menu-link">Contact</Link>
+            <Link to="/home" className="nav-menu-link">
+              Home
+            </Link>
+            <Link to="/catalog" className="nav-menu-link">
+              Catalog
+            </Link>
+            <Link to="/services" className="nav-menu-link">
+              Layanan
+            </Link>
+            <Link to="/about" className="nav-menu-link">
+              About
+            </Link>
+            <Link to="/contact" className="nav-menu-link">
+              Contact
+            </Link>
           </div>
 
           <div className="nav-actions">
-            <Link to="/riwayat" className="nav-icon-circle" title="Riwayat & Review">👤</Link>
-            <Link to="/cart" className="nav-icon-circle" title="Keranjang Belanja">
+            <Link
+              to="/riwayat"
+              className="nav-icon-circle"
+              title="Riwayat & Review"
+            >
+              👤
+            </Link>
+            <Link
+              to="/cart"
+              className="nav-icon-circle"
+              title="Keranjang Belanja"
+            >
               🛒
               {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
             </Link>
@@ -673,10 +726,22 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
             }}
           >
             <div>
-              <div style={{ fontSize: "0.78rem", color: "#887777", fontWeight: 700 }}>
+              <div
+                style={{
+                  fontSize: "0.78rem",
+                  color: "#887777",
+                  fontWeight: 700,
+                }}
+              >
                 📍 Cabang Pelayanan Otomatis (Sesuai Wilayah Anda):
               </div>
-              <div style={{ fontSize: "0.95rem", color: "#4A3E3E", fontWeight: 800 }}>
+              <div
+                style={{
+                  fontSize: "0.95rem",
+                  color: "#4A3E3E",
+                  fontWeight: 800,
+                }}
+              >
                 {assignedStore.nama_toko}
               </div>
               <div style={{ fontSize: "0.8rem", color: "#665959" }}>
@@ -699,7 +764,14 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
 
           {/* Pilihan Pengambilan */}
           <div style={{ marginBottom: "1.2rem" }}>
-            <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#665959", marginBottom: "0.5rem" }}>
+            <div
+              style={{
+                fontSize: "0.82rem",
+                fontWeight: 800,
+                color: "#665959",
+                marginBottom: "0.5rem",
+              }}
+            >
               🚚 Opsi Pengambilan Pesanan:
             </div>
             <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
@@ -711,7 +783,9 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
                   className={`method-btn ${deliveryType === opt ? "active" : ""}`}
                   style={{ padding: "7px 16px", fontSize: "0.82rem" }}
                 >
-                  {opt === "Kurir Instan" ? "🛵 Kurir Instan" : "🏪 Ambil di Toko Cabang"}
+                  {opt === "Kurir Instan"
+                    ? "🛵 Kurir Instan"
+                    : "🏪 Ambil di Toko Cabang"}
                 </button>
               ))}
             </div>
@@ -765,12 +839,6 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
               📱 QRIS Instant (Otomatis Terverifikasi)
             </button>
             <button
-              className={`method-btn ${method === "va" ? "active" : ""}`}
-              onClick={() => setMethod("va")}
-            >
-              🏦 Transfer Virtual Account
-            </button>
-            <button
               className={`method-btn ${method === "cod" ? "active" : ""}`}
               onClick={() => setMethod("cod")}
             >
@@ -780,72 +848,87 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
 
           {method === "qris" && (
             <div className="payment-details-box">
-              <div style={{ fontWeight: 800, fontSize: "0.95rem" }}>
-                Scan QRIS dengan e-Wallet / M-Banking Favoritmu 📲
+              <div
+                style={{ fontWeight: 800, fontSize: "1rem", color: "#4A3E3E" }}
+              >
+                Scan QRIS MEUW PETSHOP 📲
               </div>
-              <div className="qris-preview-qr">
-                <span>📱</span>
-                <span style={{ fontSize: "0.7rem", fontWeight: 800 }}>
-                  MEUW QRIS
-                </span>
+              <div
+                style={{
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  color: "#E07A7A",
+                  marginTop: "4px",
+                }}
+              >
+                NMID: ID1026644989455
               </div>
-              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
-                Pembayaran QRIS langsung terverifikasi otomatis dan status pesanan menjadi{" "}
-                <strong>Diproses</strong>.
-              </p>
-            </div>
-          )}
 
-          {method === "va" && (
-            <div className="payment-details-box">
-              <div style={{ fontWeight: 800, fontSize: "0.95rem" }}>
-                Nomor Virtual Account MEUW Petshop:
+              <div className="qris-image-frame">
+                <img src={qrisImg} alt="QRIS MEUW PETSHOP" />
               </div>
-              <div className="va-number-box">8801 9283 7461 002</div>
-              <div>
-                <button
-                  type="button"
-                  onClick={handleCopyVA}
-                  style={{
-                    backgroundColor: "#B1E5E6",
-                    color: "#225B5C",
-                    border: "1.5px solid #91DCDE",
-                    padding: "5px 14px",
-                    borderRadius: "14px",
-                    fontWeight: 800,
-                    fontSize: "0.78rem",
-                    cursor: "pointer",
-                    marginBottom: "0.6rem",
-                  }}
-                >
-                  📋 Salin Nomor VA
-                </button>
-              </div>
-              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
-                Status awal pesanan <strong>Pending</strong> dan akan segera diverifikasi oleh Admin cabang.
+
+              <a
+                href={qrisImg}
+                download="QRIS-MEUW-PETSHOP.jpeg"
+                className="btn-download-qris"
+              >
+                ⬇️ Simpan / Unduh QRIS
+              </a>
+
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#665959",
+                  fontWeight: 600,
+                }}
+              >
+                Pastikan nama merchant tertera <strong>MEUW PETSHOP</strong>.
+                Pembayaran QRIS langsung terverifikasi otomatis dan status
+                pesanan menjadi <strong>Diproses</strong>.
               </p>
             </div>
           )}
 
           {method === "cod" && (
             <div className="payment-details-box">
-              <div style={{ fontSize: "2.4rem", marginBottom: "0.4rem" }}>💵</div>
-              <div style={{ fontWeight: 800, fontSize: "0.95rem", marginBottom: "0.3rem" }}>
+              <div style={{ fontSize: "2.4rem", marginBottom: "0.4rem" }}>
+                💵
+              </div>
+              <div
+                style={{
+                  fontWeight: 800,
+                  fontSize: "0.95rem",
+                  marginBottom: "0.3rem",
+                }}
+              >
                 Bayar Tunai saat Kurir Tiba / di Kasir {assignedStore.nama_toko}
               </div>
-              <p style={{ fontSize: "0.85rem", color: "#665959", fontWeight: 600 }}>
-                Siapkan uang pas sebesar <strong>Rp {subtotal.toLocaleString("id-ID")}</strong>. Status awal pesanan{" "}
-                <strong>Pending</strong> hingga dikonfirmasi kasir/admin.
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#665959",
+                  fontWeight: 600,
+                }}
+              >
+                Siapkan uang pas sebesar{" "}
+                <strong>Rp {subtotal.toLocaleString("id-ID")}</strong>. Status
+                awal pesanan <strong>Pending</strong> hingga dikonfirmasi
+                kasir/admin.
               </p>
             </div>
           )}
 
-          <button className="btn-submit" onClick={handleConfirm} disabled={submitting}>
+          <button
+            className="btn-submit"
+            onClick={handleConfirm}
+            disabled={submitting}
+          >
             {submitting
               ? "MEMPROSES TRANSAKSI..."
               : method === "qris"
-              ? "SIMULASIKAN BAYAR QRIS & PROSES 💖"
-              : "BUAT PESANAN SEKARANG 💖"}
+                ? "SIMULASIKAN BAYAR QRIS & PROSES 💖"
+                : "BUAT PESANAN SEKARANG 💖"}
           </button>
         </div>
 
@@ -855,35 +938,74 @@ const Pembayaran = ({ cartItems = [], cartCount = 0, setCartItems }) => {
             <div>
               <div className="footer-col-title">Menu</div>
               <ul className="footer-col-list">
-                <li><Link to="/catalog">Catalog</Link></li>
-                <li><Link to="/services">Layanan</Link></li>
-                <li><Link to="/about">About</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
+                <li>
+                  <Link to="/catalog">Catalog</Link>
+                </li>
+                <li>
+                  <Link to="/services">Layanan</Link>
+                </li>
+                <li>
+                  <Link to="/about">About</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Contact</Link>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
-                <li><Link to="/riwayat">Delivery methods</Link></li>
-                <li><Link to="/riwayat">Time & cost</Link></li>
-                <li><Link to="/riwayat">Order tracking</Link></li>
+                <li>
+                  <Link to="/riwayat">Delivery methods</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Time & cost</Link>
+                </li>
+                <li>
+                  <Link to="/riwayat">Order tracking</Link>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
-                <li><a href="https://instagram.com" target="_blank" rel="noreferrer">Instagram</a></li>
-                <li><a href="https://tiktok.com" target="_blank" rel="noreferrer">TikTok</a></li>
-                <li><a href="https://facebook.com" target="_blank" rel="noreferrer">Facebook</a></li>
+                <li>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
+                </li>
+                <li>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
               <div className="footer-col-title">More love. More MEUW.</div>
               <p className="newsletter-desc">
-                Dapatkan info pembayaran & promo spesial untuk transaksi anabulmu.
+                Dapatkan info pembayaran & promo spesial untuk transaksi
+                anabulmu.
               </p>
               <div className="newsletter-input-wrapper">
-                <input type="email" placeholder="Masukkan email..." className="newsletter-input" />
+                <input
+                  type="email"
+                  placeholder="Masukkan email..."
+                  className="newsletter-input"
+                />
               </div>
             </div>
           </div>

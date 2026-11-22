@@ -4,7 +4,7 @@ import logoImg from "../../images/logo.png";
 
 const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
 const API_CATALOG_URL = `${API_BASE_URL}/api/catalog`;
-const CACHE_KEY = "meuw_catalog_cache_v1";
+const CACHE_KEY = "meuw_catalog_cache_v2";
 
 const PASTEL_COLORS = ["#FDEAE8", "#E3F6F6", "#FEEAE1", "#FEF7DF", "#E8F4FE"];
 
@@ -434,7 +434,6 @@ const catalogStyles = `
     color: #FFF;
   }
 
-  /* MODAL POPUP PRODUK */
   .product-modal-overlay {
     position: fixed;
     inset: 0;
@@ -616,7 +615,7 @@ const catalogStyles = `
   .reviews-rayo-section {
     border-top: 2px dashed #F7ADAD;
     padding-top: 3rem;
-    margin-bottom: 5rem;
+    margin-bottom: 4.5rem;
     text-align: center;
   }
 
@@ -678,30 +677,50 @@ const catalogStyles = `
 
   .review-rayo-date { font-size: 0.75rem; color: #AAA; text-align: right; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
   }
 
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
+  }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
     display: inline-block;
   }
 
   .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
-  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
-  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+
+  .footer-col-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    color: #FFFDF6;
+  }
+
+  .footer-col-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
 
   .footer-col-list a {
     text-decoration: none;
@@ -715,7 +734,15 @@ const catalogStyles = `
   }
 
   .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
-  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
+
+  .newsletter-desc {
+    font-size: 0.88rem;
+    opacity: 0.92;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  }
 
   .newsletter-input {
     width: 100%;
@@ -735,8 +762,8 @@ const catalogStyles = `
   .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -783,7 +810,10 @@ const formatCatalogData = (rawProducts) => {
         ? item.id_kategori._id
         : item.id_kategori || index;
 
-    const productId = item._id || item.id_barang || index + 1;
+    const productId =
+      item.id_barang !== undefined && item.id_barang !== null
+        ? item.id_barang
+        : item._id || index + 1;
     const encodedLabel = encodeURIComponent(kategoriNama);
     const fallbackImg = `https://placehold.co/240x240/F7ADAD/FFFDF6?text=${encodedLabel}`;
 
@@ -796,6 +826,7 @@ const formatCatalogData = (rawProducts) => {
       deskripsi: item.deskripsi || "Produk berkualitas untuk anabul.",
       tag: kategoriNama.toUpperCase(),
       bgColor: PASTEL_COLORS[index % PASTEL_COLORS.length],
+      fallbackGambar: fallbackImg,
       gambar:
         typeof item.foto === "string" && item.foto.trim() !== ""
           ? item.foto.startsWith("http")
@@ -837,7 +868,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
   const [activePage, setActivePage] = useState(1);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
 
-  // State untuk produk yang sedang dibuka di popup modal
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [toastMsg, setToastMsg] = useState("");
@@ -938,7 +968,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
     fetchCatalog();
   }, []);
 
-  // Otomatis buka popup produk jika pengguna klik "Lihat Produk" dari halaman Home
   useEffect(() => {
     const targetId = location.state?.selectedProductId;
     if (targetId && products.length > 0) {
@@ -1007,7 +1036,6 @@ const Catalog = ({ cartCount = 0, onAddToCart }) => {
 
       {showToast && <div className="toast-notification">{toastMsg}</div>}
 
-      {/* POPUP DETAIL PRODUK */}
       {selectedProduct && (
         <div
           className="product-modal-overlay"

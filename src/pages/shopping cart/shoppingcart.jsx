@@ -7,10 +7,6 @@ const SELECTED_STORAGE_KEY = "meuw_selected_cart_ids_v1";
 const cartStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Quicksand:wght@500;600;700;800&display=swap');
 
-  /* ============================================================
-     ANIMASI SUPER IMUT & BERNYAWA (KONSISTEN DI SEMUA HALAMAN)
-     ============================================================ */
-  
   @keyframes floatCute {
     0%, 100% { transform: translateY(0px) rotate(-1deg); }
     50% { transform: translateY(-8px) rotate(1deg); }
@@ -225,6 +221,7 @@ const cartStyles = `
     grid-template-columns: 1.8fr 1fr;
     gap: 2.2rem;
     align-items: start;
+    margin-bottom: 4.5rem;
   }
 
   .section-title {
@@ -490,6 +487,7 @@ const cartStyles = `
     border: 2px dashed #F7ADAD;
     border-radius: 36px;
     padding: 4rem 2rem;
+    margin-bottom: 4.5rem;
     text-align: center;
     color: #665959;
     box-shadow: 0 8px 24px rgba(247, 173, 173, 0.1);
@@ -533,31 +531,31 @@ const cartStyles = `
     box-shadow: 0 10px 24px rgba(247, 173, 173, 0.4);
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK (5 KOLOM PRESISI) --- */
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
-    margin-top: 4.5rem;
+    text-align: left;
   }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 2rem;
-    margin-bottom: 3.8rem;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
   }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
     display: inline-block;
   }
 
@@ -569,7 +567,7 @@ const cartStyles = `
     font-family: 'Baloo 2', cursive, sans-serif;
     font-weight: 700;
     font-size: 1.15rem;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     color: #FFFDF6;
   }
 
@@ -577,7 +575,7 @@ const cartStyles = `
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 
   .footer-col-list a {
@@ -599,7 +597,7 @@ const cartStyles = `
   .newsletter-desc {
     font-size: 0.88rem;
     opacity: 0.92;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     line-height: 1.5;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
@@ -628,8 +626,8 @@ const cartStyles = `
   }
 
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -655,7 +653,6 @@ const cartStyles = `
 const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
   const navigate = useNavigate();
 
-  // State untuk menyimpan ID item yang dicentang (tersimpan di localStorage)
   const [selectedIds, setSelectedIds] = useState(() => {
     try {
       const saved = localStorage.getItem(SELECTED_STORAGE_KEY);
@@ -669,7 +666,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     return cartItems.map((item) => item.id_detail_keranjang);
   });
 
-  // Sinkronisasi selectedIds ke localStorage setiap ada perubahan
   useEffect(() => {
     const existingIds = cartItems.map((item) => item.id_detail_keranjang);
     const cleaned = selectedIds.filter((id) => existingIds.includes(id));
@@ -685,14 +681,12 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     }
   }, [selectedIds, cartItems]);
 
-  // Toggle Centang 1 Barang
   const handleToggleSelect = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
-  // Toggle Centang "Pilih Semua"
   const isAllSelected =
     cartItems.length > 0 && selectedIds.length === cartItems.length;
 
@@ -704,7 +698,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     }
   };
 
-  // Tambah Qty Item
   const handleIncreaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -715,7 +708,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     );
   };
 
-  // Kurangi Qty Item
   const handleDecreaseQty = (id) => {
     setCartItems((prev) =>
       prev.map((item) => {
@@ -728,7 +720,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     );
   };
 
-  // Hapus Item dari Keranjang
   const handleDeleteItem = (id) => {
     setCartItems((prev) =>
       prev.filter((item) => item.id_detail_keranjang !== id),
@@ -736,7 +727,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     setSelectedIds((prev) => prev.filter((item) => item !== id));
   };
 
-  // --- HITUNG RINGKASAN BELANJA (HANYA UNTUK ITEM YANG DICENTANG) ---
   const selectedItems = cartItems.filter((item) =>
     selectedIds.includes(item.id_detail_keranjang),
   );
@@ -751,7 +741,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     0,
   );
 
-  // Lanjut ke Pembayaran dengan membawa hanya item yang dicentang
   const handleProceedToPayment = () => {
     if (selectedItems.length === 0) return;
     localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
@@ -762,13 +751,11 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
     <>
       <style>{cartStyles}</style>
 
-      {/* Lengkungan Soft Accent di Kanan Atas */}
       <div className="bg-top-accent"></div>
 
       <div className="wrapper">
         {/* --- NAVBAR --- */}
         <nav className="navbar">
-          {/* LOGO MEUW PETSHOP */}
           <Link to="/home" className="nav-logo-wrapper" title="MEUW PETSHOP">
             <img
               src={logoImg}
@@ -862,7 +849,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                 <span>📦</span>
               </div>
 
-              {/* CHECKBOX PILIH SEMUA */}
               <label className="select-all-bar">
                 <input
                   type="checkbox"
@@ -873,7 +859,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                 <span>Pilih Semua ({cartItems.length} Barang)</span>
               </label>
 
-              {/* LIST KARTU ITEM KERANJANG */}
               {cartItems.map((item) => {
                 const isSelected = selectedIds.includes(
                   item.id_detail_keranjang,
@@ -883,7 +868,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                     key={item.id_detail_keranjang}
                     className={`cart-item-card ${isSelected ? "selected" : ""}`}
                   >
-                    {/* CHECKBOX ITEM */}
                     <input
                       type="checkbox"
                       className="custom-checkbox"
@@ -893,7 +877,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                       }
                     />
 
-                    {/* GAMBAR ITEM */}
                     <div className="item-img-box">
                       <img
                         src={item.gambar}
@@ -902,7 +885,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                       />
                     </div>
 
-                    {/* DETAIL ITEM */}
                     <div className="item-info">
                       <div className="item-name">{item.nama_barang}</div>
                       <div className="item-unit-price">
@@ -913,7 +895,6 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
                       </div>
                     </div>
 
-                    {/* KONTROL QTY & HAPUS */}
                     <div className="qty-controls">
                       <button
                         className="qty-btn"
@@ -1037,13 +1018,13 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
               <div className="footer-col-title">Shipping</div>
               <ul className="footer-col-list">
                 <li>
-                  <a href="#shipping">Delivery methods</a>
+                  <Link to="/riwayat">Delivery methods</Link>
                 </li>
                 <li>
-                  <a href="#time">Time & cost</a>
+                  <Link to="/riwayat">Time & cost</Link>
                 </li>
                 <li>
-                  <a href="#tracking">Order tracking</a>
+                  <Link to="/riwayat">Order tracking</Link>
                 </li>
               </ul>
             </div>
@@ -1052,13 +1033,27 @@ const ShoppingCart = ({ cartItems = [], setCartItems, cartCount = 0 }) => {
               <div className="footer-col-title">Social</div>
               <ul className="footer-col-list">
                 <li>
-                  <a href="#instagram">Instagram</a>
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Instagram
+                  </a>
                 </li>
                 <li>
-                  <a href="#tiktok">TikTok</a>
+                  <a href="https://tiktok.com" target="_blank" rel="noreferrer">
+                    TikTok
+                  </a>
                 </li>
                 <li>
-                  <a href="#facebook">Facebook</a>
+                  <a
+                    href="https://facebook.com"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Facebook
+                  </a>
                 </li>
               </ul>
             </div>

@@ -11,24 +11,24 @@ export const detectNearestStore = (userAlamat = "", storesList = []) => {
   if (foundStore) return foundStore;
 
   const fallbackStores = {
-    "1": {
+    1: {
       id_toko: "1",
-      nama_toko: "MeLuw Petshop - Jakarta Pusat",
+      nama_toko: "MEUW Petshop - Jakarta Pusat",
       alamat: "Jl. Cikini Raya, Menteng, Jakarta Pusat",
     },
-    "2": {
+    2: {
       id_toko: "2",
-      nama_toko: "MeLuw Petshop - Jakarta Selatan",
+      nama_toko: "MEUW Petshop - Jakarta Selatan",
       alamat: "Jl. Fatmawati Raya, Cilandak, Jakarta Selatan",
     },
-    "3": {
+    3: {
       id_toko: "3",
-      nama_toko: "MeLuw Petshop - Jakarta Timur",
+      nama_toko: "MEUW Petshop - Jakarta Timur",
       alamat: "Jl. Pemuda, Rawamangun, Jakarta Timur",
     },
-    "4": {
+    4: {
       id_toko: "4",
-      nama_toko: "MeLuw Petshop - Jakarta Barat",
+      nama_toko: "MEUW Petshop - Jakarta Barat",
       alamat: "Jl. Tanjung Duren Raya, Jakarta Barat",
     },
   };

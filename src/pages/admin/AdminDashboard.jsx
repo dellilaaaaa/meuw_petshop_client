@@ -36,7 +36,8 @@ export default function AdminDashboard() {
 
   const [adminUser] = useState(() => {
     try {
-      const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+      const raw =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
@@ -122,7 +123,7 @@ export default function AdminDashboard() {
       "Content-Type": "application/json",
       "x-user-id": String(adminUser?.id_user || "1"),
     }),
-    [adminUser]
+    [adminUser],
   );
 
   const fetchAllData = useCallback(async () => {
@@ -155,7 +156,9 @@ export default function AdminDashboard() {
         fetch(`${API_BASE}/catalog`),
         fetch(`${API_BASE}/layanan`),
         fetch(`${API_BASE}/stok-cabang`),
-        fetch(`${API_BASE}/kategori-barang`).catch(() => ({ json: async () => ({ data: [] }) })),
+        fetch(`${API_BASE}/kategori-barang`).catch(() => ({
+          json: async () => ({ data: [] }),
+        })),
       ]);
 
       const dataLaporan = await resLaporan.json();
@@ -186,7 +189,15 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [adminUser, startDate, endDate, jenisLaporan, statusFilter, cabangFilter, adminHeaders]);
+  }, [
+    adminUser,
+    startDate,
+    endDate,
+    jenisLaporan,
+    statusFilter,
+    cabangFilter,
+    adminHeaders,
+  ]);
 
   useEffect(() => {
     fetchAllData();
@@ -195,7 +206,9 @@ export default function AdminDashboard() {
   // Ambil angka stok barang pada cabang yang sedang dipilih
   const getStokForStore = (id_barang, id_toko = selectedStoreTab) => {
     const found = stokList.find(
-      (s) => String(s.id_barang) === String(id_barang) && String(s.id_toko) === String(id_toko)
+      (s) =>
+        String(s.id_barang) === String(id_barang) &&
+        String(s.id_toko) === String(id_toko),
     );
     return found ? found.jumlah_stok : 0;
   };
@@ -211,7 +224,10 @@ export default function AdminDashboard() {
     setSaving(true);
     try {
       const defaultKat =
-        newProduk.id_kategori || (kategoriList[0]?.id_kategori ? String(kategoriList[0].id_kategori) : "1");
+        newProduk.id_kategori ||
+        (kategoriList[0]?.id_kategori
+          ? String(kategoriList[0].id_kategori)
+          : "1");
       const res = await fetch(`${API_BASE}/admin/produk`, {
         method: "POST",
         headers: adminHeaders(),
@@ -227,7 +243,13 @@ export default function AdminDashboard() {
       if (!result.success) throw new Error(result.message);
 
       setIsAddingProduk(false);
-      setNewProduk({ nama_barang: "", harga: "", id_kategori: "1", foto: "", stok_awal: "10" });
+      setNewProduk({
+        nama_barang: "",
+        harga: "",
+        id_kategori: "1",
+        foto: "",
+        stok_awal: "10",
+      });
       await fetchAllData();
     } catch (err) {
       alert(`Gagal menambah produk: ${err.message}`);
@@ -277,7 +299,11 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteProduk = async (id_barang, nama_barang) => {
-    if (!window.confirm(`Yakin ingin menghapus produk "${nama_barang}" beserta stoknya di semua cabang?`)) {
+    if (
+      !window.confirm(
+        `Yakin ingin menghapus produk "${nama_barang}" beserta stoknya di semua cabang?`,
+      )
+    ) {
       return;
     }
     setSaving(true);
@@ -300,7 +326,11 @@ export default function AdminDashboard() {
   // HANDLER CRUD LAYANAN (INLINE)
   // ==========================================
   const handleCreateLayanan = async () => {
-    if (!newLayanan.nama_layanan.trim() || newLayanan.harga === "" || !newLayanan.deskripsi.trim()) {
+    if (
+      !newLayanan.nama_layanan.trim() ||
+      newLayanan.harga === "" ||
+      !newLayanan.deskripsi.trim()
+    ) {
       alert("Nama layanan, harga, dan deskripsi wajib diisi!");
       return;
     }
@@ -338,7 +368,11 @@ export default function AdminDashboard() {
   };
 
   const handleSaveEditLayanan = async (id_layanan) => {
-    if (!editLayananForm.nama_layanan.trim() || editLayananForm.harga === "" || !editLayananForm.deskripsi.trim()) {
+    if (
+      !editLayananForm.nama_layanan.trim() ||
+      editLayananForm.harga === "" ||
+      !editLayananForm.deskripsi.trim()
+    ) {
       alert("Nama layanan, harga, dan deskripsi tidak boleh kosong!");
       return;
     }
@@ -366,7 +400,8 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteLayanan = async (id_layanan, nama_layanan) => {
-    if (!window.confirm(`Yakin ingin menghapus layanan "${nama_layanan}"?`)) return;
+    if (!window.confirm(`Yakin ingin menghapus layanan "${nama_layanan}"?`))
+      return;
     setSaving(true);
     try {
       const res = await fetch(`${API_BASE}/admin/layanan/${id_layanan}`, {
@@ -389,11 +424,14 @@ export default function AdminDashboard() {
   const handleUpdateTransaksi = async (id_transaksi, newStatus) => {
     setUpdatingId(id_transaksi);
     try {
-      const res = await fetch(`${API_BASE}/admin/transaksi/${id_transaksi}/status`, {
-        method: "PUT",
-        headers: adminHeaders(),
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const res = await fetch(
+        `${API_BASE}/admin/transaksi/${id_transaksi}/status`,
+        {
+          method: "PUT",
+          headers: adminHeaders(),
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
       const result = await res.json();
       if (!result.success) throw new Error(result.message);
       await fetchAllData();
@@ -407,11 +445,14 @@ export default function AdminDashboard() {
   const handleUpdateBooking = async (id_booking, newStatus) => {
     setUpdatingId(id_booking);
     try {
-      const res = await fetch(`${API_BASE}/admin/booking/${id_booking}/status`, {
-        method: "PUT",
-        headers: adminHeaders(),
-        body: JSON.stringify({ status_booking: newStatus }),
-      });
+      const res = await fetch(
+        `${API_BASE}/admin/booking/${id_booking}/status`,
+        {
+          method: "PUT",
+          headers: adminHeaders(),
+          body: JSON.stringify({ status_booking: newStatus }),
+        },
+      );
       const result = await res.json();
       if (!result.success) throw new Error(result.message);
       await fetchAllData();
@@ -438,7 +479,7 @@ export default function AdminDashboard() {
 
     const rows = filteredRecords.map((r) => [
       `#${r.id_transaksi}`,
-      `"${r.nama_toko || "MeLuw Petshop - Jakarta Pusat"}"`,
+      `"${r.nama_toko || "MEUW Petshop - Jakarta Pusat"}"`,
       new Date(r.tanggal).toLocaleDateString("id-ID"),
       `"${r.nama_pelanggan}"`,
       r.kategori_laporan,
@@ -458,7 +499,7 @@ export default function AdminDashboard() {
     link.setAttribute("href", encodedUri);
     link.setAttribute(
       "download",
-      `Laporan_MEUW_Petshop_${new Date().toISOString().slice(0, 10)}.csv`
+      `Laporan_MEUW_Petshop_${new Date().toISOString().slice(0, 10)}.csv`,
     );
     document.body.appendChild(link);
     link.click();
@@ -487,14 +528,16 @@ export default function AdminDashboard() {
     (item) =>
       item.nama_item.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.nama_pelanggan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.nama_toko || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-      String(item.id_transaksi).includes(searchQuery)
+      (item.nama_toko || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      String(item.id_transaksi).includes(searchQuery),
   );
 
   const filteredCatalog = catalogList.filter(
     (item) =>
       item.nama_barang.toLowerCase().includes(katalogSearch.toLowerCase()) ||
-      String(item.id_barang).includes(katalogSearch)
+      String(item.id_barang).includes(katalogSearch),
   );
 
   const getStatusBadge = (status) => {
@@ -510,7 +553,8 @@ export default function AdminDashboard() {
 
   if (!adminUser || adminUser.role !== "admin") return null;
 
-  const currentStoreObj = STORES_LIST.find((s) => s.id_toko === selectedStoreTab) || STORES_LIST[0];
+  const currentStoreObj =
+    STORES_LIST.find((s) => s.id_toko === selectedStoreTab) || STORES_LIST[0];
 
   return (
     <div style={styles.pageWrapper}>
@@ -631,7 +675,8 @@ export default function AdminDashboard() {
               {activeTab === "laporan" && "Dashboard & Laporan Penjualan"}
               {activeTab === "transaksi" && "Manajemen Transaksi Pelanggan"}
               {activeTab === "booking" && "Manajemen Booking Layanan"}
-              {activeTab === "katalog" && "Master Data Produk, Stok Cabang & Layanan"}
+              {activeTab === "katalog" &&
+                "Master Data Produk, Stok Cabang & Layanan"}
             </h1>
             <p style={styles.pageSubtitle}>
               {activeTab === "katalog"
@@ -641,7 +686,11 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <button onClick={fetchAllData} style={styles.btnSecondary} disabled={loading}>
+            <button
+              onClick={fetchAllData}
+              style={styles.btnSecondary}
+              disabled={loading}
+            >
               <RefreshCw size={16} />
               <span>{loading ? "Memuat..." : "Refresh Data"}</span>
             </button>
@@ -666,40 +715,74 @@ export default function AdminDashboard() {
           <>
             <div style={styles.kpiGrid}>
               <div style={styles.kpiCard}>
-                <div style={{ ...styles.kpiIcon, backgroundColor: "#DCFCE7", color: "#15803D" }}>
+                <div
+                  style={{
+                    ...styles.kpiIcon,
+                    backgroundColor: "#DCFCE7",
+                    color: "#15803D",
+                  }}
+                >
                   <TrendingUp size={22} />
                 </div>
                 <div>
                   <span style={styles.kpiLabel}>Total Pendapatan Valid</span>
-                  <h3 style={styles.kpiValue}>{formatRupiah(summary.total_pendapatan)}</h3>
+                  <h3 style={styles.kpiValue}>
+                    {formatRupiah(summary.total_pendapatan)}
+                  </h3>
                   <span style={styles.kpiHint}>Status Diproses & Selesai</span>
                 </div>
               </div>
 
               <div style={styles.kpiCard}>
-                <div style={{ ...styles.kpiIcon, backgroundColor: "#E0F2FE", color: "#0369A1" }}>
+                <div
+                  style={{
+                    ...styles.kpiIcon,
+                    backgroundColor: "#E0F2FE",
+                    color: "#0369A1",
+                  }}
+                >
                   <CheckCircle2 size={22} />
                 </div>
                 <div>
                   <span style={styles.kpiLabel}>Total Transaksi</span>
-                  <h3 style={styles.kpiValue}>{summary.total_transaksi} Transaksi</h3>
-                  <span style={styles.kpiHint}>{summary.total_item_terjual} item terjual</span>
+                  <h3 style={styles.kpiValue}>
+                    {summary.total_transaksi} Transaksi
+                  </h3>
+                  <span style={styles.kpiHint}>
+                    {summary.total_item_terjual} item terjual
+                  </span>
                 </div>
               </div>
 
               <div style={styles.kpiCard}>
-                <div style={{ ...styles.kpiIcon, backgroundColor: "#FCE7F3", color: "#BE185D" }}>
+                <div
+                  style={{
+                    ...styles.kpiIcon,
+                    backgroundColor: "#FCE7F3",
+                    color: "#BE185D",
+                  }}
+                >
                   <Clock size={22} />
                 </div>
                 <div>
                   <span style={styles.kpiLabel}>Total Booking Layanan</span>
-                  <h3 style={styles.kpiValue}>{summary.total_booking} Jadwal</h3>
-                  <span style={styles.kpiHint}>{summary.total_produk} katalog aktif</span>
+                  <h3 style={styles.kpiValue}>
+                    {summary.total_booking} Jadwal
+                  </h3>
+                  <span style={styles.kpiHint}>
+                    {summary.total_produk} katalog aktif
+                  </span>
                 </div>
               </div>
 
               <div style={styles.kpiCard}>
-                <div style={{ ...styles.kpiIcon, backgroundColor: "#FEF3C7", color: "#B45309" }}>
+                <div
+                  style={{
+                    ...styles.kpiIcon,
+                    backgroundColor: "#FEF3C7",
+                    color: "#B45309",
+                  }}
+                >
                   <Award size={22} />
                 </div>
                 <div>
@@ -777,16 +860,35 @@ export default function AdminDashboard() {
                 </select>
               </div>
 
-              <div style={{ ...styles.filterGroup, flex: 1, minWidth: "180px" }}>
+              <div
+                style={{ ...styles.filterGroup, flex: 1, minWidth: "180px" }}
+              >
                 <label style={styles.filterLabel}>Cari Item / Pelanggan</label>
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <Search size={15} style={{ position: "absolute", left: "10px", color: "#998888" }} />
+                <div
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Search
+                    size={15}
+                    style={{
+                      position: "absolute",
+                      left: "10px",
+                      color: "#998888",
+                    }}
+                  />
                   <input
                     type="text"
                     placeholder="Cari nama item / pelanggan..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ ...styles.inputControl, paddingLeft: "32px", width: "100%" }}
+                    style={{
+                      ...styles.inputControl,
+                      paddingLeft: "32px",
+                      width: "100%",
+                    }}
                   />
                 </div>
               </div>
@@ -795,7 +897,8 @@ export default function AdminDashboard() {
             <div style={styles.tableCard}>
               <div style={styles.tableHeader}>
                 <h3 style={styles.tableTitle}>
-                  Rincian Rekapitulasi Transaksi ({filteredRecords.length} Baris)
+                  Rincian Rekapitulasi Transaksi ({filteredRecords.length}{" "}
+                  Baris)
                 </h3>
               </div>
 
@@ -810,36 +913,53 @@ export default function AdminDashboard() {
                       <th style={styles.th}>Kategori</th>
                       <th style={styles.th}>Nama Produk / Layanan</th>
                       <th style={{ ...styles.th, textAlign: "center" }}>Qty</th>
-                      <th style={{ ...styles.th, textAlign: "right" }}>Subtotal</th>
-                      <th style={{ ...styles.th, textAlign: "center" }}>Status</th>
+                      <th style={{ ...styles.th, textAlign: "right" }}>
+                        Subtotal
+                      </th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
+                        Status
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredRecords.length === 0 ? (
                       <tr>
                         <td colSpan="9" style={styles.emptyCell}>
-                          Belum ada data transaksi pada filter periode/cabang ini.
+                          Belum ada data transaksi pada filter periode/cabang
+                          ini.
                         </td>
                       </tr>
                     ) : (
                       filteredRecords.map((row, idx) => {
                         const badge = getStatusBadge(row.status);
                         return (
-                          <tr key={`${row.id_referensi}-${idx}`} style={styles.tr}>
+                          <tr
+                            key={`${row.id_referensi}-${idx}`}
+                            style={styles.tr}
+                          >
                             <td style={styles.td}>
                               <strong>#{row.id_transaksi}</strong>
                             </td>
                             <td style={styles.td}>
-                              <span style={{ fontSize: "12px", fontWeight: "700", color: "#665151" }}>
+                              <span
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  color: "#665151",
+                                }}
+                              >
                                 {row.nama_toko || "Jakarta Pusat"}
                               </span>
                             </td>
                             <td style={styles.td}>
-                              {new Date(row.tanggal).toLocaleDateString("id-ID", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              })}
+                              {new Date(row.tanggal).toLocaleDateString(
+                                "id-ID",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                },
+                              )}
                             </td>
                             <td style={styles.td}>{row.nama_pelanggan}</td>
                             <td style={styles.td}>
@@ -850,30 +970,46 @@ export default function AdminDashboard() {
                                   fontSize: "11px",
                                   fontWeight: "700",
                                   backgroundColor:
-                                    row.kategori_laporan === "Produk" ? "#FFE4E6" : "#E0F2FE",
+                                    row.kategori_laporan === "Produk"
+                                      ? "#FFE4E6"
+                                      : "#E0F2FE",
                                   color:
-                                    row.kategori_laporan === "Produk" ? "#BE123C" : "#0369A1",
+                                    row.kategori_laporan === "Produk"
+                                      ? "#BE123C"
+                                      : "#0369A1",
                                 }}
                               >
                                 {row.kategori_laporan}
                               </span>
                             </td>
                             <td style={styles.td}>
-                              <div style={{ fontWeight: "600", color: "#4A3B3B" }}>
+                              <div
+                                style={{ fontWeight: "600", color: "#4A3B3B" }}
+                              >
                                 {row.nama_item}
                               </div>
                               {row.jadwal_booking && (
-                                <div style={{ fontSize: "11px", color: "#887777" }}>
+                                <div
+                                  style={{ fontSize: "11px", color: "#887777" }}
+                                >
                                   Jadwal:{" "}
-                                  {new Date(row.jadwal_booking.tanggal_mulai).toLocaleDateString(
-                                    "id-ID"
-                                  )}{" "}
+                                  {new Date(
+                                    row.jadwal_booking.tanggal_mulai,
+                                  ).toLocaleDateString("id-ID")}{" "}
                                   ({row.jadwal_booking.jam_mulai})
                                 </div>
                               )}
                             </td>
-                            <td style={{ ...styles.td, textAlign: "center" }}>{row.jumlah}</td>
-                            <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                            <td style={{ ...styles.td, textAlign: "center" }}>
+                              {row.jumlah}
+                            </td>
+                            <td
+                              style={{
+                                ...styles.td,
+                                textAlign: "right",
+                                fontWeight: "700",
+                              }}
+                            >
                               {formatRupiah(row.subtotal)}
                             </td>
                             <td style={{ ...styles.td, textAlign: "center" }}>
@@ -899,7 +1035,14 @@ export default function AdminDashboard() {
                   {filteredRecords.length > 0 && (
                     <tfoot>
                       <tr style={{ backgroundColor: "#FFF5F5" }}>
-                        <td colSpan="7" style={{ ...styles.td, textAlign: "right", fontWeight: "800" }}>
+                        <td
+                          colSpan="7"
+                          style={{
+                            ...styles.td,
+                            textAlign: "right",
+                            fontWeight: "800",
+                          }}
+                        >
                           TOTAL KESELURUHAN TABEL:
                         </td>
                         <td
@@ -912,7 +1055,10 @@ export default function AdminDashboard() {
                           }}
                         >
                           {formatRupiah(
-                            filteredRecords.reduce((acc, item) => acc + item.subtotal, 0)
+                            filteredRecords.reduce(
+                              (acc, item) => acc + item.subtotal,
+                              0,
+                            ),
                           )}
                         </td>
                         <td style={styles.td}></td>
@@ -929,7 +1075,9 @@ export default function AdminDashboard() {
         {activeTab === "transaksi" && (
           <div style={styles.tableCard}>
             <div style={styles.tableHeader}>
-              <h3 style={styles.tableTitle}>Daftar Seluruh Transaksi ({transaksiList.length})</h3>
+              <h3 style={styles.tableTitle}>
+                Daftar Seluruh Transaksi ({transaksiList.length})
+              </h3>
             </div>
             <div style={{ overflowX: "auto" }}>
               <table style={styles.table}>
@@ -939,9 +1087,15 @@ export default function AdminDashboard() {
                     <th style={styles.th}>ID User</th>
                     <th style={styles.th}>Cabang</th>
                     <th style={styles.th}>Tanggal</th>
-                    <th style={{ ...styles.th, textAlign: "right" }}>Total Harga</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>Status</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>Ubah Status</th>
+                    <th style={{ ...styles.th, textAlign: "right" }}>
+                      Total Harga
+                    </th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>
+                      Status
+                    </th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>
+                      Ubah Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -960,11 +1114,19 @@ export default function AdminDashboard() {
                             <strong>#{trx.id_transaksi}</strong>
                           </td>
                           <td style={styles.td}>User #{trx.id_user}</td>
-                          <td style={styles.td}>Cabang #{trx.id_toko || "1"}</td>
+                          <td style={styles.td}>
+                            Cabang #{trx.id_toko || "1"}
+                          </td>
                           <td style={styles.td}>
                             {new Date(trx.tanggal).toLocaleDateString("id-ID")}
                           </td>
-                          <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                          <td
+                            style={{
+                              ...styles.td,
+                              textAlign: "right",
+                              fontWeight: "700",
+                            }}
+                          >
                             {formatRupiah(trx.total_harga)}
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
@@ -986,7 +1148,10 @@ export default function AdminDashboard() {
                               value={trx.status}
                               disabled={updatingId === trx.id_transaksi}
                               onChange={(e) =>
-                                handleUpdateTransaksi(trx.id_transaksi, e.target.value)
+                                handleUpdateTransaksi(
+                                  trx.id_transaksi,
+                                  e.target.value,
+                                )
                               }
                               style={styles.inputControl}
                             >
@@ -1010,7 +1175,9 @@ export default function AdminDashboard() {
         {activeTab === "booking" && (
           <div style={styles.tableCard}>
             <div style={styles.tableHeader}>
-              <h3 style={styles.tableTitle}>Jadwal Booking Layanan ({bookingList.length})</h3>
+              <h3 style={styles.tableTitle}>
+                Jadwal Booking Layanan ({bookingList.length})
+              </h3>
             </div>
             <div style={{ overflowX: "auto" }}>
               <table style={styles.table}>
@@ -1021,8 +1188,12 @@ export default function AdminDashboard() {
                     <th style={styles.th}>Tanggal Mulai</th>
                     <th style={styles.th}>Jam</th>
                     <th style={styles.th}>Tanggal Selesai</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>Status Booking</th>
-                    <th style={{ ...styles.th, textAlign: "center" }}>Aksi Admin</th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>
+                      Status Booking
+                    </th>
+                    <th style={{ ...styles.th, textAlign: "center" }}>
+                      Aksi Admin
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1042,11 +1213,15 @@ export default function AdminDashboard() {
                           </td>
                           <td style={styles.td}>#{bk.id_detail_layanan}</td>
                           <td style={styles.td}>
-                            {new Date(bk.tanggal_mulai).toLocaleDateString("id-ID")}
+                            {new Date(bk.tanggal_mulai).toLocaleDateString(
+                              "id-ID",
+                            )}
                           </td>
                           <td style={styles.td}>{bk.jam_mulai}</td>
                           <td style={styles.td}>
-                            {new Date(bk.tanggal_selesai).toLocaleDateString("id-ID")}
+                            {new Date(bk.tanggal_selesai).toLocaleDateString(
+                              "id-ID",
+                            )}
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             <span
@@ -1067,11 +1242,16 @@ export default function AdminDashboard() {
                               value={bk.status_booking}
                               disabled={updatingId === bk.id_booking}
                               onChange={(e) =>
-                                handleUpdateBooking(bk.id_booking, e.target.value)
+                                handleUpdateBooking(
+                                  bk.id_booking,
+                                  e.target.value,
+                                )
                               }
                               style={styles.inputControl}
                             >
-                              <option value="MENUNGGU KONFIRMASI">MENUNGGU KONFIRMASI</option>
+                              <option value="MENUNGGU KONFIRMASI">
+                                MENUNGGU KONFIRMASI
+                              </option>
                               <option value="DIPROSES">DIPROSES</option>
                               <option value="SELESAI">SELESAI</option>
                               <option value="DIBATALKAN">DIBATALKAN</option>
@@ -1092,14 +1272,29 @@ export default function AdminDashboard() {
           <div style={{ display: "grid", gap: "28px" }}>
             {/* PANEL PILIH CABANG UNTUK KELOLA STOK */}
             <div style={styles.storeSwitcherCard}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  marginBottom: "12px",
+                }}
+              >
                 <Store size={20} color="#E07A7A" />
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "15px", fontWeight: "800", color: "#4A3B3B" }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: "15px",
+                      fontWeight: "800",
+                      color: "#4A3B3B",
+                    }}
+                  >
                     Pilih Cabang Toko untuk Kelola Stok:
                   </h3>
                   <p style={{ margin: 0, fontSize: "12px", color: "#776B6B" }}>
-                    Klik tab cabang di bawah untuk melihat dan mengedit stok khusus cabang tersebut langsung di tabel.
+                    Klik tab cabang di bawah untuk melihat dan mengedit stok
+                    khusus cabang tersebut langsung di tabel.
                   </p>
                 </div>
               </div>
@@ -1117,7 +1312,9 @@ export default function AdminDashboard() {
                       style={{
                         padding: "9px 16px",
                         borderRadius: "14px",
-                        border: isSelected ? "2px solid #E07A7A" : "2px solid #E5DEC9",
+                        border: isSelected
+                          ? "2px solid #E07A7A"
+                          : "2px solid #E5DEC9",
                         backgroundColor: isSelected ? "#F7ADAD" : "#FFFFFF",
                         color: isSelected ? "#FFFFFF" : "#665151",
                         fontWeight: "700",
@@ -1147,19 +1344,44 @@ export default function AdminDashboard() {
               >
                 <div>
                   <h3 style={styles.tableTitle}>
-                    Daftar Produk Katalog ({filteredCatalog.length}) — Stok {currentStoreObj.nama}
+                    Daftar Produk Katalog ({filteredCatalog.length}) — Stok{" "}
+                    {currentStoreObj.nama}
                   </h3>
                 </div>
 
-                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
-                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                    <Search size={14} style={{ position: "absolute", left: "10px", color: "#998888" }} />
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "10px",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Search
+                      size={14}
+                      style={{
+                        position: "absolute",
+                        left: "10px",
+                        color: "#998888",
+                      }}
+                    />
                     <input
                       type="text"
                       placeholder="Cari nama produk..."
                       value={katalogSearch}
                       onChange={(e) => setKatalogSearch(e.target.value)}
-                      style={{ ...styles.inputControl, paddingLeft: "30px", width: "200px" }}
+                      style={{
+                        ...styles.inputControl,
+                        paddingLeft: "30px",
+                        width: "200px",
+                      }}
                     />
                   </div>
 
@@ -1181,19 +1403,34 @@ export default function AdminDashboard() {
                       <th style={styles.th}>ID</th>
                       <th style={styles.th}>Foto</th>
                       <th style={styles.th}>Nama Barang</th>
-                      <th style={{ ...styles.th, textAlign: "right" }}>Harga</th>
+                      <th style={{ ...styles.th, textAlign: "right" }}>
+                        Harga
+                      </th>
                       <th style={{ ...styles.th, textAlign: "center" }}>
                         Stok ({currentStoreObj.nama.split(" ")[1]})
                       </th>
-                      <th style={{ ...styles.th, textAlign: "center" }}>Aksi Langsung</th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
+                        Aksi Langsung
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {/* BARIS TAMBAH PRODUK BARU (INLINE) */}
                     {isAddingProduk && (
-                      <tr style={{ backgroundColor: "#FFF5F5", borderBottom: "2px solid #F7ADAD" }}>
+                      <tr
+                        style={{
+                          backgroundColor: "#FFF5F5",
+                          borderBottom: "2px solid #F7ADAD",
+                        }}
+                      >
                         <td style={styles.td}>
-                          <span style={{ fontSize: "11px", fontWeight: "800", color: "#E07A7A" }}>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: "#E07A7A",
+                            }}
+                          >
                             BARU
                           </span>
                         </td>
@@ -1202,8 +1439,17 @@ export default function AdminDashboard() {
                             type="text"
                             placeholder="URL Foto (opsional)"
                             value={newProduk.foto}
-                            onChange={(e) => setNewProduk({ ...newProduk, foto: e.target.value })}
-                            style={{ ...styles.inputControl, width: "130px", fontSize: "12px" }}
+                            onChange={(e) =>
+                              setNewProduk({
+                                ...newProduk,
+                                foto: e.target.value,
+                              })
+                            }
+                            style={{
+                              ...styles.inputControl,
+                              width: "130px",
+                              fontSize: "12px",
+                            }}
                           />
                         </td>
                         <td style={styles.td}>
@@ -1212,9 +1458,16 @@ export default function AdminDashboard() {
                             placeholder="Nama barang baru..."
                             value={newProduk.nama_barang}
                             onChange={(e) =>
-                              setNewProduk({ ...newProduk, nama_barang: e.target.value })
+                              setNewProduk({
+                                ...newProduk,
+                                nama_barang: e.target.value,
+                              })
                             }
-                            style={{ ...styles.inputControl, width: "100%", minWidth: "180px" }}
+                            style={{
+                              ...styles.inputControl,
+                              width: "100%",
+                              minWidth: "180px",
+                            }}
                           />
                         </td>
                         <td style={{ ...styles.td, textAlign: "right" }}>
@@ -1222,8 +1475,17 @@ export default function AdminDashboard() {
                             type="number"
                             placeholder="Harga (Rp)"
                             value={newProduk.harga}
-                            onChange={(e) => setNewProduk({ ...newProduk, harga: e.target.value })}
-                            style={{ ...styles.inputControl, width: "120px", textAlign: "right" }}
+                            onChange={(e) =>
+                              setNewProduk({
+                                ...newProduk,
+                                harga: e.target.value,
+                              })
+                            }
+                            style={{
+                              ...styles.inputControl,
+                              width: "120px",
+                              textAlign: "right",
+                            }}
                           />
                         </td>
                         <td style={{ ...styles.td, textAlign: "center" }}>
@@ -1233,13 +1495,26 @@ export default function AdminDashboard() {
                             title="Stok awal untuk semua cabang"
                             value={newProduk.stok_awal}
                             onChange={(e) =>
-                              setNewProduk({ ...newProduk, stok_awal: e.target.value })
+                              setNewProduk({
+                                ...newProduk,
+                                stok_awal: e.target.value,
+                              })
                             }
-                            style={{ ...styles.inputControl, width: "75px", textAlign: "center" }}
+                            style={{
+                              ...styles.inputControl,
+                              width: "75px",
+                              textAlign: "center",
+                            }}
                           />
                         </td>
                         <td style={{ ...styles.td, textAlign: "center" }}>
-                          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              gap: "6px",
+                            }}
+                          >
                             <button
                               onClick={handleCreateProduk}
                               disabled={saving}
@@ -1263,14 +1538,19 @@ export default function AdminDashboard() {
                     {/* DAFTAR PRODUK */}
                     {filteredCatalog.map((item) => {
                       const isEditing = editingProdukId === item.id_barang;
-                      const stokSaatIni = getStokForStore(item.id_barang, selectedStoreTab);
+                      const stokSaatIni = getStokForStore(
+                        item.id_barang,
+                        selectedStoreTab,
+                      );
 
                       return (
                         <tr
                           key={item.id_barang}
                           style={{
                             ...styles.tr,
-                            backgroundColor: isEditing ? "#FFFBEB" : "transparent",
+                            backgroundColor: isEditing
+                              ? "#FFFBEB"
+                              : "transparent",
                           }}
                         >
                           <td style={styles.td}>#{item.id_barang}</td>
@@ -1283,9 +1563,16 @@ export default function AdminDashboard() {
                                 placeholder="URL Foto"
                                 value={editProdukForm.foto}
                                 onChange={(e) =>
-                                  setEditProdukForm({ ...editProdukForm, foto: e.target.value })
+                                  setEditProdukForm({
+                                    ...editProdukForm,
+                                    foto: e.target.value,
+                                  })
                                 }
-                                style={{ ...styles.inputControl, width: "120px", fontSize: "12px" }}
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "120px",
+                                  fontSize: "12px",
+                                }}
                               />
                             ) : item.foto ? (
                               <img
@@ -1320,7 +1607,11 @@ export default function AdminDashboard() {
                                     nama_barang: e.target.value,
                                   })
                                 }
-                                style={{ ...styles.inputControl, width: "100%", minWidth: "180px" }}
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "100%",
+                                  minWidth: "180px",
+                                }}
                               />
                             ) : (
                               <strong>{item.nama_barang}</strong>
@@ -1328,13 +1619,22 @@ export default function AdminDashboard() {
                           </td>
 
                           {/* HARGA */}
-                          <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                          <td
+                            style={{
+                              ...styles.td,
+                              textAlign: "right",
+                              fontWeight: "700",
+                            }}
+                          >
                             {isEditing ? (
                               <input
                                 type="number"
                                 value={editProdukForm.harga}
                                 onChange={(e) =>
-                                  setEditProdukForm({ ...editProdukForm, harga: e.target.value })
+                                  setEditProdukForm({
+                                    ...editProdukForm,
+                                    harga: e.target.value,
+                                  })
                                 }
                                 style={{
                                   ...styles.inputControl,
@@ -1374,8 +1674,10 @@ export default function AdminDashboard() {
                                   borderRadius: "20px",
                                   fontSize: "12px",
                                   fontWeight: "800",
-                                  backgroundColor: stokSaatIni <= 5 ? "#FEE2E2" : "#DCFCE7",
-                                  color: stokSaatIni <= 5 ? "#991B1B" : "#166534",
+                                  backgroundColor:
+                                    stokSaatIni <= 5 ? "#FEE2E2" : "#DCFCE7",
+                                  color:
+                                    stokSaatIni <= 5 ? "#991B1B" : "#166534",
                                 }}
                               >
                                 {stokSaatIni} pcs
@@ -1386,9 +1688,17 @@ export default function AdminDashboard() {
                           {/* TOMBOL AKSI INLINE */}
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {isEditing ? (
-                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "6px",
+                                }}
+                              >
                                 <button
-                                  onClick={() => handleSaveEditProduk(item.id_barang)}
+                                  onClick={() =>
+                                    handleSaveEditProduk(item.id_barang)
+                                  }
                                   disabled={saving}
                                   style={styles.actionSaveBtn}
                                 >
@@ -1402,7 +1712,13 @@ export default function AdminDashboard() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "6px",
+                                }}
+                              >
                                 <button
                                   onClick={() => startEditProduk(item)}
                                   style={styles.actionEditBtn}
@@ -1411,7 +1727,12 @@ export default function AdminDashboard() {
                                   <Pencil size={14} /> Edit
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteProduk(item.id_barang, item.nama_barang)}
+                                  onClick={() =>
+                                    handleDeleteProduk(
+                                      item.id_barang,
+                                      item.nama_barang,
+                                    )
+                                  }
                                   style={styles.actionDeleteBtn}
                                   title="Hapus Produk"
                                 >
@@ -1440,7 +1761,9 @@ export default function AdminDashboard() {
                   gap: "12px",
                 }}
               >
-                <h3 style={styles.tableTitle}>Daftar Layanan Petshop ({layananList.length})</h3>
+                <h3 style={styles.tableTitle}>
+                  Daftar Layanan Petshop ({layananList.length})
+                </h3>
                 <button
                   onClick={() => setIsAddingLayanan(true)}
                   style={styles.btnCoral}
@@ -1458,16 +1781,31 @@ export default function AdminDashboard() {
                       <th style={styles.th}>ID</th>
                       <th style={styles.th}>Nama Layanan</th>
                       <th style={styles.th}>Deskripsi</th>
-                      <th style={{ ...styles.th, textAlign: "right" }}>Harga</th>
-                      <th style={{ ...styles.th, textAlign: "center" }}>Aksi Langsung</th>
+                      <th style={{ ...styles.th, textAlign: "right" }}>
+                        Harga
+                      </th>
+                      <th style={{ ...styles.th, textAlign: "center" }}>
+                        Aksi Langsung
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {/* BARIS TAMBAH LAYANAN BARU (INLINE) */}
                     {isAddingLayanan && (
-                      <tr style={{ backgroundColor: "#FFF5F5", borderBottom: "2px solid #F7ADAD" }}>
+                      <tr
+                        style={{
+                          backgroundColor: "#FFF5F5",
+                          borderBottom: "2px solid #F7ADAD",
+                        }}
+                      >
                         <td style={styles.td}>
-                          <span style={{ fontSize: "11px", fontWeight: "800", color: "#E07A7A" }}>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: "#E07A7A",
+                            }}
+                          >
                             BARU
                           </span>
                         </td>
@@ -1477,9 +1815,16 @@ export default function AdminDashboard() {
                             placeholder="Nama layanan baru..."
                             value={newLayanan.nama_layanan}
                             onChange={(e) =>
-                              setNewLayanan({ ...newLayanan, nama_layanan: e.target.value })
+                              setNewLayanan({
+                                ...newLayanan,
+                                nama_layanan: e.target.value,
+                              })
                             }
-                            style={{ ...styles.inputControl, width: "100%", minWidth: "160px" }}
+                            style={{
+                              ...styles.inputControl,
+                              width: "100%",
+                              minWidth: "160px",
+                            }}
                           />
                         </td>
                         <td style={styles.td}>
@@ -1488,9 +1833,16 @@ export default function AdminDashboard() {
                             placeholder="Deskripsi layanan..."
                             value={newLayanan.deskripsi}
                             onChange={(e) =>
-                              setNewLayanan({ ...newLayanan, deskripsi: e.target.value })
+                              setNewLayanan({
+                                ...newLayanan,
+                                deskripsi: e.target.value,
+                              })
                             }
-                            style={{ ...styles.inputControl, width: "100%", minWidth: "200px" }}
+                            style={{
+                              ...styles.inputControl,
+                              width: "100%",
+                              minWidth: "200px",
+                            }}
                           />
                         </td>
                         <td style={{ ...styles.td, textAlign: "right" }}>
@@ -1499,13 +1851,26 @@ export default function AdminDashboard() {
                             placeholder="Harga (Rp)"
                             value={newLayanan.harga}
                             onChange={(e) =>
-                              setNewLayanan({ ...newLayanan, harga: e.target.value })
+                              setNewLayanan({
+                                ...newLayanan,
+                                harga: e.target.value,
+                              })
                             }
-                            style={{ ...styles.inputControl, width: "120px", textAlign: "right" }}
+                            style={{
+                              ...styles.inputControl,
+                              width: "120px",
+                              textAlign: "right",
+                            }}
                           />
                         </td>
                         <td style={{ ...styles.td, textAlign: "center" }}>
-                          <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              gap: "6px",
+                            }}
+                          >
                             <button
                               onClick={handleCreateLayanan}
                               disabled={saving}
@@ -1532,7 +1897,9 @@ export default function AdminDashboard() {
                           key={srv.id_layanan}
                           style={{
                             ...styles.tr,
-                            backgroundColor: isEditing ? "#FFFBEB" : "transparent",
+                            backgroundColor: isEditing
+                              ? "#FFFBEB"
+                              : "transparent",
                           }}
                         >
                           <td style={styles.td}>#{srv.id_layanan}</td>
@@ -1547,7 +1914,11 @@ export default function AdminDashboard() {
                                     nama_layanan: e.target.value,
                                   })
                                 }
-                                style={{ ...styles.inputControl, width: "100%", minWidth: "160px" }}
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "100%",
+                                  minWidth: "160px",
+                                }}
                               />
                             ) : (
                               <strong>{srv.nama_layanan}</strong>
@@ -1564,13 +1935,23 @@ export default function AdminDashboard() {
                                     deskripsi: e.target.value,
                                   })
                                 }
-                                style={{ ...styles.inputControl, width: "100%", minWidth: "200px" }}
+                                style={{
+                                  ...styles.inputControl,
+                                  width: "100%",
+                                  minWidth: "200px",
+                                }}
                               />
                             ) : (
                               srv.deskripsi
                             )}
                           </td>
-                          <td style={{ ...styles.td, textAlign: "right", fontWeight: "700" }}>
+                          <td
+                            style={{
+                              ...styles.td,
+                              textAlign: "right",
+                              fontWeight: "700",
+                            }}
+                          >
                             {isEditing ? (
                               <input
                                 type="number"
@@ -1593,9 +1974,17 @@ export default function AdminDashboard() {
                           </td>
                           <td style={{ ...styles.td, textAlign: "center" }}>
                             {isEditing ? (
-                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "6px",
+                                }}
+                              >
                                 <button
-                                  onClick={() => handleSaveEditLayanan(srv.id_layanan)}
+                                  onClick={() =>
+                                    handleSaveEditLayanan(srv.id_layanan)
+                                  }
                                   disabled={saving}
                                   style={styles.actionSaveBtn}
                                 >
@@ -1609,7 +1998,13 @@ export default function AdminDashboard() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ display: "flex", justifyContent: "center", gap: "6px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  gap: "6px",
+                                }}
+                              >
                                 <button
                                   onClick={() => startEditLayanan(srv)}
                                   style={styles.actionEditBtn}
@@ -1618,7 +2013,10 @@ export default function AdminDashboard() {
                                 </button>
                                 <button
                                   onClick={() =>
-                                    handleDeleteLayanan(srv.id_layanan, srv.nama_layanan)
+                                    handleDeleteLayanan(
+                                      srv.id_layanan,
+                                      srv.nama_layanan,
+                                    )
                                   }
                                   style={styles.actionDeleteBtn}
                                 >
@@ -1668,7 +2066,12 @@ const styles = {
     borderBottom: "2px dashed #F7ADAD",
     marginBottom: "20px",
   },
-  brandTitle: { margin: 0, fontSize: "19px", fontWeight: "800", color: "#E07A7A" },
+  brandTitle: {
+    margin: 0,
+    fontSize: "19px",
+    fontWeight: "800",
+    color: "#E07A7A",
+  },
   brandSub: { fontSize: "11px", color: "#887777", fontWeight: "600" },
   navList: { display: "flex", flexDirection: "column", gap: "8px" },
   navBtn: {
@@ -1707,7 +2110,12 @@ const styles = {
     flexDirection: "column",
     gap: "12px",
   },
-  adminProfile: { display: "flex", alignItems: "center", gap: "10px", padding: "6px" },
+  adminProfile: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "6px",
+  },
   avatar: {
     width: "36px",
     height: "36px",
@@ -1752,7 +2160,12 @@ const styles = {
     gap: "16px",
     marginBottom: "24px",
   },
-  pageTitle: { margin: 0, fontSize: "24px", fontWeight: "800", color: "#4A3B3B" },
+  pageTitle: {
+    margin: 0,
+    fontSize: "24px",
+    fontWeight: "800",
+    color: "#4A3B3B",
+  },
   pageSubtitle: { margin: "4px 0 0 0", fontSize: "13px", color: "#776B6B" },
   btnSecondary: {
     display: "flex",
@@ -1818,8 +2231,18 @@ const styles = {
     justifyContent: "center",
     flexShrink: 0,
   },
-  kpiLabel: { fontSize: "12px", fontWeight: "600", color: "#887777", display: "block" },
-  kpiValue: { margin: "2px 0", fontSize: "20px", fontWeight: "800", color: "#4A3B3B" },
+  kpiLabel: {
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#887777",
+    display: "block",
+  },
+  kpiValue: {
+    margin: "2px 0",
+    fontSize: "20px",
+    fontWeight: "800",
+    color: "#4A3B3B",
+  },
   kpiHint: { fontSize: "11px", color: "#998888" },
   storeSwitcherCard: {
     backgroundColor: "#FFFDF6",
@@ -1862,7 +2285,12 @@ const styles = {
     borderBottom: "2px solid #FDE8E8",
     backgroundColor: "#FFF8F8",
   },
-  tableTitle: { margin: 0, fontSize: "16px", fontWeight: "800", color: "#4A3B3B" },
+  tableTitle: {
+    margin: 0,
+    fontSize: "16px",
+    fontWeight: "800",
+    color: "#4A3B3B",
+  },
   table: { width: "100%", borderCollapse: "collapse", fontSize: "13px" },
   th: {
     padding: "12px 16px",
@@ -1875,7 +2303,12 @@ const styles = {
   },
   tr: { borderBottom: "1px solid #F3ECE0" },
   td: { padding: "12px 16px", color: "#4A3B3B", verticalAlign: "middle" },
-  emptyCell: { padding: "32px", textAlign: "center", color: "#887777", fontStyle: "italic" },
+  emptyCell: {
+    padding: "32px",
+    textAlign: "center",
+    color: "#887777",
+    fontStyle: "italic",
+  },
   actionEditBtn: {
     display: "inline-flex",
     alignItems: "center",

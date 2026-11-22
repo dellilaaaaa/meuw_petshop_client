@@ -243,7 +243,7 @@ const contactStyles = `
   .info-card-title { font-family: 'Baloo 2', cursive, sans-serif; font-size: 1.4rem; font-weight: 800; color: #4A3E3E; margin-bottom: 0.4rem; }
   .info-card-text { font-size: 0.92rem; color: #665959; line-height: 1.55; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
-  .interactive-contact-section { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.2rem; margin-bottom: 5rem; }
+  .interactive-contact-section { display: grid; grid-template-columns: 1.2fr 1fr; gap: 2.2rem; margin-bottom: 4.5rem; }
 
   .message-form-card {
     background-color: #FFF;
@@ -329,21 +329,21 @@ const contactStyles = `
     box-shadow: 0 10px 28px rgba(247, 173, 173, 0.12);
   }
 
-  .map-placeholder {
+  .map-embed-wrapper {
     width: 100%;
-    height: 220px;
-    background: linear-gradient(135deg, #FFFDF6 0%, #FDEAE8 100%);
+    height: 250px;
     border: 2px solid #F7ADAD;
     border-radius: 26px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #F7ADAD;
-    gap: 0.6rem;
-    font-family: 'Baloo 2', cursive, sans-serif;
-    font-weight: 800;
+    overflow: hidden;
     box-shadow: inset 0 2px 10px rgba(247, 173, 173, 0.12);
+    background-color: #FDEAE8;
+  }
+
+  .map-embed-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
   }
 
   .wa-quick-btn {
@@ -366,30 +366,50 @@ const contactStyles = `
 
   .wa-quick-btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 10px 24px rgba(37, 211, 102, 0.5); }
 
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
-    border-radius: 42px 42px 34px 34px;
-    padding: 4.2rem 3.5rem 2.4rem 3.5rem;
+    border-radius: 32px 32px 26px 26px;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
   }
 
-  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr; gap: 2rem; margin-bottom: 3.8rem; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
+  }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 4rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
     display: inline-block;
   }
 
   .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
-  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
-  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+
+  .footer-col-title {
+    font-family: 'Baloo 2', cursive, sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    color: #FFFDF6;
+  }
+
+  .footer-col-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
 
   .footer-col-list a {
     text-decoration: none;
@@ -403,7 +423,15 @@ const contactStyles = `
   }
 
   .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
-  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
+
+  .newsletter-desc {
+    font-size: 0.88rem;
+    opacity: 0.92;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 600;
+  }
 
   .newsletter-input {
     width: 100%;
@@ -423,8 +451,8 @@ const contactStyles = `
   .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
-    border-top: 1.5px solid rgba(255, 253, 246, 0.3);
-    padding-top: 1.8rem;
+    border-top: 1.5px solid rgba(255, 253, 246, 0.35);
+    padding-top: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -594,8 +622,8 @@ const Contact = ({ cartCount = 0 }) => {
             <div className="info-icon-box">📍</div>
             <h3 className="info-card-title">Alamat</h3>
             <p className="info-card-text">
-              Jl. Anabul Ceria No. 88, RT.001/RW.003, Karet Kuningan, Kec.
-              Setiabudi, Jakarta Selatan, DKI Jakarta 12940
+              Jl. Tanjung Duren Barat 2 No.1, RT.1/RW.5, Tj. Duren Utara, Kec.
+              Grogol Petamburan, Kota Jakarta Barat, DKI Jakarta 11470
             </p>
           </div>
 
@@ -684,17 +712,19 @@ const Contact = ({ cartCount = 0 }) => {
           <div className="map-box-container">
             <div>
               <h3 className="form-title">Lokasi Toko MEUW 🗺️</h3>
-              <div className="map-placeholder">
-                <span style={{ fontSize: "2.8rem" }}>📍</span>
-                <span>MEUW PETSHOP STORE</span>
-                <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                  Jakarta Selatan, Indonesia
-                </span>
+              <div className="map-embed-wrapper">
+                <iframe
+                  title="Lokasi MEUW Petshop Store"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.6638567936798!2d106.78322639999999!3d-6.1757355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f7c264998871%3A0x25224ba2f2443f47!2sUniversitas%20Dian%20Nusantara%20Kampus%20Tanjung%20Duren!5e0!3m2!1sen!2sid!4v1795352019160!5m2!1sen!2sid"
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                ></iframe>
               </div>
             </div>
 
             <a
-              href="https://wa.me/6281234567890"
+              href="https://wa.me/6285810437761"
               target="_blank"
               rel="noopener noreferrer"
               className="wa-quick-btn"
