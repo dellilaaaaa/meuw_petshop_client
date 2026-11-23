@@ -18,7 +18,6 @@ import Register from "./pages/user/register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
 const CART_STORAGE_KEY = "meuw_cart_items_v1";
-const BOOKING_STORAGE_KEY = "meuw_booking_list_v1";
 
 const getCurrentUser = () => {
   try {
@@ -29,7 +28,6 @@ const getCurrentUser = () => {
   }
 };
 
-// Guard untuk halaman pelanggan/publik: jika yang login adalah Admin, paksa masuk ke /admin
 const CustomerOnlyRoute = ({ children }) => {
   const user = getCurrentUser();
   if (user && user.role === "admin") {
@@ -38,7 +36,6 @@ const CustomerOnlyRoute = ({ children }) => {
   return children;
 };
 
-// Guard untuk halaman Admin: hanya role === "admin" yang boleh masuk
 const AdminOnlyRoute = ({ children }) => {
   const user = getCurrentUser();
   if (!user || user.role !== "admin") {
@@ -46,21 +43,6 @@ const AdminOnlyRoute = ({ children }) => {
   }
   return children;
 };
-
-const DEFAULT_CART_ITEMS = [];
-
-const DEFAULT_BOOKING_LIST = [
-  {
-    id_booking: "BK-20261016-01",
-    nama_layanan: "Grooming Anti Kutu & Jamur",
-    harga: 85000,
-    tanggal_mulai: "2026-10-18",
-    jam_mulai: "10:00",
-    tanggal_selesai: "2026-10-18",
-    status_booking: "MENUNGGU KONFIRMASI",
-    icon: "🏥",
-  },
-];
 
 function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -73,21 +55,10 @@ function App() {
     } catch (e) {
       console.error("Gagal membaca keranjang dari localStorage:", e);
     }
-    return DEFAULT_CART_ITEMS;
+    return [];
   });
 
-  const [bookingList, setBookingList] = useState(() => {
-    try {
-      const saved = localStorage.getItem(BOOKING_STORAGE_KEY);
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {
-      console.error("Gagal membaca booking dari localStorage:", e);
-    }
-    return DEFAULT_BOOKING_LIST;
-  });
+  const [bookingList, setBookingList] = useState([]);
 
   useEffect(() => {
     try {
@@ -96,14 +67,6 @@ function App() {
       console.error("Gagal menyimpan keranjang ke localStorage:", e);
     }
   }, [cartItems]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(BOOKING_STORAGE_KEY, JSON.stringify(bookingList));
-    } catch (e) {
-      console.error("Gagal menyimpan booking ke localStorage:", e);
-    }
-  }, [bookingList]);
 
   const cartCount = cartItems.reduce((sum, item) => sum + item.jumlah, 0);
 
@@ -143,11 +106,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Halaman Auth */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Halaman Khusus Customer / Pengunjung (Admin otomatis dialihkan ke /admin) */}
         <Route
           path="/"
           element={
@@ -229,7 +190,6 @@ function App() {
           }
         />
 
-        {/* Halaman Khusus Admin */}
         <Route
           path="/admin"
           element={

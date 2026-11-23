@@ -428,7 +428,6 @@ const riwayatStyles = `
     transition: all 0.2s;
   }
 
-  /* MODAL TIMELINE HISTORI */
   .timeline-overlay {
     position: fixed;
     inset: 0;
@@ -478,35 +477,45 @@ const riwayatStyles = `
     margin-bottom: 0.4rem;
   }
 
+  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
     border-radius: 32px 32px 26px 26px;
-    padding: 2.5rem 2.8rem 1.6rem 2.8rem;
+    padding: 2.8rem 3rem 1.8rem 3rem;
     box-shadow: 0 -10px 32px rgba(247, 173, 173, 0.25);
+    text-align: left;
+    margin-top: 4rem;
   }
 
   .footer-grid {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 2.2fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.8rem;
+    margin-bottom: 2.4rem;
+    align-items: start;
+    text-align: left;
   }
 
   .footer-brand {
     font-family: 'Baloo 2', cursive, sans-serif;
-    font-size: 2.6rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: #FFFDF6;
     line-height: 1;
     display: inline-block;
   }
-  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.2rem; color: #FFFDF6; }
-  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
-  .footer-col-list a { text-decoration: none; color: #FFFDF6; opacity: 0.92; font-size: 0.88rem; font-weight: 600; }
-  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1.2rem; line-height: 1.5; font-weight: 600; }
-  .newsletter-input { width: 100%; padding: 10px 0; background: transparent; border: none; border-bottom: 2px solid rgba(255, 253, 246, 0.7); color: #FFFDF6; outline: none; font-size: 0.9rem; font-weight: 600; }
-  .footer-bottom-bar { border-top: 1.5px solid rgba(255, 253, 246, 0.3); padding-top: 1.8rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; opacity: 0.92; font-weight: 600; }
+
+  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
+  .footer-col-title { font-family: 'Baloo 2', cursive, sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 1rem; color: #FFFDF6; }
+  .footer-col-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+  .footer-col-list a { text-decoration: none; color: #FFFDF6; opacity: 0.92; font-size: 0.88rem; transition: all 0.25s ease; font-family: 'Quicksand', sans-serif; font-weight: 600; display: inline-block; }
+  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
+  .newsletter-desc { font-size: 0.88rem; opacity: 0.92; margin-bottom: 1rem; line-height: 1.5; font-family: 'Quicksand', sans-serif; font-weight: 600; }
+  .newsletter-input { width: 100%; padding: 10px 0; background: transparent; border: none; border-bottom: 2px solid rgba(255, 253, 246, 0.7); color: #FFFDF6; outline: none; font-size: 0.9rem; font-family: 'Quicksand', sans-serif; font-weight: 600; transition: border-color 0.3s ease; }
+  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
+  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
+  .footer-bottom-bar { border-top: 1.5px solid rgba(255, 253, 246, 0.35); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; opacity: 0.92; font-family: 'Quicksand', sans-serif; font-weight: 600; }
 
   @media (max-width: 850px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
   @media (max-width: 600px) {
@@ -539,7 +548,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
   const [dbBookings, setDbBookings] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  // State Modal Timeline HistoriTransaksi
   const [trackingModal, setTrackingModal] = useState({
     open: false,
     id_transaksi: null,
@@ -560,31 +568,41 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
   }, []);
 
   const fetchUserTransactions = useCallback(async () => {
-    if (!currentUser?.id_user) return;
+    const userId = currentUser?.id_user || currentUser?._id || currentUser?.id;
+    if (!userId) return;
+
     setLoadingOrders(true);
     try {
-      const [resTrx, resDetail, resCat, resBook] = await Promise.all([
-        fetch(
-          `${API_BASE}/transaksi?id_user=${encodeURIComponent(currentUser.id_user)}`,
-        ),
-        fetch(`${API_BASE}/detail-transaksi`),
-        fetch(`${API_BASE}/catalog`),
-        fetch(`${API_BASE}/booking-layanan`),
-      ]);
+      const [resTrx, resDetail, resCat, resBook, resDetLayanan] =
+        await Promise.all([
+          fetch(`${API_BASE}/transaksi?id_user=${encodeURIComponent(userId)}`),
+          fetch(`${API_BASE}/detail-transaksi`),
+          fetch(`${API_BASE}/catalog`),
+          fetch(`${API_BASE}/booking-layanan`),
+          fetch(`${API_BASE}/detail-layanan`).catch(() => ({
+            json: async () => ({ success: false, data: [] }),
+          })),
+        ]);
 
       const dataTrx = await resTrx.json();
       const dataDetail = await resDetail.json();
       const dataCat = await resCat.json();
       const dataBook = await resBook.json();
+      const dataDetLayanan = await resDetLayanan.json();
 
+      let userTrxIds = new Set();
       if (dataTrx.success) {
-        // Pastikan hanya transaksi milik user yang sedang login
         const userTrx = (dataTrx.data || []).filter(
-          (t) => String(t.id_user) === String(currentUser.id_user),
+          (t) => String(t.id_user) === String(userId),
         );
         setOrders(userTrx);
+        userTrxIds = new Set(
+          userTrx.map((t) => String(t.id_transaksi || t._id)),
+        );
       }
+
       if (dataDetail.success) setAllDetails(dataDetail.data || []);
+
       if (dataCat.success) {
         const map = {};
         (dataCat.data || []).forEach((c) => {
@@ -592,7 +610,28 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
         });
         setCatalogMap(map);
       }
-      if (dataBook.success) setDbBookings(dataBook.data || []);
+
+      // Filter booking-layanan agar HANYA menampilkan milik transaksi user ini
+      if (dataBook.success) {
+        const allBookings = dataBook.data || [];
+        const allDetLayanan = dataDetLayanan.success
+          ? dataDetLayanan.data || []
+          : [];
+
+        const userDetailLayananIds = new Set(
+          allDetLayanan
+            .filter((dl) => userTrxIds.has(String(dl.id_transaksi)))
+            .map((dl) => String(dl.id_detail_layanan || dl._id)),
+        );
+
+        const filteredBookings = allBookings.filter(
+          (bk) =>
+            userTrxIds.has(String(bk.id_transaksi)) ||
+            userDetailLayananIds.has(String(bk.id_detail_layanan)),
+        );
+
+        setDbBookings(filteredBookings);
+      }
     } catch (err) {
       console.error("Gagal mengambil riwayat transaksi:", err);
     } finally {
@@ -654,6 +693,7 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     localStorage.removeItem("user");
     sessionStorage.removeItem("user");
     localStorage.removeItem("selected_store");
+    localStorage.removeItem("meuw_booking_list_v1");
     setCurrentUser(null);
     alert("Kamu berhasil keluar dari akun. Sampai jumpa lagi! 🐾");
     navigate("/login");
@@ -674,7 +714,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
     statusFilter === "Semua" ? true : o.status === statusFilter,
   );
 
-  // Gabungkan booking dari database + local state jika ada
   const combinedBookings = dbBookings.length > 0 ? dbBookings : bookingList;
 
   return (
@@ -683,7 +722,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
 
       <div className="bg-top-accent"></div>
 
-      {/* MODAL TIMELINE HISTORI TRANSAKSI */}
       {trackingModal.open && (
         <div
           className="timeline-overlay"
@@ -970,7 +1008,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
               </button>
             </div>
 
-            {/* TAB 1: RIWAYAT TRANSAKSI REAL-TIME */}
             {activeTab === "produk" && (
               <>
                 <div className="status-filter-bar">
@@ -1169,7 +1206,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
               </>
             )}
 
-            {/* TAB 2: BOOKING LAYANAN */}
             {activeTab === "layanan" &&
               (combinedBookings.length > 0 ? (
                 combinedBookings.map((bk) => {
@@ -1231,7 +1267,6 @@ const RiwayatPesanan = ({ cartCount = 0, bookingList = [] }) => {
                 </div>
               ))}
 
-            {/* TAB 3: PROFIL SAYA */}
             {activeTab === "profil" && (
               <div className="profile-card-rayo">
                 <div className="profile-header-box">
