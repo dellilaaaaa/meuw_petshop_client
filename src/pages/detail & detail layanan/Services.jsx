@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoImg from "../../images/logo.png";
+import { detectNearestStore } from "../../utils/storeHelper";
 
 const API_BASE_URL = "https://meuw-petshop-server.vercel.app";
 const API_LAYANAN_URL = `${API_BASE_URL}/api/layanan`;
@@ -652,7 +653,6 @@ const servicesStyles = `
     cursor: not-allowed;
   }
 
-  /* --- FOOTER EXPLICIT ORGANIK --- */
   .footer-rayo-box {
     background-color: #F7ADAD;
     color: #FFFDF6;
@@ -680,8 +680,6 @@ const servicesStyles = `
     display: inline-block;
   }
 
-  .footer-brand:hover { animation: wiggle 0.6s ease-in-out; }
-
   .footer-col-title {
     font-family: 'Baloo 2', cursive, sans-serif;
     font-weight: 700;
@@ -708,8 +706,6 @@ const servicesStyles = `
     display: inline-block;
   }
 
-  .footer-col-list a:hover { opacity: 1; transform: translateX(6px); }
-
   .newsletter-desc {
     font-size: 0.88rem;
     opacity: 0.92;
@@ -730,11 +726,7 @@ const servicesStyles = `
     font-size: 0.9rem;
     font-family: 'Quicksand', sans-serif;
     font-weight: 600;
-    transition: border-color 0.3s ease;
   }
-
-  .newsletter-input:focus { border-bottom-color: #FFFDF6; }
-  .newsletter-input::placeholder { color: rgba(255, 253, 246, 0.65); }
 
   .footer-bottom-bar {
     border-top: 1.5px solid rgba(255, 253, 246, 0.35);
@@ -781,7 +773,6 @@ const servicesStyles = `
   }
 `;
 
-// Helper untuk mendeteksi kategori, icon, dan URL foto layanan dari database
 const formatLayananData = (rawList) => {
   return rawList.map((item, index) => {
     const nama = item.nama_layanan || "Layanan MEUW";
@@ -860,11 +851,7 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
   const [error, setError] = useState(null);
 
   const [selectedCategory, setSelectedCategory] = useState("Semua");
-
-  // State popup detail layanan (saat kartu diklik)
   const [detailLayanan, setDetailLayanan] = useState(null);
-
-  // State popup form booking
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedLayanan, setSelectedLayanan] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -932,6 +919,16 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     e.preventDefault();
     if (!selectedLayanan) return;
 
+    const storedUser =
+      localStorage.getItem("user") || sessionStorage.getItem("user");
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+    if (!currentUser || !currentUser.id_user) {
+      alert("Silakan login terlebih dahulu untuk melakukan booking layanan!");
+      navigate("/login");
+      return;
+    }
+
     const tglMulaiStr = bookingForm.tanggal_mulai;
     const tglSelesaiStr = `${bookingForm.tanggal_selesai}T23:59:00`;
 
@@ -946,69 +943,102 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
     setSubmitting(true);
 
     try {
-      const storedUser =
-        localStorage.getItem("user") || sessionStorage.getItem("user");
-      const currentUser = storedUser ? JSON.parse(storedUser) : null;
+      const assignedStore =
+        currentUser?.assigned_store ||
+        (() => {
+          try {
+            const saved = localStorage.getItem("selected_store");
+            if (saved) return JSON.parse(saved);
+          } catch {}
+          return detectNearestStore(currentUser?.alamat || "");
+        })();
 
-      if (currentUser && currentUser.id_user) {
-        const trxRes = await fetch(`${API_BASE_URL}/api/transaksi`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_user: currentUser.id_user,
-            id_store: "1",
-            total_harga: selectedLayanan.harga,
-            metode_pembayaran: "CASH",
-            status_pembayaran: "BELUM BAYAR",
-          }),
-        });
-        const trxJson = await trxRes.json();
+      // 1. Buat Transaksi Utama (menggunakan id_toko & status yang sesuai schema Transaksi)
+      const trxRes = await fetch(`${API_BASE_URL}/api/transaksi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_user: String(currentUser.id_user),
+          id_toko: String(assignedStore?.id_toko || "1"),
+          total_harga: Number(selectedLayanan.harga),
+          status: "Pending",
+          metode_pembayaran: "Bayar di Cabang (Booking Layanan)",
+          metode_pengiriman: "Layanan di Toko Cabang",
+        }),
+      });
+      const trxJson = await trxRes.json();
 
-        if (trxJson.success && trxJson.data?.id_transaksi) {
-          const detailRes = await fetch(`${API_BASE_URL}/api/detail-layanan`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id_transaksi: trxJson.data.id_transaksi,
-              id_layanan: selectedLayanan.id_layanan,
-              jumlah: 1,
-              harga_satuan: selectedLayanan.harga,
-            }),
-          });
-          const detailJson = await detailRes.json();
+      if (!trxRes.ok || !trxJson.success || !trxJson.data?.id_transaksi) {
+        throw new Error(
+          trxJson.error || trxJson.message || "Gagal membuat transaksi booking"
+        );
+      }
 
-          if (detailJson.success && detailJson.data?.id_detail_layanan) {
-            await fetch(`${API_BASE_URL}/api/booking-layanan`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id_detail_layanan: detailJson.data.id_detail_layanan,
-                tanggal_mulai: tglMulaiStr,
-                jam_mulai: bookingForm.jam_mulai,
-                tanggal_selesai: tglSelesaiStr,
-                status_booking: "MENUNGGU KONFIRMASI",
-              }),
-            });
-          }
-        }
+      // 2. Buat Detail Layanan
+      const detailRes = await fetch(`${API_BASE_URL}/api/detail-layanan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_transaksi: String(trxJson.data.id_transaksi),
+          id_layanan: String(selectedLayanan.id_layanan),
+          jumlah: 1,
+          harga_satuan: Number(selectedLayanan.harga),
+        }),
+      });
+      const detailJson = await detailRes.json();
+
+      if (
+        !detailRes.ok ||
+        !detailJson.success ||
+        !detailJson.data?.id_detail_layanan
+      ) {
+        throw new Error(
+          detailJson.error ||
+            detailJson.message ||
+            "Gagal menyimpan detail layanan"
+        );
+      }
+
+      // 3. Buat Jadwal Booking Layanan (akan langsung muncul di Admin Tab Jadwal Booking)
+      const bookRes = await fetch(`${API_BASE_URL}/api/booking-layanan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_detail_layanan: String(detailJson.data.id_detail_layanan),
+          tanggal_mulai: tglMulaiStr,
+          jam_mulai: bookingForm.jam_mulai,
+          tanggal_selesai: tglSelesaiStr,
+          status_booking: "MENUNGGU KONFIRMASI",
+        }),
+      });
+      const bookJson = await bookRes.json();
+
+      if (!bookRes.ok || !bookJson.success) {
+        throw new Error(
+          bookJson.error || bookJson.message || "Gagal mencatat jadwal booking"
+        );
       }
 
       if (onAddBooking) {
         onAddBooking({
+          id_booking: bookJson.data?.id_booking,
           nama_layanan: selectedLayanan.nama_layanan,
           harga: selectedLayanan.harga,
           tanggal_mulai: bookingForm.tanggal_mulai,
           jam_mulai: bookingForm.jam_mulai,
           tanggal_selesai: bookingForm.tanggal_selesai,
+          status_booking: "MENUNGGU KONFIRMASI",
           icon: selectedLayanan.icon,
         });
       }
 
       alert(
-        `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil diajukan!\n\n` +
+        `💖 Booking Layanan (${selectedLayanan.nama_layanan}) berhasil tercatat!\n\n` +
+          `🆔 ID Booking: #${bookJson.data?.id_booking || "-"}\n` +
+          `🏪 Cabang: ${assignedStore.nama_toko}\n` +
           `📅 Tanggal Mulai: ${bookingForm.tanggal_mulai} (${bookingForm.jam_mulai})\n` +
           `🏁 Tanggal Selesai: ${bookingForm.tanggal_selesai}\n` +
-          `📌 Status: MENUNGGU KONFIRMASI`,
+          `📌 Status: MENUNGGU KONFIRMASI`
       );
 
       setModalOpen(false);
@@ -1017,13 +1047,10 @@ const Services = ({ cartCount = 0, onAddBooking }) => {
         jam_mulai: "",
         tanggal_selesai: "",
       });
-
-      if (!currentUser) {
-        navigate("/riwayat");
-      }
+      navigate("/riwayat");
     } catch (err) {
       console.error("Booking error:", err);
-      alert("Terjadi kendala saat mengirim booking, coba lagi sebentar ya!");
+      alert(`⚠️ Gagal mengirim booking:\n${err.message}`);
     } finally {
       setSubmitting(false);
     }
